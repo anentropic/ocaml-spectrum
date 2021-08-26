@@ -1,0 +1,7 @@
+(library
+  (name spectrum)
+  (libraries
+    color
+  )
+)
+(ocamllex lexer)
