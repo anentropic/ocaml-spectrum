@@ -1,0 +1,7 @@
+{
+    "git.ignoreLimitWarning": true,
+    "ocaml.sandbox": {
+        "kind": "opam",
+        "switch": "${workspaceFolder:ocaml-spectrum}"
+    }
+}
