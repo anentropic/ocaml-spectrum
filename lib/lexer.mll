@@ -316,7 +316,8 @@ rule to_code = parse
 
 {
   (* return first token matched in lexbuf *)
-  let read lexbuf =
+  let tag_to_code tag =
+    let lexbuf = Lexing.from_string tag in
     try to_code lexbuf
     with Eof -> ""
 }
