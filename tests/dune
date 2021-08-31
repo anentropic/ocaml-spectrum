@@ -1,0 +1,6 @@
+(tests
+  (names lexer printer)
+  (libraries
+    alcotest
+    spectrum
+  ))
