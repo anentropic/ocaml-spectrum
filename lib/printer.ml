@@ -44,6 +44,8 @@ let fprintf ppf fmt =
 
 let printf fmt = fprintf Format.std_formatter fmt
 
+let eprintf fmt = fprintf Format.err_formatter fmt
+
 let sprintf_into result fmt =
   let ppf = Format.str_formatter in
   let original_mark_tags_state = prepare_ppf ppf in
