@@ -1,6 +1,8 @@
+(* a quick demo to sanity-check our efforts are actually visible... *)
 let () =
   let ppf = Format.std_formatter in
   Format.fprintf ppf "@{<yellow>%s@}\n" "before";
+  Spectrum.Printer.printf "@{<green>%s@}\n" "Hello world 👋";
   let result = ref "" in
   Spectrum.Printer.sprintf_into
     result
