@@ -1,0 +1,34 @@
+name: PR build and test
+
+on:
+  pull_request:
+
+jobs:
+  build-and-test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+        ocaml-compiler:
+          - 4.12.x
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: ocaml/setup-ocaml@v2
+        with:
+          ocaml-compiler: ${{ matrix.ocaml-compiler }}
+
+      - run: opam install . --deps-only --with-test
+      - run: opam exec -- dune build
+      - run: opam exec -- dune test
+
+      # - name: Publish test results
+      #   uses: EnricoMi/publish-unit-test-result-action@v1
+      #   if: always()
+      #   with:
+      #     check_name: Gradle unit test results
+      #     comment_on_pr: false
+      #     files: app/build/test-results/**/*.xml
