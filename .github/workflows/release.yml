@@ -1,0 +1,47 @@
+name: Make release
+
+# when a new version tag is pushed by `detect-release` workflow
+# or when manually triggered
+on:
+  push:
+    tags:
+      - '*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Git tag we're manually triggering for
+        required: true
+
+jobs:
+  github-release:
+    name: Create a GitHub Release
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.create-release.outputs.id }}
+    steps:
+      - uses: little-core-labs/get-git-tag@v3.0.2
+        id: get-tag
+
+      - run: 'echo "tag: ${{ steps.get-tag.outputs.tag }}"'
+        if: 'steps.get-tag.outputs.tag'
+
+      - name: Create Release
+        id: create-release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.tag-name.outputs.version }}
+
+  publish-opam:
+    name: Publish to opam
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ocaml/setup-ocaml@v2
+        with:
+          ocaml-compiler: 4.12.x
+
+      - name: Publish
+        id: opam-publish
+        run: |
+          opam publish https://github.com/anentropic/ocaml-spectrum/archive/refs/tags/${{ steps.get-tag.outputs.tag }}.tar.gz
