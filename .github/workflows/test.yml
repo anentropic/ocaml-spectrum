@@ -23,12 +23,12 @@ jobs:
 
       - run: opam install . --deps-only --with-test
       - run: opam exec -- dune build
-      - run: opam exec -- dune test
+      - run: opam exec -- dune test --force
 
-      # - name: Publish test results
-      #   uses: EnricoMi/publish-unit-test-result-action@v1
-      #   if: always()
-      #   with:
-      #     check_name: Gradle unit test results
-      #     comment_on_pr: false
-      #     files: app/build/test-results/**/*.xml
+      - name: Publish test results
+        uses: EnricoMi/publish-unit-test-result-action@v1
+        if: always()
+        with:
+          check_name: Dune unit test results
+          comment_on_pr: false
+          files: _build/default/tests/junit-*.xml

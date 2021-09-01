@@ -16,7 +16,7 @@ let test_sprintf_into1 fmt arg1 expected () =
 
 let () =
   let open Alcotest in
-  run "Printer" [
+  let (testsuite, exit) = Junit_alcotest.run_and_report "Printer" [
     "Single style", [
       test_case "Bold" `Quick (test_sprintf_into "@{<bold>hello@}" "\027[0;1mhello\027[0m");
       test_case "Bold (case-insensitive)" `Quick (test_sprintf_into "@{<BolD>hello@}" "\027[0;1mhello\027[0m");
@@ -32,11 +32,17 @@ let () =
       test_case "Hex (background): f0c090" `Quick (test_sprintf_into "@{<bg:#f0c090>hello@}" "\027[0;48;2;240;192;144mhello\027[0m");
     ];
     "Nested", [
-      test_case "0-3-0 tag stack" `Quick (test_sprintf_into
-                                            "before@{<red>one@{<bold>two@{<underline>three@}two@}one@}after"
-                                            "before\027[0;38;5;1mone\027[0;38;5;1;1mtwo\027[0;38;5;1;1;4mthree\027[0;38;5;1;1mtwo\027[0;38;5;1mone\027[0mafter");
+      test_case "0-3-0 tag stack" `Quick (
+        test_sprintf_into
+          "before@{<red>one@{<bold>two@{<underline>three@}two@}one@}after"
+          "before\027[0;38;5;1mone\027[0;38;5;1;1mtwo\027[0;38;5;1;1;4mthree\027[0;38;5;1;1mtwo\027[0;38;5;1mone\027[0mafter"
+        );
     ];
     "Format args", [
       test_case "One string arg" `Quick (test_sprintf_into1 "@{<bold>%s@}" "hello" "\027[0;1mhello\027[0m");
     ];
   ]
+  in
+  let report = Junit.make [testsuite;] in
+  Junit.to_file report "junit-printer.xml";
+  exit ()
