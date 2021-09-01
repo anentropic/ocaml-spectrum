@@ -1,6 +1,3 @@
 (tests
-  (names lexer printer)
-  (libraries
-    alcotest
-    spectrum
-  ))
+ (names lexer printer)
+ (libraries alcotest spectrum))
