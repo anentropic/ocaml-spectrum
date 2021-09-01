@@ -6,7 +6,7 @@ let test_tag_to_code tag code () =
 
 let () =
   let open Alcotest in
-  run "Lexer" [
+  let (testsuite, exit) = Junit_alcotest.run_and_report "Lexer" [
     "Styles", [
       test_case "Bold" `Quick (test_tag_to_code "bold" "1");
       test_case "Rapid blink" `Quick (test_tag_to_code "rapid-blink" "5");
@@ -43,3 +43,7 @@ let () =
       test_case "Bg #f0c090, Bold" `Quick (test_tag_to_code "bg:#f0c090:bold" "1;48;2;240;192;144");
     ];
   ]
+in
+let report = Junit.make [testsuite;] in
+Junit.to_file report "junit-lexer.xml";
+exit ()
