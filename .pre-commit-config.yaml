@@ -1,0 +1,15 @@
+repos:
+  - repo: local
+    hooks:
+      - id: dune-build-fmt
+        name: dune build @fmt
+        entry: dune build @fmt --auto-promote
+        pass_filenames: false
+        language: system
+        types: [text]
+      - id: ocp-indent
+        name: ocp-indent
+        entry: ocp-indent --inplace
+        language: system
+        files: '.+\.mli?$'
+        types: [text]
