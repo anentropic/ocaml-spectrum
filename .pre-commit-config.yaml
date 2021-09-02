@@ -13,3 +13,10 @@ repos:
         language: system
         files: '.+\.mli?$'
         types: [text]
+      # because seems like `dune build @fmt` doesn't regen the .opam file
+      - id: dune-build
+        name: dune build
+        entry: dune build
+        pass_filenames: false
+        language: system
+        types: [text]

@@ -11,6 +11,7 @@ jobs:
         os:
           - ubuntu-latest
         ocaml-compiler:
+          # NOTE: opam-ci currently tests 4.07 thru 4.13
           - 4.12.x
 
     runs-on: ${{ matrix.os }}
