@@ -53,4 +53,4 @@ jobs:
       - name: Publish
         id: opam-publish
         run: |
-          opam publish https://github.com/anentropic/ocaml-spectrum/archive/refs/tags/${{ needs.github-release.outputs.version }}.tar.gz
+          opam -y publish anentropic/ocaml-spectrum --tag=${{ needs.github-release.outputs.version }}
