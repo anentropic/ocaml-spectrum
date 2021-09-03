@@ -36,4 +36,3 @@ build: [
   ]
 ]
 dev-repo: "git+https://github.com/anentropic/ocaml-spectrum.git"
-changelog: "n/a"
