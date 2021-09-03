@@ -24,7 +24,9 @@ jobs:
           ocaml-compiler: 4.12.x
 
       - id: version
-        run: echo "::set-output name=version::$(opam info -f version .)"
+        run: echo "::set-output name=version::$(opam info -f version --color=never .)"
+
+      - run: echo ${{ steps.version.outputs.version }}
 
       - name: Push version git tag
         uses: julb/action-manage-tag@v1

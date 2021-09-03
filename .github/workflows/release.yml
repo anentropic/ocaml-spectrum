@@ -17,13 +17,20 @@ jobs:
     name: Create a GitHub Release
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.create-release.outputs.id }}
+      version: ${{ steps.tag-name.outputs.version }}
+      release-id: ${{ steps.create-release.outputs.id }}
+      upload-url: ${{ steps.create-release.outputs.upload_url }}
     steps:
       - uses: little-core-labs/get-git-tag@v3.0.2
         id: get-tag
 
       - run: 'echo "tag: ${{ steps.get-tag.outputs.tag }}"'
         if: 'steps.get-tag.outputs.tag'
+      - run: 'echo "manual version: ${{ github.event.inputs.version }}"'
+        if: '!steps.get-tag.outputs.tag'
+
+      - id: tag-name
+        run: echo "::set-output name=version::${{ steps.get-tag.outputs.tag || github.event.inputs.version }}"
 
       - name: Create Release
         id: create-release
@@ -31,7 +38,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ steps.get-tag.outputs.tag }}
+          tag_name: ${{ steps.tag-name.outputs.version }}
+          release_name: ${{ steps.tag-name.outputs.version }}
 
   publish-opam:
     name: Publish to opam
