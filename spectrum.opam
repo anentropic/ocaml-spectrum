@@ -4,7 +4,7 @@ version: "0.1.1"
 synopsis: "Library for colour and formatting in the terminal"
 description:
   "Using OCaml Format module's 'semantic tags' with named colours and CSS-style hex colours."
-maintainer: ["ego@anentropic"]
+maintainer: ["ego@anentropic.com"]
 authors: ["Anentropic"]
 license: "MIT"
 homepage: "https://github.com/anentropic/ocaml-spectrum"
@@ -36,3 +36,4 @@ build: [
   ]
 ]
 dev-repo: "git+https://github.com/anentropic/ocaml-spectrum.git"
+changelog: "n/a"

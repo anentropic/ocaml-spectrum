@@ -7,7 +7,7 @@
 (source (github anentropic/ocaml-spectrum))
 (license MIT)
 (authors "Anentropic")
-(maintainers "ego@anentropic")
+(maintainers "ego@anentropic.com")
 
 (package
  (name spectrum)
