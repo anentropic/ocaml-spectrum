@@ -52,5 +52,14 @@ jobs:
 
       - name: Publish
         id: opam-publish
+        env:
+          OPAMYES: "true"
         run: |
           opam -y publish anentropic/ocaml-spectrum --tag=${{ needs.github-release.outputs.version }}
+
+      - name: Cleanup failed release
+        if: ${{ failure() }}
+        uses: larryjoelane/delete-release-action@v1.0.24
+        with:
+          release-name: ${{ needs.github-release.outputs.version }}
+          token: ${{ secrets.GITHUB_TOKEN }}
