@@ -25,4 +25,5 @@
   (ocaml-lsp-server :dev)
   (opam-format :dev)
   (opam-publish :dev)
+  (dune-release :dev)
  ))
