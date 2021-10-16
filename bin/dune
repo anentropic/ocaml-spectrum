@@ -2,4 +2,4 @@
  (name cli)
  (public_name spectrum)
  (modules cli)
- (libraries dune-build-info spectrum))
+ (libraries spectrum))

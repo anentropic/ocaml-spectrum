@@ -1,6 +1,6 @@
 (lang dune 2.8)
 (name spectrum)
-(version 0.1.1)
+(version 0.1.0)
 
 (generate_opam_files true)
 
@@ -14,7 +14,8 @@
  (synopsis "Library for colour and formatting in the terminal")
  (description "Using OCaml Format module's 'semantic tags' with named colours and CSS-style hex colours.")
  (depends
-  (dune (and (>= 2.8) (< 2.9)))
+  (ocaml (>= 4.08))
+  (dune (>= 2.8))
   (color (and (>= 0.2) (< 0.3)))
   ; test deps
   (alcotest (and :with-test (>= 1.4) (< 1.5)))
