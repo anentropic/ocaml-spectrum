@@ -15,7 +15,6 @@
  (description "Using OCaml Format module's 'semantic tags' with named colours and CSS-style hex colours.")
  (depends
   (ocaml (>= 4.08))
-  (dune (>= 2.8))
   (color (and (>= 0.2) (< 0.3)))
   ; test deps
   (alcotest (and :with-test (>= 1.4) (< 1.5)))
