@@ -17,14 +17,13 @@ let test_tag_to_code tag code () =
   let msg = Printf.sprintf "%s -> %s" tag code in
   Alcotest.(check string) msg code (tag_to_code tag)
 
-let make_case value = match value with
-  | (label, tag, code) -> test_case label `Quick (test_tag_to_code tag code)
-
-let join_values a b = match a, b with  
-  | (("", "", ""), (lb, tb, cb)) -> (lb, tb, cb)
-  | ((la, ta, ca), (lb, tb, cb)) -> (la^","^lb, ta^","^tb, cb^";"^ca)
-
-let compound_shuffled cases =
+let compound_tag_permutations cases =
+  let make_case value = match value with
+    | (label, tag, code) -> test_case label `Quick (test_tag_to_code tag code)
+  and join_values a b = match a, b with  
+    | (("", "", ""), (lb, tb, cb)) -> (lb, tb, cb)
+    | ((la, ta, ca), (lb, tb, cb)) -> (la^","^lb, ta^","^tb, ca^";"^cb)
+  in
   List.concat_map (
     fun case_values ->
       permutations_of case_values
@@ -46,7 +45,12 @@ let () =
         test_case "Foreground (explicit): dark-olive-green-1a" `Quick (test_tag_to_code "fg:dark-olive-green-1a" "38;5;191");
         test_case "Background (explicit): dark-olive-green-1a" `Quick (test_tag_to_code "bg:dark-olive-green-1a" "48;5;191");
       ];
-      "Compound from named color", compound_shuffled [
+      "Compound (manually-defined tests)", [
+        (* i.e. not using [compound_tag_permutations] *)
+        test_case "red, bold, bg yellow" `Quick (test_tag_to_code "red,bold,bg:yellow" "38;5;1;1;48;5;3");
+        test_case "ignores whitespace" `Quick (test_tag_to_code "red,  bold  ,\tbg:yellow" "38;5;1;1;48;5;3");
+      ];
+      "Compound tags from named colors", compound_tag_permutations [
         [("Red", "red", "38;5;1"); ("Underline", "underline", "4")];
         [("Bg Red", "bg:red", "48;5;1"); ("Underline", "underline", "4")];
         [("dark-olive-green-1a", "dark-olive-green-1a", "38;5;191"); ("Bold", "bold", "1")];
@@ -69,7 +73,7 @@ let () =
         test_case "Foreground (explicit): F0C090" `Quick (test_tag_to_code "fg:#F0C090" "38;2;240;192;144");
         test_case "Background (explicit): F0C090" `Quick (test_tag_to_code "bg:#F0C090" "48;2;240;192;144");
       ];
-      "Compound from hex color", compound_shuffled [
+      "Compound tags from hex colors", compound_tag_permutations [
         [("#F00", "#F00", "38;2;255;0;0"); ("Underline", "underline", "4")];
         [("Bg #f0c090", "bg:#f0c090", "48;2;240;192;144"); ("Bold", "bold", "1")];
         [("#F00", "#F00", "38;2;255;0;0");

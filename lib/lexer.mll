@@ -304,11 +304,6 @@
     | Some "fg" -> fg_from_hex
     | None -> fg_from_hex
     | Some q -> raise @@ InvalidQualifier q
-
-  let compound style color =
-    match style with
-    | Some name -> name_to_ansi_style name ^ ";" ^ color
-    | None -> color
 }
 
 let alpha = ['a'-'z' 'A'-'Z']
@@ -339,7 +334,7 @@ rule to_code = parse
       qualified_color_from_name q name
     }
 
-  | ","? whitespace*     { to_code lexbuf }
+  | whitespace* ","? whitespace*     { to_code lexbuf }
 
   | _ as c	{ raise (InvalidTag (Printf.sprintf "Unexpected char: %c" c)) }
   | eof			{ raise Eof }
@@ -356,5 +351,5 @@ rule to_code = parse
 
   let tag_to_code tag =
     let lexbuf = Lexing.from_string tag in
-    String.concat ";" @@ List.rev @@ parse lexbuf
+    String.concat ";" @@ parse lexbuf
 }
