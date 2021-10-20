@@ -1,11 +1,37 @@
+open Alcotest
 open Spectrum.Lexer
+
+(* https://dotkay.github.io/2017/09/21/permutations-of-a-list/ *)
+let rec insertions_of x lst =
+  match lst with
+  | [] -> [[x]]
+  | h::t -> 
+    (x::lst) :: (List.map (fun el -> h::el) (insertions_of x t))
+let rec permutations_of lst =
+  match lst with
+  | [] -> [lst]
+  | h::t ->
+    List.concat_map (insertions_of h) (permutations_of t)
 
 let test_tag_to_code tag code () =
   let msg = Printf.sprintf "%s -> %s" tag code in
   Alcotest.(check string) msg code (tag_to_code tag)
 
+let compound_tag_permutations cases =
+  let make_case value = match value with
+    | (label, tag, code) -> test_case label `Quick (test_tag_to_code tag code)
+  and join_values a b = match a, b with  
+    | (("", "", ""), (lb, tb, cb)) -> (lb, tb, cb)
+    | ((la, ta, ca), (lb, tb, cb)) -> (la^","^lb, ta^","^tb, ca^";"^cb)
+  in
+  List.concat_map (
+    fun case_values ->
+      permutations_of case_values
+      |> List.map (fun cv -> List.fold_left join_values ("","","") cv)
+      |> List.map make_case) cases
+
+
 let () =
-  let open Alcotest in
   let (testsuite, exit) = Junit_alcotest.run_and_report "Lexer" [
       "Styles", [
         test_case "Bold" `Quick (test_tag_to_code "bold" "1");
@@ -19,10 +45,19 @@ let () =
         test_case "Foreground (explicit): dark-olive-green-1a" `Quick (test_tag_to_code "fg:dark-olive-green-1a" "38;5;191");
         test_case "Background (explicit): dark-olive-green-1a" `Quick (test_tag_to_code "bg:dark-olive-green-1a" "48;5;191");
       ];
-      "Compound from named color", [
-        test_case "Red, Underline" `Quick (test_tag_to_code "red:underline" "4;38;5;1");
-        test_case "Bg Red, Underline" `Quick (test_tag_to_code "bg:red:underline" "4;48;5;1");
-        test_case "dark-olive-green-1a, Bold" `Quick (test_tag_to_code "dark-olive-green-1a:bold" "1;38;5;191");
+      "Compound (manually-defined tests)", [
+        (* i.e. not using [compound_tag_permutations] *)
+        test_case "red, bold, bg yellow" `Quick (test_tag_to_code "red,bold,bg:yellow" "38;5;1;1;48;5;3");
+        test_case "ignores whitespace" `Quick (test_tag_to_code "red,  bold  ,\tbg:yellow" "38;5;1;1;48;5;3");
+      ];
+      "Compound tags from named colors", compound_tag_permutations [
+        [("Red", "red", "38;5;1"); ("Underline", "underline", "4")];
+        [("Bg Red", "bg:red", "48;5;1"); ("Underline", "underline", "4")];
+        [("dark-olive-green-1a", "dark-olive-green-1a", "38;5;191"); ("Bold", "bold", "1")];
+        [("Red", "red", "38;5;1");
+         ("Underline", "underline", "4");
+         ("Bg Red", "bg:red", "48;5;1");
+         ("Bold", "bold", "1")];
       ];
       "Hex colors", [
         test_case "Foreground (implicit): fc9" `Quick (test_tag_to_code "#fc9" "38;2;255;204;153");
@@ -38,9 +73,13 @@ let () =
         test_case "Foreground (explicit): F0C090" `Quick (test_tag_to_code "fg:#F0C090" "38;2;240;192;144");
         test_case "Background (explicit): F0C090" `Quick (test_tag_to_code "bg:#F0C090" "48;2;240;192;144");
       ];
-      "Compound from hex color", [
-        test_case "#F00, Underline" `Quick (test_tag_to_code "#F00:underline" "4;38;2;255;0;0");
-        test_case "Bg #f0c090, Bold" `Quick (test_tag_to_code "bg:#f0c090:bold" "1;48;2;240;192;144");
+      "Compound tags from hex colors", compound_tag_permutations [
+        [("#F00", "#F00", "38;2;255;0;0"); ("Underline", "underline", "4")];
+        [("Bg #f0c090", "bg:#f0c090", "48;2;240;192;144"); ("Bold", "bold", "1")];
+        [("#F00", "#F00", "38;2;255;0;0");
+         ("Underline", "underline", "4");
+         ("Bg #f0c090", "bg:#f0c090", "48;2;240;192;144");
+         ("Bold", "bold", "1")];
       ];
     ]
   in

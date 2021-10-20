@@ -53,10 +53,10 @@ Spectrum.Printer.printf "@{<bg:#f00>%s@}\n" "RED ALERT";;
 ![Screenshot 2021-09-01 at 16 36 55](https://user-images.githubusercontent.com/147840/131701013-db03739c-2b23-4038-95eb-30b11efe751b.png)
 
 
-Finally, Spectrum also supports compound tags in `colour:style` format, e.g.:
+Finally, Spectrum also supports compound tags in comma-separated format, e.g.:
 
 ```ocaml
-Spectrum.Printer.printf "@{<#f00:bold>%s@}\n" "RED ALERT";;
+Spectrum.Printer.printf "@{<bg:#f00,bold,yellow>%s@}\n" "RED ALERT";;
 ```
 
 ### Interface
@@ -89,7 +89,6 @@ In other languages we have libs like [colored](https://gitlab.com/dslackw/colore
 
 ## TODOs
 
-- more flexible compound tags (fg+bg color, arbitrary order)
 - tests and docs for exceptions, tests for all methods
 - terminal capabilities detection, as per `chalk`
 - auto coercion to nearest supported colour, for high res colours on unsupported terminals, as per `chalk`

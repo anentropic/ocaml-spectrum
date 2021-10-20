@@ -304,11 +304,6 @@
     | Some "fg" -> fg_from_hex
     | None -> fg_from_hex
     | Some q -> raise @@ InvalidQualifier q
-
-  let compound style color =
-    match style with
-    | Some name -> name_to_ansi_style name ^ ";" ^ color
-    | None -> color
 }
 
 let alpha = ['a'-'z' 'A'-'Z']
@@ -324,27 +319,37 @@ let qualifier = ("fg" | "bg")
 
 let style = ("bold" | "dim" | "italic" | "underline" | "blink" | "rapid-blink" | "inverse" | "hidden" | "strikethru")
 
+let whitespace = [' ' '\t']
+
 rule to_code = parse
   (* ANSI style codes *)
   | style as name { name_to_ansi_style name }
 
   (* CSS-style hex colours *)
-  | ((qualifier as q)  ":")? ("#" hexcode as hex) (":" (style as style))? {
-      compound style @@ qualified_color_from_hex q hex
+  | ((qualifier as q)  ":")? ("#" hexcode as hex) {
+      qualified_color_from_hex q hex
+    }
+  (* xterm 256 colour names *)
+  | ((qualifier as q)  ":")? (identifier as name) {
+      qualified_color_from_name q name
     }
 
-  (* xterm 256 colour names *)
-  | ((qualifier as q)  ":")? (identifier as name) (":" (style as style))? {
-      compound style @@ qualified_color_from_name q name
-    }
+  | whitespace* ","? whitespace*     { to_code lexbuf }
 
   | _ as c	{ raise (InvalidTag (Printf.sprintf "Unexpected char: %c" c)) }
   | eof			{ raise Eof }
 
 {
-  (* return first token matched in lexbuf *)
+  let parse_one lexbuf =
+    try Some (to_code lexbuf)
+    with Eof -> None
+
+  let rec parse lexbuf =
+    match parse_one lexbuf with
+    | Some code -> code :: parse lexbuf
+    | None -> []
+
   let tag_to_code tag =
     let lexbuf = Lexing.from_string tag in
-    try to_code lexbuf
-    with Eof -> ""
+    String.concat ";" @@ parse lexbuf
 }
