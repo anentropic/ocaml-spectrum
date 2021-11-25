@@ -17,6 +17,10 @@ let test_tag_to_code tag code () =
   let msg = Printf.sprintf "%s -> %s" tag code in
   Alcotest.(check string) msg code (tag_to_code tag)
 
+let test_tag_to_code_raises tag exc () =
+  let msg = Printf.sprintf "%s -> %s" tag (Printexc.to_string exc) in
+  Alcotest.(check_raises msg exc (fun () -> ignore @@ tag_to_code tag))
+
 let compound_tag_permutations cases =
   let make_case value = match value with
     | (label, tag, code) -> test_case label `Quick (test_tag_to_code tag code)
@@ -80,6 +84,15 @@ let () =
          ("Underline", "underline", "4");
          ("Bg #f0c090", "bg:#f0c090", "48;2;240;192;144");
          ("Bold", "bold", "1")];
+      ];
+      (* some of these are a bit unintuitive due to the way they get parsed *)
+      "Exceptions", [
+        test_case "Invalid color name (fg implicit)" `Quick (test_tag_to_code_raises "xxx" (InvalidColorName "xxx"));
+        test_case "Invalid color name (fg)" `Quick (test_tag_to_code_raises "fg:xxx" (InvalidColorName "xxx"));
+        test_case "Invalid color name (bg)" `Quick (test_tag_to_code_raises "bg:xxx" (InvalidColorName "xxx"));
+        test_case "Invalid color name" `Quick (test_tag_to_code_raises "xxx" (InvalidColorName "xxx"));
+        test_case "Invalid tag (not matched as hex)" `Quick (test_tag_to_code_raises "#ab" (InvalidTag "Unexpected char: #"));
+        test_case "Invalid color name (not matched as hex)" `Quick (test_tag_to_code_raises "fg:#ab" (InvalidColorName "fg"));
       ];
     ]
   in
