@@ -1,9 +1,16 @@
-.PHONY: publish, tag
+.PHONY: setup, publish, tag, version
 
-publish:
-	make tag
+setup:
+	opam install utop ocp-indent ocaml-lsp-server opam-format opam-publish
+
+VERSION = $$(opam info -f version --color=never .)
+
+version:
+	@echo ${VERSION}
+
+publish: tag
 	opam-publish
 
 tag:
-	git tag $$(opam info -f version --color=never .)
+	git tag ${VERSION}
 	git push --tags

@@ -1,4 +1,7 @@
-(* a quick demo to sanity-check our efforts are actually visible... *)
+(*
+ a quick demo to sanity-check our efforts are actually visible...
+ dune exec -- ./bin/cli.exe
+*)
 let () =
   let ppf = Format.std_formatter in
   Format.fprintf ppf "@{<yellow>%s@}\n" "before";

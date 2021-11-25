@@ -2,7 +2,3 @@ changelog:
   exclude:
     labels:
       - ignore-for-release
-  categories:
-    - title: What's Changed
-      labels:
-        - "*"
