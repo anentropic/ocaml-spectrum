@@ -61,9 +61,30 @@ Spectrum.Printer.printf "@{<bg:#f00,bold,yellow>%s@}\n" "RED ALERT";;
 
 ### Interface
 
-As you can see in the examples above, `Spectrum.Printer.printf` works just like `Format.printf` from the [OCaml stdlib](https://ocaml.org/api/Format.html#fpp).
+We provide two modules:
 
-We also expose equivalents of `fprintf` and `eprintf`.
+1. The default is `Spectrum.Printer` and it will raise an exception if your tags are invalid (i.e. malformed or unrecognised colour name, style name).
+2. Alternatively `Spectrum.Printer.Noexn` will swallow any errors, invalid tags will simply have no effect on the output string.
+
+Both modules expose the same interface:
+
+```ocaml
+  (** equivalent to [Format.fprintf] *)
+  val fprintf :
+    Format.formatter -> ('a, Format.formatter, unit, unit) format4 -> 'a
+
+  (** equivalent to [Format.printf] *)
+  val printf : ('a, Format.formatter, unit, unit) format4 -> 'a
+
+  (** equivalent to [Format.eprintf] *)
+  val eprintf : ('a, Format.formatter, unit, unit) format4 -> 'a
+
+  (** substitute for [Format.sprintf], first arg will be updated with what would normally be return value from [sprintf] *)
+  val sprintf_into :
+    string ref -> ('a, Format.formatter, unit, unit) format4 -> 'a
+```
+
+As you can see in the examples in the previous section, `Spectrum.Printer.printf` works just like `Format.printf` from the [OCaml stdlib](https://ocaml.org/api/Format.html#fpp), and `fprintf` and `eprintf` also work exactly like their `Format` counterparts.
 
 Under the hood all of these work via partial application, which is how Spectrum is able to support formats with arbitrary numbers of args.
 
@@ -89,6 +110,6 @@ In other languages we have libs like [colored](https://gitlab.com/dslackw/colore
 
 ## TODOs
 
-- tests and docs for exceptions, tests for all methods
+- tests for all methods (`sprintf_into` and the lexer are tested currently)
 - terminal capabilities detection, as per `chalk`
 - auto coercion to nearest supported colour, for high res colours on unsupported terminals, as per `chalk`

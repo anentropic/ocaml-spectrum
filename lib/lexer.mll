@@ -351,5 +351,6 @@ rule to_code = parse
 
   let tag_to_code tag =
     let lexbuf = Lexing.from_string tag in
-    String.concat ";" @@ parse lexbuf
+    try Ok (String.concat ";" @@ parse lexbuf)  
+    with e -> Error e
 }
