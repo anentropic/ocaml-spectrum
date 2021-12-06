@@ -24,57 +24,52 @@ let stack_to_esc stack =
   )
   ^ "m"
 
-(* Format.stag is an extensible variant type, we only want to handle Format.String_tag *)
-exception UnhandledExtension
-
 let make_printer raise_errors =
   let module M = struct
-    (** prepare the [ppf] as a side-effect, return [original_mark_tags_state] so it can be reset in the [kfprintf] callback *)
+    (** prepare the [ppf] as a side-effect, return [reset] to restore
+        original state in the [kfprintf] callback *)
     let prepare_ppf ppf =
-      (* always begin with a reset code *)
-      let stack = Stack.of_seq @@ Seq.return "0" in
+      let original_stag_functions = Format.pp_get_formatter_stag_functions ppf () in
+      let original_mark_tags_state = Format.pp_get_mark_tags ppf () in
+      let reset ppf = 
+        Format.pp_set_mark_tags ppf original_mark_tags_state;
+        Format.pp_set_formatter_stag_functions ppf (original_stag_functions);
+      in
       (* if error and not raising, we won't output any code (no reset) *)
       let conditionally_raise e stack = match raise_errors with
-        | true -> raise e
+        | true -> reset ppf; raise e
         | false -> Stack.clear stack
       in
       let collapse stack = match Stack.is_empty stack with
         | true -> ""
         | false -> stack_to_esc stack
       in
-      let color_tag_funs : Format.formatter_stag_functions =
-        {
-          mark_open_stag = (fun stag ->
-              let _ = match stag with
-                | Format.String_tag s -> begin
-                    match Lexer.tag_to_code @@ String.lowercase_ascii s with
-                    | Ok s -> Stack.push s stack
-                    | Error e -> conditionally_raise e stack
-                  end
-                | _ -> conditionally_raise UnhandledExtension stack (* case not expected *)
-              in
-              collapse stack
-            );
-          mark_close_stag = (fun _ ->
-              match Stack.is_empty stack with
-              | true -> ""
-              | false -> ignore @@ Stack.pop stack; collapse stack
-            );
-          print_open_stag = (fun _ -> ());
-          print_close_stag = (fun _ -> ());
-        }
+      (* open/close tag output will start/end with a reset code *)
+      let stack = Stack.of_seq @@ Seq.return "0" in
+      let mark_open_stag stag =
+        let _ = match stag with
+          | Format.String_tag s -> begin
+              match Lexer.tag_to_code @@ String.lowercase_ascii s with
+              | Ok s -> Stack.push s stack
+              | Error e -> conditionally_raise e stack
+            end
+          | _ -> ignore @@ original_stag_functions.mark_open_stag stag
+        in
+        collapse stack
       in
-      let original_mark_tags_state = Format.pp_get_mark_tags ppf () in
+      let mark_close_stag _ =
+        match Stack.is_empty stack with
+        | true -> ""
+        | false -> ignore @@ Stack.pop stack; collapse stack
+      in
+      let color_tag_funs = { original_stag_functions with mark_open_stag; mark_close_stag } in
       Format.pp_set_formatter_stag_functions ppf color_tag_funs;
       Format.pp_set_mark_tags ppf true;
-      original_mark_tags_state
+      reset
 
     let fprintf ppf fmt =
-      let original_mark_tags_state = prepare_ppf ppf in
-      Format.kfprintf
-        (fun ppf -> Format.pp_set_mark_tags ppf original_mark_tags_state)
-        ppf
-        fmt
+      let reset = prepare_ppf ppf in
+      Format.kfprintf reset ppf fmt
 
     let printf fmt = fprintf Format.std_formatter fmt
 
@@ -82,10 +77,10 @@ let make_printer raise_errors =
 
     let sprintf_into result fmt =
       let ppf = Format.str_formatter in
-      let original_mark_tags_state = prepare_ppf ppf in
+      let reset = prepare_ppf ppf in
       Format.kfprintf
         (fun ppf ->
-           Format.pp_set_mark_tags ppf original_mark_tags_state;
+           reset ppf;
            result := Format.flush_str_formatter ())
         ppf
         fmt
