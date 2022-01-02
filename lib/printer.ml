@@ -9,9 +9,8 @@ module type Printer = sig
   (** equivalent to [Format.eprintf] *)
   val eprintf : ('a, Format.formatter, unit, unit) format4 -> 'a
 
-  (** substitute for [Format.sprintf], first arg will be updated with what would normally be return value from [sprintf] *)
-  val sprintf_into :
-    string ref -> ('a, Format.formatter, unit, unit) format4 -> 'a
+  (** equivalent to [Format.sprintf] *)
+  val sprintf : ('a, Format.formatter, unit, string) format4 -> 'a
 end
 
 let stack_to_esc stack =
@@ -76,13 +75,20 @@ let make_printer raise_errors =
 
     let eprintf fmt = fprintf Format.err_formatter fmt
 
-    let sprintf_into result fmt =
-      let ppf = Format.str_formatter in
+    let flush_buffer_formatter buf ppf =
+      Format.pp_print_flush ppf ();
+      let s = Buffer.contents buf in
+      Buffer.reset buf;
+      s
+
+    let sprintf fmt =
+      let b = Buffer.create 512 in
+      let ppf = Format.formatter_of_buffer b in
       let reset = prepare_ppf ppf in
       Format.kfprintf
         (fun ppf ->
            reset ppf;
-           result := Format.flush_str_formatter ())
+           flush_buffer_formatter b ppf)
         ppf
         fmt
   end in

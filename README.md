@@ -79,26 +79,11 @@ Both modules expose the same interface:
   (** equivalent to [Format.eprintf] *)
   val eprintf : ('a, Format.formatter, unit, unit) format4 -> 'a
 
-  (** substitute for [Format.sprintf], first arg will be updated with what would normally be return value from [sprintf] *)
-  val sprintf_into :
-    string ref -> ('a, Format.formatter, unit, unit) format4 -> 'a
+  (** equivalent to [Format.sprintf] *)
+  val sprintf : ('a, Format.formatter, unit, string) format4 -> 'a
 ```
 
-As you can see in the examples in the previous section, `Spectrum.Printer.printf` works just like `Format.printf` from the [OCaml stdlib](https://ocaml.org/api/Format.html#fpp), and `fprintf` and `eprintf` also work exactly like their `Format` counterparts.
-
-Under the hood all of these work via partial application, which is how Spectrum is able to support formats with arbitrary numbers of args.
-
-However this causes a problem when we want an equivalent to `sprintf` since that has to return a value.
-
-So far I couldn't think of a clever workaround so Spectrum provides this kludge instead:
-
-```ocaml
-let result = ref "" in
-Spectrum.Printer.sprintf_into result "@{<green>%s@}\n" "Hello world 👋";
-Format.print_string !result;
-```
-
-The `sprintf_into` method takes a `string ref` as its first arg and will update that with the result value.
+As you can see in the examples in the previous section, `Spectrum.Printer.printf` works just like `Format.printf` from the [OCaml stdlib](https://ocaml.org/api/Format.html#fpp), and `fprintf`, `eprintf` and `sprintf` also work just like their `Format` counterparts.
 
 ## Alternatives
 
@@ -120,7 +105,6 @@ In other languages we have libs like [colored](https://gitlab.com/dslackw/colore
 
 ## TODOs
 
-- tests for all methods (`sprintf_into` and the lexer are tested currently)
-- better solution for `sprintf`
+- tests for all methods (`sprintf` and the lexer are tested currently)
 - terminal capabilities detection, as per `chalk`
 - auto coercion to nearest supported colour, for high res colours on unsupported terminals, as per `chalk`
