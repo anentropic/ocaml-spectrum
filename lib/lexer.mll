@@ -287,7 +287,7 @@
     | Some color ->
         let c = Color.to_rgba color in
         Printf.sprintf "%i;%i;%i" c.r c.g c.b
-    | None -> raise @@ InvalidHexColor hex
+    | None -> raise @@ InvalidHexColor hex  (* unreachable *)
 
   let fg_from_hex hex = "38;2;" ^ from_hex hex
 
@@ -297,13 +297,13 @@
     | Some "bg" -> bg_from_name
     | Some "fg" -> fg_from_name
     | None -> fg_from_name
-    | Some q -> raise @@ InvalidQualifier q
+    | Some q -> raise @@ InvalidQualifier q  (* unreachable *)
 
   let qualified_color_from_hex = function
     | Some "bg" -> bg_from_hex
     | Some "fg" -> fg_from_hex
     | None -> fg_from_hex
-    | Some q -> raise @@ InvalidQualifier q
+    | Some q -> raise @@ InvalidQualifier q  (* unreachable *)
 }
 
 let alpha = ['a'-'z' 'A'-'Z']
@@ -351,5 +351,6 @@ rule to_code = parse
 
   let tag_to_code tag =
     let lexbuf = Lexing.from_string tag in
-    String.concat ";" @@ parse lexbuf
+    try Ok (String.concat ";" @@ parse lexbuf)  
+    with e -> Error e
 }

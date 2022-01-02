@@ -1,5 +1,6 @@
 (library
  (name spectrum)
+ (public_name spectrum)
  (libraries color))
 
 (ocamllex lexer)
