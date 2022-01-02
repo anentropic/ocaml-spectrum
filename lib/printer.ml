@@ -31,7 +31,8 @@ let make_printer raise_errors =
     let prepare_ppf ppf =
       let original_stag_functions = Format.pp_get_formatter_stag_functions ppf () in
       let original_mark_tags_state = Format.pp_get_mark_tags ppf () in
-      let reset ppf = 
+      let reset ppf =
+        Format.pp_print_flush ppf ();
         Format.pp_set_mark_tags ppf original_mark_tags_state;
         Format.pp_set_formatter_stag_functions ppf (original_stag_functions);
       in
