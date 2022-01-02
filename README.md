@@ -106,17 +106,17 @@ AFAICT the main lib for this in the OCaml world at the moment is [`ANSITerminal`
 
 There is also [`Fmt`](https://erratique.ch/software/fmt/doc/Fmt/). Unfortunately I couldn't work out how to use it from reading the docs, which don't give any examples. I think it may also integrate with `Cmdliner` somehow, which could be handy. It appears to support the eight basic colours and styles and exposes a `val styled : style -> 'a t -> 'a t` signature (where `'a t` is _"the type for formatters of values of type `'a.`"_), which looks similar to ANSITerminal but only applying a single style at a time i.e. no bold+red. (Maybe you can do that by )
 
+In other languages we have libs like [colored](https://gitlab.com/dslackw/colored) (Python) and [chalk](https://www.npmjs.com/package/chalk) (JS) ...the latter being one of the most comprehensive I've seen.
+
 ### Update:
 
 I worked out how to use `Fmt`, which is like this:
 
 ```ocaml
 Fmt.set_style_renderer Fmt.stdout Fmt.(`Ansi_tty);;
-styled Fmt.(`Fg `Red) Fmt.string Fmt.stdout "wtf\n";;
-styled Fmt.(`Bg `Blue) Fmt.int Fmt.stdout 999;;
+Fmt.styled Fmt.(`Fg `Red) Fmt.string Fmt.stdout "wtf\n";;
+Fmt.styled Fmt.(`Bg `Blue) Fmt.int Fmt.stdout 999;;
 ```
-
-In other languages we have libs like [colored](https://gitlab.com/dslackw/colored) (Python) and [chalk](https://www.npmjs.com/package/chalk) (JS) ...the latter being one of the most comprehensive I've seen.
 
 ## TODOs
 
