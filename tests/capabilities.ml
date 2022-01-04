@@ -272,5 +272,5 @@ let () =
     ] in
   let (testsuite, exit) = Junit_alcotest.run_and_report "Capabilities" (tests) in
   let report = Junit.make [testsuite;] in
-  Junit.to_file report "junit-printer.xml";
+  Junit.to_file report "junit-capabilities.xml";
   exit ()
