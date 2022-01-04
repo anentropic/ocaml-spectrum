@@ -121,7 +121,7 @@ type color_level =
 ```
 
 - `Unsupported`: probably best not to use colors or styling
-- `Basic`: 16 colors, i.e. the 8 basic colors plus "bright" version of each. They are equivalent to the first eight colours of the xterm 256-color set, with bright version accessed by setting the style to **bold**. So the available colour name tags are:
+- `Basic`: supports 16 colors, i.e. the 8 basic colors plus "bright" version of each. They are equivalent to the first eight colours of the xterm 256-color set, with bright version accessed by setting the style to **bold**. So the available colour name tags are:
   - `black`
   - `red`
   - `green`
@@ -130,7 +130,7 @@ type color_level =
   - `magenta`
   - `cyan`
   - `light-gray` (i.e. white)
-- `Eight_bit`: the [xterm 256-color palette](https://jonasjacek.github.io/colors/), CSS hex codes likely won't work.
+- `Eight_bit`: supports the [xterm 256-color palette](https://jonasjacek.github.io/colors/), CSS hex codes likely won't work.
 - `True_color`: should support everything
 
 ## Alternatives
@@ -154,5 +154,6 @@ Fmt.styled Fmt.(`Bg `Blue) Fmt.int Fmt.stdout 999;;
 ## TODOs
 
 - tests for all methods (`sprintf` and the lexer are tested currently)
+- add other `Format` methods like `dprintf` etc
 - auto coercion to nearest supported colour, for high res colours on unsupported terminals, as per `chalk`
   - don't output any codes if level is `Unsupported`
