@@ -154,6 +154,7 @@ Fmt.styled Fmt.(`Bg `Blue) Fmt.int Fmt.stdout 999;;
 ## TODOs
 
 - tests for all methods (`sprintf` and the lexer are tested currently)
-- add other `Format` methods like `dprintf` etc
+- add other `Format` methods like `dprintf` etc?
+- expose variant types for use with explicit `mark_open_stag` and close calls?
 - auto coercion to nearest supported colour, for high res colours on unsupported terminals, as per `chalk`
   - don't output any codes if level is `Unsupported`
