@@ -99,10 +99,15 @@ I've ported the logic from the https://github.com/chalk/supports-color/ nodejs l
 
 In most cases you can also override the detected by setting the `FORCE_COLOR` env var.
 
-The following method is provided
+The following method is provided:
 
 ```ocaml
-Spectrum.Capabilities.supported_color_level (have_stream : bool) (stream_is_tty : bool) -> color_level
+Spectrum.Capabilities.supported_color_levels () -> color_level_info
+
+type color_level_info = {
+  stdout : color_level;
+  stderr : color_level;
+}
 ```
 
 The following levels are recognised:

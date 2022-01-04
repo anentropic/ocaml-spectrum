@@ -8,26 +8,20 @@ let testable_color_level = Alcotest.testable pp_color_level equal_color_level
 
 let map_of pairs = List.to_seq pairs |> StrMap.of_seq
 
-let check_supported_color_level (module OsInfo : OsInfoProvider) have_stream stream_is_tty env_pairs expected () =
+let check_supported_color_level (module OsInfo : OsInfoProvider) is_tty env_pairs expected () =
   let module Env = (val (env_provider_of_map @@ map_of env_pairs) : EnvProvider) in
   let module C = Make(Env)(OsInfo) in
-  let result = C.supported_color_level have_stream stream_is_tty in
+  let result = C.supported_color_level is_tty in
   let msg = Printf.sprintf "returns: %s" (show_color_level expected) in
   Alcotest.(check testable_color_level) msg expected result
 
-let check_supported_color_level_raises (module OsInfo : OsInfoProvider) have_stream stream_is_tty exc env_pairs () =
-  let module Env = (val (env_provider_of_map @@ map_of env_pairs) : EnvProvider) in
-  let module C = Make(Env)(OsInfo) in
-  let msg = Printf.sprintf "raises: %s" (Printexc.to_string exc) in
-  Alcotest.(check_raises msg exc (fun () ->
-      ignore @@ C.supported_color_level have_stream stream_is_tty))
 
 let basic_force_color_tests =
   let open Alcotest in
   let base_check = check_supported_color_level (module NonWindowsOsInfo : OsInfoProvider) in
-  let check = base_check false false in
+  let check = base_check false in
   [
-    Printf.sprintf "FORCE_COLOR have_stream=false stream_is_tty=false", [
+    Printf.sprintf "FORCE_COLOR stream_is_tty=false", [
       test_case "FORCE_COLOR=0" `Quick (check [("FORCE_COLOR", "0")] Unsupported);
       test_case "FORCE_COLOR=1" `Quick (check [("FORCE_COLOR", "1")] Basic);
       test_case "FORCE_COLOR=2" `Quick (check [("FORCE_COLOR", "2")] Eight_bit);
@@ -42,9 +36,9 @@ let basic_force_color_tests =
 let stream_no_tty_short_circuit_tests =
   let open Alcotest in
   let base_check = check_supported_color_level (module NonWindowsOsInfo : OsInfoProvider) in
-  let check = base_check true false in
+  let check = base_check false in
   [
-    Printf.sprintf "Short-circuit when have_stream=true stream_is_tty=false", [
+    Printf.sprintf "Short-circuit when is_tty=false", [
       test_case
         "FORCE_COLOR prevents the short-circuit, overridden by COLORTERM"
         `Quick (check [("FORCE_COLOR", "2"); ("COLORTERM", "truecolor")] True_color);
@@ -52,23 +46,16 @@ let stream_no_tty_short_circuit_tests =
         "COLORTERM=truecolor is short-circuited"
         `Quick (check [("COLORTERM", "truecolor")] Unsupported);
     ];
-    Printf.sprintf "No short-circuit", [
+    Printf.sprintf "No short-circuit when is_tty=true", [
       test_case
-        "have_stream=false stream_is_tty=false"
-        `Quick (base_check false false [("COLORTERM", "truecolor")] True_color);
-      test_case
-        "have_stream=false stream_is_tty=true"
-        `Quick (base_check false true [("COLORTERM", "truecolor")] True_color);
-      test_case
-        "have_stream=true stream_is_tty=true"
-        `Quick (base_check true true [("COLORTERM", "truecolor")] True_color);
+        "is_tty=true"
+        `Quick (base_check true [("COLORTERM", "truecolor")] True_color);
     ];
   ]
 
 let dumb_term_tests =
   let open Alcotest in
-  let base_check = check_supported_color_level (module NonWindowsOsInfo : OsInfoProvider) in
-  let check = base_check false false in
+  let check = check_supported_color_level (module NonWindowsOsInfo : OsInfoProvider) true in
   [
     Printf.sprintf "Min-level when TERM=dumb", [
       (* FORCE_COLOR sets min-level, COLORTERM overridden *)
@@ -88,8 +75,7 @@ let windows_tests =
       (module
         (val
           (os_info_provider is_windows os_version) : OsInfoProvider) : OsInfoProvider)
-      false
-      false
+      true
   in
   (* FORCE_COLOR sets min-level and is overridden *)
   [
@@ -112,8 +98,7 @@ let windows_tests =
 
 let ci_tests =
   let open Alcotest in
-  let base_check = check_supported_color_level (module NonWindowsOsInfo : OsInfoProvider) in
-  let check = base_check false false in
+  let check = check_supported_color_level (module NonWindowsOsInfo : OsInfoProvider) true in
   [
     Printf.sprintf "Min-level when CI unrecognised", [
       (* FORCE_COLOR sets min-level, COLORTERM is overridden *)
@@ -137,8 +122,7 @@ let ci_tests =
 
 let teamcity_tests =
   let open Alcotest in
-  let base_check = check_supported_color_level (module NonWindowsOsInfo : OsInfoProvider) in
-  let check = base_check false false in
+  let check = check_supported_color_level (module NonWindowsOsInfo : OsInfoProvider) true in
   [
     Printf.sprintf "Teamcity", [
       (* FORCE_COLOR min-level is overridden *)
@@ -165,8 +149,7 @@ let teamcity_tests =
 
 let terraform_tests =
   let open Alcotest in
-  let base_check = check_supported_color_level (module NonWindowsOsInfo : OsInfoProvider) in
-  let check = base_check false false in
+  let check = check_supported_color_level (module NonWindowsOsInfo : OsInfoProvider) true in
   [
     Printf.sprintf "Terraform", [
       (* COLORTERM is overridden *)
@@ -187,8 +170,7 @@ let terraform_tests =
 
 let colorterm_tests =
   let open Alcotest in
-  let base_check = check_supported_color_level (module NonWindowsOsInfo : OsInfoProvider) in
-  let check = base_check false false in
+  let check = check_supported_color_level (module NonWindowsOsInfo : OsInfoProvider) true in
   [
     Printf.sprintf "COLORTERM", [
       test_case
@@ -205,8 +187,7 @@ let colorterm_tests =
 
 let term_program_tests =
   let open Alcotest in
-  let base_check = check_supported_color_level (module NonWindowsOsInfo : OsInfoProvider) in
-  let check = base_check false false in
+  let check = check_supported_color_level (module NonWindowsOsInfo : OsInfoProvider) true in
   [
     Printf.sprintf "TERM_PROGRAM: iTerm (supports 256 or true color)", [
       test_case
@@ -245,8 +226,7 @@ let term_program_tests =
 
 let term_tests =
   let open Alcotest in
-  let base_check = check_supported_color_level (module NonWindowsOsInfo : OsInfoProvider) in
-  let check = base_check false false in
+  let check = check_supported_color_level (module NonWindowsOsInfo : OsInfoProvider) true in
   [
     (* anything ending with "-256color" or "-256"
        NOTE: this was the Chalk logic, should it also have the recognised prefix though? *)

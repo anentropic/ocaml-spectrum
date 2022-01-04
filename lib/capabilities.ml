@@ -31,7 +31,7 @@ module type OsInfoProvider = sig
 end
 
 module type CapabilitiesProvider = sig
-  val supported_color_level : bool -> bool -> color_level
+  val supported_color_level : bool -> color_level
 end
 
 module Make (Env: EnvProvider) (OsInfo: OsInfoProvider) : CapabilitiesProvider = struct
@@ -133,13 +133,13 @@ module Make (Env: EnvProvider) (OsInfo: OsInfoProvider) : CapabilitiesProvider =
 
   (* This logic is adapted from the nodejs Chalk library
      see https://github.com/chalk/supports-color/blob/main/index.js *)
-  let supported_color_level (have_stream : bool) (stream_is_tty : bool) =
+  let supported_color_level (is_tty : bool) =
     let force_level = env_force_level () in
     let min_level = match force_level with
       | Some cl -> cl
       | None -> Unsupported
     in
-    if have_stream && not stream_is_tty && force_level == None then
+    if not is_tty && force_level == None then
       Unsupported
     else if has_env_matching "TERM" "dumb" then
       min_level
@@ -179,6 +179,7 @@ end
 
 module StrMap = Map.Make(String)
 
+(* util for using StrMap as a fake env (e.g. in tests) *)
 let env_provider_of_map map =
   let module M = struct
     let getenv name = StrMap.find name map
@@ -186,6 +187,7 @@ let env_provider_of_map map =
   end
   in (module M : EnvProvider)
 
+(* util for faking the OS checks (e.g. in tests) *)
 let os_info_provider is_windows os_version =
   let module M = struct
     let is_windows () = is_windows
@@ -193,6 +195,7 @@ let os_info_provider is_windows os_version =
   end
   in (module M : OsInfoProvider)
 
+(* the legit OS info *)
 module SysOsInfo = struct
   let is_windows () = Sys.win32
   let os_version () = OpamSysPoll.os_version ()
@@ -201,3 +204,13 @@ end
 module Sys_Capabilities = Make(Sys)(SysOsInfo)
 
 include Sys_Capabilities
+
+type color_level_info = {
+  stdout : color_level;
+  stderr : color_level;
+}
+
+let supported_color_levels () = {
+  stdout = supported_color_level (Unix.isatty Unix.stdout);
+  stderr = supported_color_level (Unix.isatty Unix.stderr);
+}
