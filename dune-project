@@ -1,6 +1,6 @@
 (lang dune 2.8)
 (name spectrum)
-(version 0.3.0)
+(version 0.4.0)
 
 (generate_opam_files true)
 
@@ -16,6 +16,9 @@
  (depends
   (ocaml (>= 4.10))
   (color (>= 0.2))
+  (pcre (>= 7.5))
+  (opam-state (>= 2.1))
+  (ppx_deriving (>= 5.2))
   ; test deps
   (alcotest (and :with-test (>= 1.4)))
   (junit_alcotest (and :with-test (>= 2.0)))
