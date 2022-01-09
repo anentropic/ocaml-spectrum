@@ -110,6 +110,7 @@ let ci_tests =
         `Quick (check [("FORCE_COLOR", "2"); ("COLORTERM", "truecolor"); ("CI", ""); ("CI_NAME", "wtf")] Eight_bit);
     ];
     (* FORCE_COLOR sets min-level and is overridden *)
+    (* TODO: test all recognised CI names *)
     Printf.sprintf "Basic when CI recognised", [
       test_case
         "CI + recognised provider"
@@ -239,6 +240,7 @@ let term_tests =
         `Quick (check [("TERM", "wtf-256")] Eight_bit);
     ];
     (* anything not matched for 256-color and beginning with recognised prefix *)
+    (* TODO: test all prefixes *)
     Printf.sprintf "TERM: recognised 16-color patterns", [
       test_case
         "xterm"

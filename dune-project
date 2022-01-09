@@ -19,6 +19,7 @@
   (re (>= 1.11.0))
   (opam-state (>= 2.5.0))
   (ppx_deriving (>= 5.2))
+  (yojson (>= 1.7))
 
   ; test deps
   (alcotest (and :with-test (>= 1.4)))
