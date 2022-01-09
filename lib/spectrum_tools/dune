@@ -1,0 +1,3 @@
+(library
+ (name spectrum_tools)
+ (libraries color gg yojson spectrum))

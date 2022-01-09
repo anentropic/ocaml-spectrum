@@ -72,7 +72,7 @@ module Make (Env: EnvProvider) (OsInfo: OsInfoProvider) : CapabilitiesProvider =
     (* Windows 10 build 10586 is the first Windows release that supports 256 colors.
        Windows 10 build 14931 is the first release that supports 16m/TrueColor.
        Example value of [OpamSysPoll.os_version]: Some “10.0.19041” *)
-    let get_level () =
+    try
       match OsInfo.os_version () with
       | Some s -> begin
           match parse_numeric_version s with
@@ -83,19 +83,15 @@ module Make (Env: EnvProvider) (OsInfo: OsInfoProvider) : CapabilitiesProvider =
           | _ -> Basic
         end
       | None -> Basic (* is Windows, but version not returned *)
-    in
-    try get_level ()
     with Not_found | Failure _ -> Basic (* failed parsing version *)
 
   let teamcity_level () =
-    let get_level () =
+    try
       let rex = Pcre.regexp "^(9\\.(0*[1-9]\\d*)\\.|\\d{2,}\\.)" in
       (* assume we've already tested for TEAMCITY_VERSION in env *)
       match Pcre.pmatch ~rex (Env.getenv "TEAMCITY_VERSION") with
       | true -> Basic
       | false -> Unsupported
-    in
-    try get_level ()
     with Not_found -> Unsupported (* failed parsing version *)
 
   let is_recognised_term_program () =
@@ -107,12 +103,10 @@ module Make (Env: EnvProvider) (OsInfo: OsInfoProvider) : CapabilitiesProvider =
   let iterm_level () =
     (* assume we've already tested for TERM_PROGRAM in env
        and therefore TERM_PROGRAM_VERSION is expected *)
-    let get_level () =
+    try
       match parse_numeric_version (Env.getenv "TERM_PROGRAM_VERSION") with
       | v when v.major >= 3 -> True_color
       | _ -> Eight_bit
-    in
-    try get_level ()
     with Not_found | Failure _ -> Eight_bit (* failed parsing version *)
 
   let term_program_level () =
