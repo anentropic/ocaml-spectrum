@@ -16,6 +16,7 @@ depends: [
   "re" {>= "1.11.0"}
   "opam-state" {>= "2.5.0"}
   "ppx_deriving" {>= "5.2"}
+  "yojson" {>= "1.7"}
   "alcotest" {with-test & >= "1.4"}
   "junit_alcotest" {with-test & >= "2.0"}
   "ocamlformat" {with-dev-setup}
