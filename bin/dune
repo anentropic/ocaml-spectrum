@@ -1,3 +1,9 @@
+; this bin is included as a simple way to *see* some output
+; e.g. as a sanity check when developing locally
+; to use it just un-comment the public_name below
+; (commented to prevent being installed for library users)
+; then you can: `dune exec -- spectrum`
+
 (executable
  (name cli)
  ; (public_name spectrum)

@@ -1,13 +1,13 @@
 module type Printer = sig
   (** equivalent to [Format.fprintf] *)
   val fprintf :
-    Format.formatter -> ('a, Format.formatter, unit, unit) format4 -> 'a
+    Format.formatter -> ('a, Format.formatter, unit, unit) format4 -> ?flush:bool -> 'a
 
   (** equivalent to [Format.printf] *)
-  val printf : ('a, Format.formatter, unit, unit) format4 -> 'a
+  val printf : ('a, Format.formatter, unit, unit) format4 -> ?flush:bool -> 'a
 
   (** equivalent to [Format.eprintf] *)
-  val eprintf : ('a, Format.formatter, unit, unit) format4 -> 'a
+  val eprintf : ('a, Format.formatter, unit, unit) format4 -> ?flush:bool -> 'a
 
   (** equivalent to [Format.sprintf] *)
   val sprintf : ('a, Format.formatter, unit, string) format4 -> 'a
@@ -27,11 +27,12 @@ let make_printer raise_errors =
   let module M = struct
     (** prepare the [ppf] as a side-effect, return [reset] to restore
         original state in the [kfprintf] callback *)
-    let prepare_ppf ppf =
+    let prepare_ppf ppf flush =
       let original_stag_functions = Format.pp_get_formatter_stag_functions ppf () in
       let original_mark_tags_state = Format.pp_get_mark_tags ppf () in
       let reset ppf =
-        Format.pp_print_flush ppf ();
+        if flush then
+          Format.pp_print_flush ppf ();
         Format.pp_set_mark_tags ppf original_mark_tags_state;
         Format.pp_set_formatter_stag_functions ppf (original_stag_functions);
       in
@@ -67,13 +68,13 @@ let make_printer raise_errors =
       Format.pp_set_mark_tags ppf true;
       reset
 
-    let fprintf ppf fmt =
-      let reset = prepare_ppf ppf in
+    let fprintf ppf fmt ?(flush=false) =
+      let reset = prepare_ppf ppf flush in
       Format.kfprintf reset ppf fmt
 
-    let printf fmt = fprintf Format.std_formatter fmt
+    let printf fmt ?(flush=false) = fprintf Format.std_formatter fmt ~flush
 
-    let eprintf fmt = fprintf Format.err_formatter fmt
+    let eprintf fmt ?(flush=false) = fprintf Format.err_formatter fmt ~flush
 
     let flush_buffer_formatter buf ppf =
       Format.pp_print_flush ppf ();
@@ -84,11 +85,12 @@ let make_printer raise_errors =
     let sprintf fmt =
       let b = Buffer.create 512 in
       let ppf = Format.formatter_of_buffer b in
-      let reset = prepare_ppf ppf in
+      let reset = prepare_ppf ppf false in
       Format.kfprintf
         (fun ppf ->
+           let result = flush_buffer_formatter b ppf in
            reset ppf;
-           flush_buffer_formatter b ppf)
+           result)
         ppf
         fmt
   end in
