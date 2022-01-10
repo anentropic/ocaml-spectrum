@@ -1,7 +1,7 @@
 # spectrum
 Library for colour and formatting in the terminal.
 
-Using OCaml Format module's ["semantic tags"](https://ocaml.org/api/Format.html#tags) feature, with tags defined for named colours from the [xterm 256-color palette](https://jonasjacek.github.io/colors/), as well as 24-bit colours via CSS-style hex codes.
+Using OCaml Format module's ["semantic tags"](https://ocaml.org/api/Format.html#tags) feature, with tags defined for named colours from the [xterm 256-color palette](https://jonasjacek.github.io/colors/), as well as 24-bit colours via CSS-style hex codes and RGB or HSL values.
 
 It's inspired by the examples given in [Format Unraveled](https://hal.archives-ouvertes.fr/hal-01503081/file/format-unraveled.pdf#page=11), a paper by Richard Bonichon & Pierre Weis, which also explains the cleverness behind OCaml's (mostly) type-safe format string system.
 
@@ -53,7 +53,15 @@ Spectrum.Printer.printf "@{<#f0c090>%s@}\n" "Hello world 👋";;
 Spectrum.Printer.printf "@{<#f00>%s@}\n" "RED ALERT";;
 ```
 
-By default you are setting the "foreground" colour, i.e. the text colour. But any colour tag can be prefixed with a foreground `fg:` or background `bg:` qualifier, e.g.:
+...or CSS-style RGB/HSL formats:
+```ocaml
+Spectrum.Printer.printf "@{<rgb(240 192 144)>%s@}\n" "Hello world 👋";;
+Spectrum.Printer.printf "@{<hsl(60 100% 50%)>%s@}\n" "YELLOW ALERT";;
+```
+
+By default you are setting the "foreground" colour, i.e. the text colour.
+
+Any colour tag can be prefixed with a foreground `fg:` or background `bg:` qualifier, e.g.:
 
 ```ocaml
 Spectrum.Printer.printf "@{<bg:#f00>%s@}\n" "RED ALERT";;
@@ -137,7 +145,7 @@ type color_level =
 
 AFAICT the main lib for this in the OCaml world is [`ANSITerminal`](https://github.com/Chris00/ANSITerminal/). It supports more than just colour and styles, providing tools for other things you might need in a terminal app like interacting with the cursor. It doesn't use "semantic tags", but provides analogs of the `*printf` functions which now take a list of styles as the first arg, with that styling applied to the formatted string as a whole. For named colours it supports only the [basic set of eight](https://en.wikipedia.org/wiki/ANSI_escape_code#3-bit_and_4-bit) i.e. those which should be supported by any terminal.
 
-There is also [`Fmt`](https://erratique.ch/software/fmt/doc/Fmt/). Unfortunately I couldn't work out how to use it from reading the docs, which don't give any examples. I think it may also integrate with `Cmdliner` somehow, which could be handy. It appears to support the eight basic colours and styles and exposes a `val styled : style -> 'a t -> 'a t` signature (where `'a t` is _"the type for formatters of values of type `'a.`"_), which looks similar to ANSITerminal but only applying a single style at a time i.e. no bold+red. (I guess you can do that by nesting function calls though).
+There is also [`Fmt`](https://erratique.ch/software/fmt/doc/Fmt/). Unfortunately I couldn't work out how to use it from reading the docs, which don't give any examples. I think it may also integrate with `Cmdliner` somehow, which could be handy. It appears to support the eight basic colours and styles and exposes a `val styled : style -> 'a t -> 'a t` signature (where `'a t` is _"the type for formatters of values of type `'a.`"_ 🤷‍♂️ ), which looks similar to ANSITerminal but only applying a single style at a time i.e. no bold+red. (I guess you can do that by nesting function calls though).
 
 In other languages there are libs like [colored](https://gitlab.com/dslackw/colored) (Python) and [chalk](https://www.npmjs.com/package/chalk) (JS) ...the latter being one of the most comprehensive I've seen.
 
@@ -151,10 +159,28 @@ Fmt.styled Fmt.(`Fg `Red) Fmt.string Fmt.stdout "wtf\n";;
 Fmt.styled Fmt.(`Bg `Blue) Fmt.int Fmt.stdout 999;;
 ```
 
+## Changelog
+
+#### 0.5.0
+- support CSS-style `rgb(...)` and `hsl(...)` color tags
+
+#### 0.4.0
+- port the terminal colour capabilities detection from chalk.js
+
+#### 0.3.0
+- expose separate `Exn` and `Noexn` interfaces
+- fix for buffer interaction issue (tests broke when updating dep `Fmt.0.9.0`) ...probably affected most uses of `sprintf_into`
+- replace `sprintf_into` kludge with a working `sprintf` implementation
+
+#### 0.2.0
+- first viable version
+
 ## TODOs
 
+- use the actual xterm colour names (seems like the ones I have came from some lib that changed some of them)
 - tests for all methods (`sprintf` and the lexer are tested currently)
 - add other `Format` methods like `dprintf` etc?
+- publish the printer and capabilities-detection as separate opam modules?
 - expose variant types for use with explicit `mark_open_stag` and close calls?
 - auto coercion to nearest supported colour, for high res colours on unsupported terminals, as per `chalk`
   - don't output any codes if level is `Unsupported`
