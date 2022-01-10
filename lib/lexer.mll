@@ -3,6 +3,8 @@
   exception InvalidStyleName of string
   exception InvalidColorName of string
   exception InvalidHexColor of string
+  exception InvalidRgbColor of string
+  exception InvalidPercentage of string
   exception InvalidQualifier of string
   exception Eof
 
@@ -279,7 +281,6 @@
     | name -> raise @@ InvalidColorName name
 
   let fg_from_name name = "38;5;" ^ name_to_xterm_color name
-
   let bg_from_name name = "48;5;" ^ name_to_xterm_color name
 
   let from_hex hex =
@@ -290,20 +291,47 @@
     | None -> raise @@ InvalidHexColor hex  (* unreachable *)
 
   let fg_from_hex hex = "38;2;" ^ from_hex hex
-
   let bg_from_hex hex = "48;2;" ^ from_hex hex
 
-  let qualified_color_from_name = function
-    | Some "bg" -> bg_from_name
-    | Some "fg" -> fg_from_name
-    | None -> fg_from_name
+  let parse_int_256 s =
+    match int_of_string s with
+    | i when i < 256 -> i
+    | _ -> raise @@ InvalidRgbColor s
+
+  let from_rgb r g b =
+    let r = parse_int_256 r in
+    let g = parse_int_256 g in
+    let b = parse_int_256 b in
+    Printf.sprintf "%i;%i;%i" r g b
+
+  let fg_from_rgb r g b = "38;2;" ^ from_rgb r g b
+  let bg_from_rgb r g b = "48;2;" ^ from_rgb r g b
+
+  let parse_float_percent s =
+    match float_of_string s with
+    | i when i <= 100. -> i
+    | _ -> raise @@ InvalidPercentage s
+
+  let from_hsl h s l =
+    let h = float_of_string h in
+    let s = parse_float_percent s /. 100. in
+    let l = parse_float_percent l /. 100. in
+    let color = Color.of_hsl h s l |> Color.to_rgba in
+    Printf.sprintf "%i;%i;%i" color.r color.g color.b
+
+  let fg_from_hsl h s l = "38;2;" ^ from_hsl h s l
+  let bg_from_hsl h s l = "48;2;" ^ from_hsl h s l
+
+  let qualified f_bg f_fg = function
+    | Some "bg" -> f_bg
+    | Some "fg" -> f_fg
+    | None -> f_fg
     | Some q -> raise @@ InvalidQualifier q  (* unreachable *)
 
-  let qualified_color_from_hex = function
-    | Some "bg" -> bg_from_hex
-    | Some "fg" -> fg_from_hex
-    | None -> fg_from_hex
-    | Some q -> raise @@ InvalidQualifier q  (* unreachable *)
+  let qualified_color_from_name = qualified bg_from_name fg_from_name
+  let qualified_color_from_hex = qualified bg_from_hex fg_from_hex
+  let qualified_color_from_rgb = qualified bg_from_rgb fg_from_rgb
+  let qualified_color_from_hsl = qualified bg_from_hsl fg_from_hsl
 }
 
 let alpha = ['a'-'z' 'A'-'Z']
@@ -321,6 +349,14 @@ let style = ("bold" | "dim" | "italic" | "underline" | "blink" | "rapid-blink" |
 
 let whitespace = [' ' '\t']
 
+let int = num+
+let float = (int "."?) | (int? "." int)
+
+let sep = ("," | " ") whitespace*
+
+let rgb = ['r' 'R'] ['g' 'G'] ['b' 'B']
+let hsl = ['h' 'H'] ['s' 'S'] ['l' 'L']
+
 rule to_code = parse
   (* ANSI style codes *)
   | style as name { name_to_ansi_style name }
@@ -328,6 +364,14 @@ rule to_code = parse
   (* CSS-style hex colours *)
   | ((qualifier as q)  ":")? ("#" hexcode as hex) {
       qualified_color_from_hex q hex
+    }
+  (* CSS-style rgb colours *)
+  | ((qualifier as q)  ":")? (rgb "(" (int as r) sep (int as g) sep (int as b) ")") {
+      qualified_color_from_rgb q r g b
+    }
+  (* CSS-style hsl colours *)
+  | ((qualifier as q)  ":")? (hsl "(" (("-"? int) as h) sep (int as s) "%" sep (int as l) "%" ")") {
+      qualified_color_from_hsl q h s l
     }
   (* xterm 256 colour names *)
   | ((qualifier as q)  ":")? (identifier as name) {
