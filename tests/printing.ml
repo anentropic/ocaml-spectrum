@@ -6,16 +6,16 @@ let meta prefix = (module struct
   let prefix = prefix
 end : Meta)
 
-module Make (P : Spectrum.Printer.Printer) (M : Meta) = struct
+module Make (P : Spectrum.Printer) (M : Meta) = struct
   let test_sprintf raw_fmt expected () =
     let fmt = Scanf.format_from_string raw_fmt (format_of_string "") in
-    let result = P.sprintf fmt in
+    let result = P.Simple.sprintf fmt in
     let msg = Printf.sprintf "%s -> %s | %s" raw_fmt (String.escaped expected) (String.escaped result) in
     Alcotest.(check string) msg expected result
 
   let test_sprintf1 raw_fmt arg1 expected () =
     let fmt = Scanf.format_from_string raw_fmt (format_of_string "%s") in
-    let result = P.sprintf fmt arg1 in
+    let result = P.Simple.sprintf fmt arg1 in
     let msg = Printf.sprintf "%s -> %s | %s" raw_fmt (String.escaped expected) (String.escaped result) in
     Alcotest.(check string) msg expected result
 
@@ -49,15 +49,15 @@ module Make (P : Spectrum.Printer.Printer) (M : Meta) = struct
     ]
 end
 
-module Exn = Make (Spectrum.Printer) (val meta "Exn")
-module Noexn = Make (Spectrum.Printer.Noexn) (val meta "Noexn")
+module Exn = Make (Spectrum) (val meta "Exn")
+module Noexn = Make (Spectrum.Noexn) (val meta "Noexn")
 
 let test_sprintf_raises fmt exc () =
-  let open Spectrum.Printer in
+  let open Spectrum in
   let msg = Printf.sprintf "%s -> %s" fmt (Printexc.to_string exc) in
   Alcotest.(check_raises msg exc (fun () ->
       let fmt = Scanf.format_from_string fmt (format_of_string "") in
-      ignore @@ (sprintf fmt)
+      ignore @@ (Simple.sprintf fmt)
     ))
 
 let get_invalid_tag_tests_exn =

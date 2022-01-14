@@ -1,3 +1,3 @@
 (tests
- (names lexer printer capabilities)
+ (names lexer printing capabilities)
  (libraries alcotest junit_alcotest spectrum))

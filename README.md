@@ -28,7 +28,7 @@ opam install spectrum
 The basic usage looks like:
 
 ```ocaml
-Spectrum.Printer.printf "@{<green>%s@}\n" "Hello world 👋";;
+Spectrum.Simple.printf "@{<green>%s@}\n" "Hello world 👋";;
 ```
 
 The pattern is `@{<TAG-NAME>CONTENT@}`. So in the example above `green` is matching one of the 256 xterm [color names](https://www.ditig.com/256-colors-cheat-sheet). Tag names are case-insensitive.
@@ -38,7 +38,7 @@ The pattern is `@{<TAG-NAME>CONTENT@}`. So in the example above `green` is match
 You can have arbitrarily nested tags, e.g.:
 
 ```ocaml
-Spectrum.Printer.printf "@{<green>%s @{<bold>%s@} %s@}\n" "Hello" "world" "I'm here";;
+Spectrum.Simple.printf "@{<green>%s @{<bold>%s@} %s@}\n" "Hello" "world" "I'm here";;
 ```
 
 Which should look like:  
@@ -63,14 +63,14 @@ Spectrum defines tags for:
 As well as the named palette colours you can directly specify an arbitrary colour using short or long CSS-style hex codes:
 
 ```ocaml
-Spectrum.Printer.printf "@{<#f0c090>%s@}\n" "Hello world 👋";;
-Spectrum.Printer.printf "@{<#f00>%s@}\n" "RED ALERT";;
+Spectrum.Simple.printf "@{<#f0c090>%s@}\n" "Hello world 👋";;
+Spectrum.Simple.printf "@{<#f00>%s@}\n" "RED ALERT";;
 ```
 
 ...or CSS-style [rgb(...)](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/rgb()) or [hsl(...)](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/hsl()) formats:
 ```ocaml
-Spectrum.Printer.printf "@{<rgb(240 192 144)>%s@}\n" "Hello world 👋";;
-Spectrum.Printer.printf "@{<hsl(60 100% 50%)>%s@}\n" "YELLOW ALERT";;
+Spectrum.Simple.printf "@{<rgb(240 192 144)>%s@}\n" "Hello world 👋";;
+Spectrum.Simple.printf "@{<hsl(60 100% 50%)>%s@}\n" "YELLOW ALERT";;
 ```
 
 By default you are setting the "foreground" colour, i.e. the text colour.
@@ -78,7 +78,7 @@ By default you are setting the "foreground" colour, i.e. the text colour.
 Any colour tag can be prefixed with a foreground `fg:` or background `bg:` qualifier, e.g.:
 
 ```ocaml
-Spectrum.Printer.printf "@{<bg:#f00>%s@}\n" "RED ALERT";;
+Spectrum.Simple.printf "@{<bg:#f00>%s@}\n" "RED ALERT";;
 ```
 ![Screenshot 2021-09-01 at 16 36 55](https://user-images.githubusercontent.com/147840/131701013-db03739c-2b23-4038-95eb-30b11efe751b.png)
 
@@ -86,7 +86,7 @@ Spectrum.Printer.printf "@{<bg:#f00>%s@}\n" "RED ALERT";;
 Finally, Spectrum also supports compound tags in comma-separated format, e.g.:
 
 ```ocaml
-Spectrum.Printer.printf "@{<bg:#f00,bold,yellow>%s@}\n" "RED ALERT";;
+Spectrum.Simple.printf "@{<bg:#f00,bold,yellow>%s@}\n" "RED ALERT";;
 ```
 ![Screenshot 2022-01-10 at 12 26 28](https://user-images.githubusercontent.com/147840/148767442-5fd2f8a4-9f6b-4a03-86cd-ebea4065b414.png)
 
@@ -94,27 +94,35 @@ Spectrum.Printer.printf "@{<bg:#f00,bold,yellow>%s@}\n" "RED ALERT";;
 
 Spectrum provides two versions of the main module:
 
-1. The default is `Spectrum.Printer` and it will raise an exception if your tags are invalid (i.e. malformed or unrecognised colour name, style name).
-2. Alternatively `Spectrum.Printer.Noexn` will swallow any errors, invalid tags will simply have no effect on the output string.
+1. The default is `Spectrum.Simple` and it will raise an exception if your tags are invalid (i.e. malformed or unrecognised colour name, style name).
+2. Alternatively `Spectrum.Simple.Noexn` will swallow any errors, invalid tags will simply have no effect on the output string.
 
 Both modules expose the same interface:
 
 ```ocaml
-(** equivalent to [Format.fprintf] *)
-val fprintf :
-  Format.formatter -> ('a, Format.formatter, unit, unit) format4 -> ?flush:bool -> 'a
+module type Shortcuts = sig
+  (** equivalent to [Format.fprintf] *)
+  val fprintf :
+    Format.formatter -> ('a, Format.formatter, unit, unit) format4 -> 'a
 
-(** equivalent to [Format.printf] *)
-val printf : ('a, Format.formatter, unit, unit) format4 -> ?flush:bool -> 'a
+  (** equivalent to [Format.printf] *)
+  val printf : ('a, Format.formatter, unit, unit) format4 -> 'a
 
-(** equivalent to [Format.eprintf] *)
-val eprintf : ('a, Format.formatter, unit, unit) format4 -> ?flush:bool -> 'a
+  (** equivalent to [Format.eprintf] *)
+  val eprintf : ('a, Format.formatter, unit, unit) format4 -> 'a
 
-(** equivalent to [Format.sprintf] *)
-val sprintf : ('a, Format.formatter, unit, string) format4 -> 'a
+  (** equivalent to [Format.sprintf] *)
+  val sprintf : ('a, Format.formatter, unit, string) format4 -> 'a
+end
+
+module type Printer = sig
+  val prepare_ppf : Format.formatter -> bool -> Format.formatter -> unit
+
+  module Simple : Shortcuts
+end
 ```
 
-As you can see in the examples in the previous section, `Spectrum.Printer.printf` works just like `Format.printf` from the [OCaml stdlib](https://ocaml.org/api/Format.html#fpp), and `fprintf`, `eprintf` and `sprintf` also work just like their `Format` counterparts.
+As you can see in the examples in the previous section, `Spectrum.Simple.printf` works just like `Format.printf` from the [OCaml stdlib](https://ocaml.org/api/Format.html#fpp), and `fprintf`, `eprintf` and `sprintf` also work just like their `Format` counterparts.
 
 #### Buffering and flushing
 
@@ -123,7 +131,7 @@ One change from `Format` is the optional `?flush:bool` arg to some methods. This
 In that case you can ensure that Spectrum prints to the screen before relinquishing the formatter with:
 
 ```ocaml
-Spectrum.Printer.printf ~flush:true "@{<#f00>%s@}\n" "RED ALERT";;
+Spectrum.Simple.printf ~flush:true "@{<#f00>%s@}\n" "RED ALERT";;
 ```
 
 Spectrum `sprintf` behaves like `Format.sprintf` i.e. the buffer is always flushed after calling the method. If you need buffering for better performance then [the advice in the Format docs](https://ocaml.org/api/Format.html#VALsprintf) re managing your own buffer via `fprintf` applies to Specturm too.
@@ -211,6 +219,9 @@ Fmt.styled Fmt.(`Bg `Blue) Fmt.int Fmt.stdout 999;;
 ## TODOs
 
 - use the actual xterm colour names (seems like the ones I have came from some lib that changed some of them)
+  - actually it seems the https://www.ditig.com/256-colors-cheat-sheet source is not ideal as some colour names are repeated with different values (e.g. `IndianRed`)
+  - the better source is the `rgb.txt` file from X11 systems, see https://en.wikipedia.org/wiki/X11_color_names  
+  https://www.apt-browse.org/browse/ubuntu/trusty/main/all/x11-common/1:7.7+1ubuntu8/file/etc/X11/rgb.txt
 - tests for all methods (`sprintf` and the lexer are tested currently)
 - add other `Format` methods like `dprintf` etc?
   - can we remove the forced buffer flush for `fprintf` at least?
