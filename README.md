@@ -94,8 +94,8 @@ Spectrum.Simple.printf "@{<bg:#f00,bold,yellow>%s@}\n" "RED ALERT";;
 
 Spectrum provides two versions of the main module:
 
-1. The default is `Spectrum.Simple` and it will raise an exception if your tags are invalid (i.e. malformed or unrecognised colour name, style name).
-2. Alternatively `Spectrum.Simple.Noexn` will swallow any errors, invalid tags will simply have no effect on the output string.
+1. The default is `Spectrum` and, like stdlib `Format`, will swallow any errors so that invalid tags will simply have no effect on the output string.
+2. Alternatively `Spectrum.Exn` will raise an exception if your tags are invalid (i.e. malformed or unrecognised colour name, style name).
 
 Both modules expose the same interface:
 

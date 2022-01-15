@@ -53,7 +53,7 @@ module Exn = Make (Spectrum) (val meta "Exn")
 module Noexn = Make (Spectrum.Noexn) (val meta "Noexn")
 
 let test_sprintf_raises fmt exc () =
-  let open Spectrum in
+  let open Spectrum.Exn in
   let msg = Printf.sprintf "%s -> %s" fmt (Printexc.to_string exc) in
   Alcotest.(check_raises msg exc (fun () ->
       let fmt = Scanf.format_from_string fmt (format_of_string "") in

@@ -120,4 +120,4 @@ module Exn = (val (make_printer true) : Printer)
 
 module Noexn = (val (make_printer false) : Printer)
 
-include Exn
+include Noexn
