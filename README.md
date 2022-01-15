@@ -101,10 +101,6 @@ Both modules expose the same interface:
 
 ```ocaml
 module type Shortcuts = sig
-  (** equivalent to [Format.fprintf] *)
-  val fprintf :
-    Format.formatter -> ('a, Format.formatter, unit, unit) format4 -> 'a
-
   (** equivalent to [Format.printf] *)
   val printf : ('a, Format.formatter, unit, unit) format4 -> 'a
 
@@ -116,7 +112,7 @@ module type Shortcuts = sig
 end
 
 module type Printer = sig
-  val prepare_ppf : Format.formatter -> bool -> Format.formatter -> unit
+  val prepare_ppf : Format.formatter -> unit -> unit
 
   module Simple : Shortcuts
 end

@@ -13,3 +13,6 @@ let () =
       "pre" in
   Format.print_string result;
   Format.fprintf ppf "@{<red>%s@}\n" "after";
+  let reset = prepare_ppf ppf in
+  Format.fprintf ppf "@{<green>%s@}\n" "Hello world 👋";
+  reset ();
