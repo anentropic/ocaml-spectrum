@@ -1,9 +1,9 @@
 # spectrum
 Library for colour and formatting in the terminal.
 
-It's a little DSL which is exposed via OCaml `Format` module's ["semantic tags"](https://ocaml.org/api/Format.html#tags) feature. String tags are defined for ANSI styles such as bold, underline etc and for named colours from the [xterm 256-color palette](https://www.ditig.com/256-colors-cheat-sheet), as well as 24-bit colours via CSS-style hex codes and RGB or HSL values.
+It's a little DSL which is exposed via OCaml `Format` module's ["semantic tags"](https://ocaml.org/api/Format.html#tags) feature. String tags are defined for ANSI styles such as bold, underline etc and for named colours from the [xterm 256-color palette][1], as well as 24-bit colours via CSS-style hex codes and RGB or HSL values.
 
-It's inspired by the examples given in ["Format Unraveled"](https://hal.archives-ouvertes.fr/hal-01503081/file/format-unraveled.pdf#page=11), a paper by Richard Bonichon & Pierre Weis, which also explains the cleverness behind OCaml's (mostly) type-safe format string system.
+It's inspired by the examples given in ["Format Unraveled"](https://hal.archives-ouvertes.fr/hal-01503081/file/format-unraveled.pdf#page=11), a paper by Richard Bonichon & Pierre Weis, which also explains the cleverness behind OCaml's highly type-safe format string system.
 
 ### Goals
 
@@ -12,7 +12,7 @@ It's inspired by the examples given in ["Format Unraveled"](https://hal.archives
 
 ### Non-goals
 
-- Any extended "Terminal UI" kind of features, we're just doing text styling (but hopefully it should fit in fine with `Format`'s existing box and table features etc)
+- Any extended "Terminal UI" kind of features, we're just doing text styling (but hopefully it should fit in fine with `Format` or `Fmt`'s existing box and table features etc)
 - Maximum performance: if you are formatting high volumes of logs you may like to look at [alternatives](#alternatives). (Performance should be ok but it's not benchmarked and at the end of the day we have to parse the string tags)
 
 ## Installation
@@ -25,13 +25,29 @@ opam install spectrum
 
 ## Usage
 
-The basic usage looks like:
+To use Spectrum we have to configure a [pretty-print formatter](https://ocaml.org/api/Format.html#1_Formatters) (type: `Format.formatter`, often just called a `ppf`) in order to enable our custom tag handling.
+
+This looks something like:
+
+```ocaml
+let reset_ppf = Spectrum.prepare_ppf Format.std_formatter;;
+Format.printf "@{<green>%s@}\n" "Hello world 👋";;
+(* when you're done with Spectrum printing you can use the returned function
+   to restore the original ppf state (Spectrum disabled)... *)
+reset_ppf ();;
+```
+
+The pattern is `@{<TAG-NAME>CONTENT@}`.
+
+So in the example above `<green>` is matching one of the 256 xterm [color names][1]. Tag names are case-insensitive.
+
+Spectrum also provides an "instant gratification" interface, where the prepare/reset of the ppf happens automatically. This looks like:
 
 ```ocaml
 Spectrum.Simple.printf "@{<green>%s@}\n" "Hello world 👋";;
 ```
 
-The pattern is `@{<TAG-NAME>CONTENT@}`. So in the example above `green` is matching one of the 256 xterm [color names](https://www.ditig.com/256-colors-cheat-sheet). Tag names are case-insensitive.
+This is handy when doing ad hoc printing, but bear in mind that it is doing the prepare/reset, as well as flushing the output buffer, every time you call one the methods. For most efficient use in your application it's better to use the explicit `prepare_ppf` form.
 
 ### Tags
 
@@ -41,14 +57,13 @@ You can have arbitrarily nested tags, e.g.:
 Spectrum.Simple.printf "@{<green>%s @{<bold>%s@} %s@}\n" "Hello" "world" "I'm here";;
 ```
 
-Which should look like:  
-![Screenshot 2021-09-01 at 12 24 49](https://user-images.githubusercontent.com/147840/131700486-e0551e74-b901-4746-a0e7-f73ca0494a85.png)
+Which should look like:
 
-If you see what looks like HTML tags instead of styled text then see the note here about [flushing the buffer](#buffering-and-flushing).
+![Screenshot 2022-01-15 at 19 08 09](https://user-images.githubusercontent.com/147840/149634761-6c2d1799-4f19-42c3-a3f4-fbeec2b04546.png)
 
 Above, the tag `bold` is used to output one the [ANSI style codes](https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_(Select_Graphic_Rendition)_parameters).
 
-Spectrum defines tags for:
+Spectrum defines tags for these styles:
 
 - `bold`
 - `dim`
@@ -68,10 +83,18 @@ Spectrum.Simple.printf "@{<#f00>%s@}\n" "RED ALERT";;
 ```
 
 ...or CSS-style [rgb(...)](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/rgb()) or [hsl(...)](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/hsl()) formats:
+
 ```ocaml
 Spectrum.Simple.printf "@{<rgb(240 192 144)>%s@}\n" "Hello world 👋";;
-Spectrum.Simple.printf "@{<hsl(60 100% 50%)>%s@}\n" "YELLOW ALERT";;
+Spectrum.Simple.printf "@{<hsl(60 100 50)>%s@}\n" "YELLOW ALERT";;
 ```
+![Screenshot 2022-01-15 at 19 16 50](https://user-images.githubusercontent.com/147840/149634994-609a9f07-74b3-40f6-81c3-9f70914f9400.png)
+
+As in CSS, comma separators between the RGB or HSL components are optional.
+
+NOTE: in CSS you would specify HSL colour as `(<hue degrees> <saturation>% <lightness>%)` but in a format string the `%` has to be escaped as `%%`. Since that is ugly Spectrum will also accept HSL colors without `%` sign (see above). As in CSS, negative Hue angles are supported and angles > 360 will wrap around.
+
+#### Foreground/background
 
 By default you are setting the "foreground" colour, i.e. the text colour.
 
@@ -80,7 +103,7 @@ Any colour tag can be prefixed with a foreground `fg:` or background `bg:` quali
 ```ocaml
 Spectrum.Simple.printf "@{<bg:#f00>%s@}\n" "RED ALERT";;
 ```
-![Screenshot 2021-09-01 at 16 36 55](https://user-images.githubusercontent.com/147840/131701013-db03739c-2b23-4038-95eb-30b11efe751b.png)
+![Screenshot 2022-01-15 at 19 24 22](https://user-images.githubusercontent.com/147840/149635190-70af1871-50c8-4e78-9369-a8ce71888106.png)
 
 
 Finally, Spectrum also supports compound tags in comma-separated format, e.g.:
@@ -88,19 +111,21 @@ Finally, Spectrum also supports compound tags in comma-separated format, e.g.:
 ```ocaml
 Spectrum.Simple.printf "@{<bg:#f00,bold,yellow>%s@}\n" "RED ALERT";;
 ```
-![Screenshot 2022-01-10 at 12 26 28](https://user-images.githubusercontent.com/147840/148767442-5fd2f8a4-9f6b-4a03-86cd-ebea4065b414.png)
+![Screenshot 2022-01-15 at 19 25 27](https://user-images.githubusercontent.com/147840/149635217-a3b86a4b-e732-4c7e-887d-e907b249214d.png)
 
 ### Interface
 
 Spectrum provides two versions of the main module:
 
-1. The default is `Spectrum` and, like stdlib `Format`, will swallow any errors so that invalid tags will simply have no effect on the output string.
+1. The default is `Spectrum` and, like stdlib `Format`, it will swallow any errors so that invalid tags will simply have no effect on the output string.
 2. Alternatively `Spectrum.Exn` will raise an exception if your tags are invalid (i.e. malformed or unrecognised colour name, style name).
 
 Both modules expose the same interface:
 
 ```ocaml
-module type Shortcuts = sig
+val prepare_ppf : Format.formatter -> unit -> unit
+
+module Simple : sig
   (** equivalent to [Format.printf] *)
   val printf : ('a, Format.formatter, unit, unit) format4 -> 'a
 
@@ -110,27 +135,9 @@ module type Shortcuts = sig
   (** equivalent to [Format.sprintf] *)
   val sprintf : ('a, Format.formatter, unit, string) format4 -> 'a
 end
-
-module type Printer = sig
-  val prepare_ppf : Format.formatter -> unit -> unit
-
-  module Simple : Shortcuts
-end
 ```
 
-As you can see in the examples in the previous section, `Spectrum.Simple.printf` works just like `Format.printf` from the [OCaml stdlib](https://ocaml.org/api/Format.html#fpp), and `fprintf`, `eprintf` and `sprintf` also work just like their `Format` counterparts.
-
-#### Buffering and flushing
-
-One change from `Format` is the optional `?flush:bool` arg to some methods. This is to get around the problem encountered when other formatters are also using the same ppf i.e. `Format.std_formatter`. For example when inside a utop shell, or running tests via Alcotest. In these cases you may find that (with short strings) your `printf` output is entirely buffered, and the formatter is returned to control of utop before it is output, resulting in your styles not being rendered.
-
-In that case you can ensure that Spectrum prints to the screen before relinquishing the formatter with:
-
-```ocaml
-Spectrum.Simple.printf ~flush:true "@{<#f00>%s@}\n" "RED ALERT";;
-```
-
-Spectrum `sprintf` behaves like `Format.sprintf` i.e. the buffer is always flushed after calling the method. If you need buffering for better performance then [the advice in the Format docs](https://ocaml.org/api/Format.html#VALsprintf) re managing your own buffer via `fprintf` applies to Specturm too.
+As you can see in the examples in the previous section, `Spectrum.Simple.printf` works just like `Format.printf` from the [OCaml stdlib](https://ocaml.org/api/Format.html#fpp), and `eprintf` and `sprintf` also work just like their `Format` counterparts.
 
 ### Capabilities detection
 
@@ -161,15 +168,27 @@ type color_level =
 
 - `Unsupported`: probably best not to use colors or styling
 - `Basic`: supports 16 colors, i.e. the 8 basic colors plus "bright" version of each. They are equivalent to the first eight colours of the xterm 256-color set, with bright version accessed by setting the style to **bold**. So the available colour name tags are:
-  - `black`
-  - `red`
-  - `green`
-  - `yellow`
-  - `blue`
-  - `magenta`
-  - `cyan`
-  - `light-gray` (i.e. white)
-- `Eight_bit`: supports the [xterm 256-color palette](https://jonasjacek.github.io/colors/), CSS hex codes likely won't work.
+  - <span style="color:#000000">■</span> `black` (with `bold` will display as: `grey`)
+  - <span style="color:#800000">■</span> `maroon` (with `bold` will display as: `red`)
+  - <span style="color:#008000">■</span> `green` (with `bold` will display as: `lime`)
+  - <span style="color:#808000">■</span> `olive` (with `bold` will display as: `yellow`)
+  - <span style="color:#000080">■</span> `navy` (with `bold` will display as: `blue`)
+  - <span style="color:#800080">■</span> `purple` (with `bold` will display as: `fuchsia`)
+  - <span style="color:#008080">■</span> `teal` (with `bold` will display as: `aqua`)
+  - <span style="color:#c0c0c0">■</span> `silver` (with `bold` will display as: `white`)
+  - <span style="color:#808080">■</span> `grey`
+  - <span style="color:#ff0000">■</span> `red`
+  - <span style="color:#00ff00">■</span> `lime`
+  - <span style="color:#ffff00">■</span> `yellow`
+  - <span style="color:#0000ff">■</span> `blue`
+  - <span style="color:#ff00ff">■</span> `fuchsia`
+  - <span style="color:#00ffff">■</span> `aqua`
+  - <span style="color:#ffffff">■</span> `white`
+- `Eight_bit`: supports the [xterm 256-color palette][1]. Named colours beyond the first 16 above should keep their hue when bolded. CSS 24-bit colours likely won't work.
+  - NOTE: colour names from that list have been normalised by hyphenating, and where names are repated they are made unique with an alphabetical suffix, e.g. `SpringGreen3` is present in Spectrum as:
+    - <span style="color:#00af5f">■</span> `spring-green-3a`
+    - <span style="color:#00d75f">■</span> `spring-green-3b`
+  - See the defs at https://github.com/anentropic/ocaml-spectrum/blob/main/lib/lexer.mll#L24
 - `True_color`: should support everything
 
 ## Alternatives
@@ -193,16 +212,18 @@ Fmt.styled Fmt.(`Bg `Blue) Fmt.int Fmt.stdout 999;;
 ## Changelog
 
 #### 0.6.0
-- don't flush buffers by default for every method any more
-  - `sprintf` will continue to (as per `Format.sprintf`)
-  - `fprint`, `printf` and `eprintf` now have a `?(flush=false)` default arg
-  - this allows to do buffered printing by default, like `Format` does, but can also call `printf ~flush:true` e.g. when in a utop shell, to ensure styles are rendered
+- finally understood what the interface should be 😅
+- expose main interface via the parent `Spectrum` module (instead of `Spectrum.Printer` as it used to be)
+- main interface is now `Spectrum.prepare_ppf`, allowing Spectrum tag handling with the usual `Format.printf` methods, with the usual buffering behaviour in user's control
+- "instant gratification" interface (previously our main interface) is now `Spectrum.Simple.printf` and friends, having the always-flush buffer behaviour
+- changed the colour names in `Basic` range to match the list at https://www.ditig.com/256-colors-cheat-sheet
+- make `%` char optional in HSL colours, to avoid ugly escaping
 
 #### 0.5.0
 - support CSS-style `rgb(...)` and `hsl(...)` color tags
 
 #### 0.4.0
-- port the terminal colour capabilities detection from chalk.js
+- port the terminal colour capabilities detection from [chalk.js](https://github.com/chalk/chalk)
 
 #### 0.3.0
 - expose separate `Exn` and `Noexn` interfaces
@@ -214,14 +235,11 @@ Fmt.styled Fmt.(`Bg `Blue) Fmt.int Fmt.stdout 999;;
 
 ## TODOs
 
-- use the actual xterm colour names (seems like the ones I have came from some lib that changed some of them)
-  - actually it seems the https://www.ditig.com/256-colors-cheat-sheet source is not ideal as some colour names are repeated with different values (e.g. `IndianRed`)
-  - the better source is the `rgb.txt` file from X11 systems, see https://en.wikipedia.org/wiki/X11_color_names  
-  https://www.apt-browse.org/browse/ubuntu/trusty/main/all/x11-common/1:7.7+1ubuntu8/file/etc/X11/rgb.txt
 - tests for all methods (`sprintf` and the lexer are tested currently)
-- add other `Format` methods like `dprintf` etc?
-  - can we remove the forced buffer flush for `fprintf` at least?
 - publish the printer and capabilities-detection as separate opam modules?
 - expose variant types for use with explicit `mark_open_stag` and close calls?
 - auto coercion to nearest supported colour, for high res colours on unsupported terminals, as per `chalk`
   - don't output any codes if level is `Unsupported`
+
+
+[1]: https://www.ditig.com/256-colors-cheat-sheet

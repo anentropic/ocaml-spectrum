@@ -42,25 +42,25 @@ let () =
         test_case "Rapid blink" `Quick (test_tag_to_code "rapid-blink" (Ok "5"));
       ];
       "Named colors", [
-        test_case "Foreground (implicit): red" `Quick (test_tag_to_code "red" (Ok "38;5;1"));
-        test_case "Foreground (explicit): red" `Quick (test_tag_to_code "fg:red" (Ok "38;5;1"));
-        test_case "Background (explicit): red" `Quick (test_tag_to_code "bg:red" (Ok "48;5;1"));
+        test_case "Foreground (implicit): red" `Quick (test_tag_to_code "red" (Ok "38;5;9"));
+        test_case "Foreground (explicit): red" `Quick (test_tag_to_code "fg:red" (Ok "38;5;9"));
+        test_case "Background (explicit): red" `Quick (test_tag_to_code "bg:red" (Ok "48;5;9"));
         test_case "Foreground (implicit): dark-olive-green-1a" `Quick (test_tag_to_code "dark-olive-green-1a" (Ok "38;5;191"));
         test_case "Foreground (explicit): dark-olive-green-1a" `Quick (test_tag_to_code "fg:dark-olive-green-1a" (Ok "38;5;191"));
         test_case "Background (explicit): dark-olive-green-1a" `Quick (test_tag_to_code "bg:dark-olive-green-1a" (Ok "48;5;191"));
       ];
       "Compound (manually-defined tests)", [
         (* i.e. not using [compound_tag_permutations] *)
-        test_case "red, bold, bg yellow" `Quick (test_tag_to_code "red,bold,bg:yellow" (Ok "38;5;1;1;48;5;3"));
-        test_case "ignores whitespace" `Quick (test_tag_to_code "red,  bold  ,\tbg:yellow" (Ok "38;5;1;1;48;5;3"));
+        test_case "red, bold, bg yellow" `Quick (test_tag_to_code "red,bold,bg:yellow" (Ok "38;5;9;1;48;5;11"));
+        test_case "ignores whitespace" `Quick (test_tag_to_code "red,  bold  ,\tbg:yellow" (Ok "38;5;9;1;48;5;11"));
       ];
       "Compound tags from named colors", compound_tag_permutations [
-        [("Red", "red", "38;5;1"); ("Underline", "underline", "4")];
-        [("Bg Red", "bg:red", "48;5;1"); ("Underline", "underline", "4")];
+        [("Red", "red", "38;5;9"); ("Underline", "underline", "4")];
+        [("Bg Red", "bg:red", "48;5;9"); ("Underline", "underline", "4")];
         [("dark-olive-green-1a", "dark-olive-green-1a", "38;5;191"); ("Bold", "bold", "1")];
-        [("Red", "red", "38;5;1");
+        [("Red", "red", "38;5;9");
          ("Underline", "underline", "4");
-         ("Bg Red", "bg:red", "48;5;1");
+         ("Bg Red", "bg:red", "48;5;9");
          ("Bold", "bold", "1")];
       ];
       "Hex colors", [
@@ -95,15 +95,16 @@ let () =
         test_case "Fg (explicit): 1-3 digits, mixed commas" `Quick (test_tag_to_code "fg:rgb(9 21,231)" (Ok "38;2;9;21;231"));
       ];
       "HSL colors", [
-        test_case "Fg (implicit): no commas" `Quick (test_tag_to_code "hsl(75 100% 50%)" (Ok "38;2;191;255;0"));
-        test_case "Fg (implicit): upper case prefix" `Quick (test_tag_to_code "HSL(75 100% 50%)" (Ok "38;2;191;255;0"));
-        test_case "Fg (implicit): mixed case prefix" `Quick (test_tag_to_code "hSl(75 100% 50%)" (Ok "38;2;191;255;0"));
-        test_case "Fg (explicit): no commas" `Quick (test_tag_to_code "fg:hsl(75 100% 50%)" (Ok "38;2;191;255;0"));
-        test_case "Bg (explicit): no commas" `Quick (test_tag_to_code "bg:hsl(75 100% 50%)" (Ok "48;2;191;255;0"));
-        test_case "Fg (explicit): mixed commas" `Quick (test_tag_to_code "fg:hsl(75,100%, 50%)" (Ok "38;2;191;255;0"));
-        test_case "Fg (explicit): mixed commas" `Quick (test_tag_to_code "fg:hsl(75 100%,50%)" (Ok "38;2;191;255;0"));
-        test_case "Fg (explicit): hue wrap-around" `Quick (test_tag_to_code "fg:hsl(435 100%,50%)" (Ok "38;2;191;255;0"));
-        test_case "Fg (explicit): hue wrap-around negative" `Quick (test_tag_to_code "fg:hsl(-285 100%,50%)" (Ok "38;2;191;255;0"));
+        test_case "Fg (implicit): no commas" `Quick (test_tag_to_code "hsl(75 100 50)" (Ok "38;2;191;255;0"));
+        test_case "Fg (implicit): upper case prefix" `Quick (test_tag_to_code "HSL(75 100 50)" (Ok "38;2;191;255;0"));
+        test_case "Fg (implicit): mixed case prefix" `Quick (test_tag_to_code "hSl(75 100 50)" (Ok "38;2;191;255;0"));
+        test_case "Fg (explicit): no commas" `Quick (test_tag_to_code "fg:hsl(75 100 50)" (Ok "38;2;191;255;0"));
+        test_case "Bg (explicit): no commas" `Quick (test_tag_to_code "bg:hsl(75 100 50)" (Ok "48;2;191;255;0"));
+        test_case "Fg (explicit): mixed commas" `Quick (test_tag_to_code "fg:hsl(75,100, 50)" (Ok "38;2;191;255;0"));
+        test_case "Fg (explicit): mixed commas" `Quick (test_tag_to_code "fg:hsl(75 100,50)" (Ok "38;2;191;255;0"));
+        test_case "Fg (explicit): hue wrap-around" `Quick (test_tag_to_code "fg:hsl(435 100,50)" (Ok "38;2;191;255;0"));
+        test_case "Fg (explicit): hue wrap-around negative" `Quick (test_tag_to_code "fg:hsl(-285 100,50)" (Ok "38;2;191;255;0"));
+        test_case "Fg (implicit): optional % signs" `Quick (test_tag_to_code "hsl(75 100% 50%)" (Ok "38;2;191;255;0"));
       ];
       (* Some of these are a bit unintuitive due to the way they get parsed *)
       "Invalid tags", [
@@ -116,10 +117,9 @@ let () =
         test_case "Invalid rgb color (out of range)" `Quick (test_tag_to_code "fg:rgb(0 128 256)" (Error (InvalidRgbColor "256")));
         test_case "Invalid color name (not matched as rgb: missing value)" `Quick (test_tag_to_code "rgb(0 128)" (Error (InvalidColorName "rgb")));
         test_case "Invalid color name (not matched as rgb: extra value)" `Quick (test_tag_to_code "rgb(0 128 255 33)" (Error (InvalidColorName "rgb")));
-        test_case "Invalid hsl color (out of range)" `Quick (test_tag_to_code "fg:hsl(0 50% 101%)" (Error (InvalidPercentage "101")));
-        test_case "Invalid color name (not matched as hsl: missing value)" `Quick (test_tag_to_code "hsl(0 50%)" (Error (InvalidColorName "hsl")));
-        test_case "Invalid color name (not matched as hsl: missing % signs)" `Quick (test_tag_to_code "hsl(0 50 75)" (Error (InvalidColorName "hsl")));
-        test_case "Invalid color name (not matched as hsl: extra value)" `Quick (test_tag_to_code "hsl(0 50% 75% 33)" (Error (InvalidColorName "hsl")));
+        test_case "Invalid hsl color (out of range)" `Quick (test_tag_to_code "fg:hsl(0 50 101)" (Error (InvalidPercentage "101")));
+        test_case "Invalid color name (not matched as hsl: missing value)" `Quick (test_tag_to_code "hsl(0 50)" (Error (InvalidColorName "hsl")));
+        test_case "Invalid color name (not matched as hsl: extra value)" `Quick (test_tag_to_code "hsl(0 50 75 33)" (Error (InvalidColorName "hsl")));
         (* note that the valid segment of compound tag is not preserved, the tag returns an error *)
         test_case "Invalid tag (not matched as hex, in compound tag)" `Quick (test_tag_to_code "bold,#ab" (Error (InvalidTag "Unexpected char: #")));
         test_case "Invalid color name (in compound tag)" `Quick (test_tag_to_code "bold,xxx" (Error (InvalidColorName "xxx")));

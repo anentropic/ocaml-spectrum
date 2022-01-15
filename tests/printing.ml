@@ -28,11 +28,11 @@ module Make (P : Spectrum.Printer) (M : Meta) = struct
         test_case "Rapid blink" `Quick (test_sprintf "@{<rapid-blink>hello@}" "\027[0;5mhello\027[0m");
       ];
       Printf.sprintf "%s: Single colour" M.prefix, [
-        test_case "Named (foreground): red" `Quick (test_sprintf "@{<red>hello@}" "\027[0;38;5;1mhello\027[0m");
-        test_case "Named (foreground): red (case-insensitive)" `Quick (test_sprintf "@{<REd>hello@}" "\027[0;38;5;1mhello\027[0m");
+        test_case "Named (foreground): red" `Quick (test_sprintf "@{<red>hello@}" "\027[0;38;5;9mhello\027[0m");
+        test_case "Named (foreground): red (case-insensitive)" `Quick (test_sprintf "@{<REd>hello@}" "\027[0;38;5;9mhello\027[0m");
         test_case "Hex (foreground): FC9" `Quick (test_sprintf "@{<#FC9>hello@}" "\027[0;38;2;255;204;153mhello\027[0m");
         test_case "Hex (foreground): f0c090" `Quick (test_sprintf "@{<#f0c090>hello@}" "\027[0;38;2;240;192;144mhello\027[0m");
-        test_case "Named (background): red" `Quick (test_sprintf "@{<bg:red>hello@}" "\027[0;48;5;1mhello\027[0m");
+        test_case "Named (background): red" `Quick (test_sprintf "@{<bg:red>hello@}" "\027[0;48;5;9mhello\027[0m");
         test_case "Hex (background): FC9" `Quick (test_sprintf "@{<bg:#FC9>hello@}" "\027[0;48;2;255;204;153mhello\027[0m");
         test_case "Hex (background): f0c090" `Quick (test_sprintf "@{<bg:#f0c090>hello@}" "\027[0;48;2;240;192;144mhello\027[0m");
       ];
@@ -40,7 +40,7 @@ module Make (P : Spectrum.Printer) (M : Meta) = struct
         test_case "0-3-0 tag stack" `Quick (
           test_sprintf
             "before@{<red>one@{<bold>two@{<underline>three@}two@}one@}after"
-            "before\027[0;38;5;1mone\027[0;38;5;1;1mtwo\027[0;38;5;1;1;4mthree\027[0;38;5;1;1mtwo\027[0;38;5;1mone\027[0mafter"
+            "before\027[0;38;5;9mone\027[0;38;5;9;1mtwo\027[0;38;5;9;1;4mthree\027[0;38;5;9;1mtwo\027[0;38;5;9mone\027[0mafter"
         );
       ];
       Printf.sprintf "%s: Format args" M.prefix, [

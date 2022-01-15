@@ -1,21 +1,19 @@
 module Capabilities = Capabilities
 module Lexer = Lexer
 
-module type Shortcuts = sig
-  (** equivalent to [Format.printf] *)
-  val printf : ('a, Format.formatter, unit, unit) format4 -> 'a
-
-  (** equivalent to [Format.eprintf] *)
-  val eprintf : ('a, Format.formatter, unit, unit) format4 -> 'a
-
-  (** equivalent to [Format.sprintf] *)
-  val sprintf : ('a, Format.formatter, unit, string) format4 -> 'a
-end
-
 module type Printer = sig
   val prepare_ppf : Format.formatter -> unit -> unit
 
-  module Simple : Shortcuts
+  module Simple : sig
+    (** equivalent to [Format.printf] *)
+    val printf : ('a, Format.formatter, unit, unit) format4 -> 'a
+
+    (** equivalent to [Format.eprintf] *)
+    val eprintf : ('a, Format.formatter, unit, unit) format4 -> 'a
+
+    (** equivalent to [Format.sprintf] *)
+    val sprintf : ('a, Format.formatter, unit, string) format4 -> 'a
+  end
 end
 
 let stack_to_esc stack =
