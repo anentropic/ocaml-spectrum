@@ -8,12 +8,22 @@ It's inspired by the examples given in ["Format Unraveled"](https://hal.archives
 ### Goals
 
 - Simple and ergonomic formatting of strings, especially where multiple styles are applied to same line.
+- Focus on colours and text styling
 - Support full colour range on modern terminals
 
 ### Non-goals
 
 - Any extended "Terminal UI" kind of features, we're just doing text styling (but hopefully it should fit in fine with `Format` or `Fmt`'s existing box and table features etc)
-- Maximum performance: if you are formatting high volumes of logs you may like to look at [alternatives](#alternatives). (Performance should be ok but it's not benchmarked and at the end of the day we have to parse the string tags)
+- Maximum performance: if you are formatting high volumes of logs you may like to look at the alternatoive below. (Performance should be ok but it's not benchmarked and at the end of the day we have to parse the string tags)
+
+### See also
+
+- [`ANSITerminal`](https://github.com/Chris00/ANSITerminal/)
+- [`Fmt`](https://erratique.ch/software/fmt/doc/Fmt/)
+
+These two OCaml libs both provide support for styling console text with the basic 16 ANSI colours, and both also offer other features useful for formatting and interactivity in the terminal.
+
+In contrast, `Spectrum` focuses only on coloured text styling but offers deeper colour support. Hopefully it's complementary to the stdlib and other libs you may be using.
 
 ## Installation
 
@@ -49,7 +59,7 @@ Spectrum.Simple.printf "@{<green>%s@}\n" "Hello world 👋";;
 
 This is handy when doing ad hoc printing, but bear in mind that it is doing the prepare/reset, as well as flushing the output buffer, every time you call one the methods. For most efficient use in your application it's better to use the explicit `prepare_ppf` form.
 
-NOTE: `Format.sprintf` uses its own buffer (not the `Format.str_formatter` singleton) so AFAICT there is no way for `prepare_pff` to enable Spectrum with it. This means if you need a styled sprintf you have to use `Spectrum.Simple.sprintf`.
+NOTE: `Format.sprintf` uses its own buffer (not the `Format.str_formatter` singleton) so AFAICT there is no way for `prepare_pff` to enable Spectrum with it. This means if you need a styled sprintf you have to use `Spectrum.Simple.sprintf`, or use the longer way with `Format.fprintf` and your own buffer described in the [Format docs](https://ocaml.org/api/Format.html#VALsprintf).
 
 ### Tags
 
@@ -193,24 +203,6 @@ type color_level =
   - See the defs at https://github.com/anentropic/ocaml-spectrum/blob/main/lib/lexer.mll#L24
 - `True_color`: should support everything
 
-## Alternatives
-
-AFAICT the main lib for this in the OCaml world is [`ANSITerminal`](https://github.com/Chris00/ANSITerminal/). It supports more than just colour and styles, providing tools for other things you might need in a terminal app like interacting with the cursor. It doesn't use "semantic tags", but provides analogs of the `*printf` functions which now take a list of styles as the first arg, with that styling applied to the formatted string as a whole. For named colours it supports only the [Basic set](https://en.wikipedia.org/wiki/ANSI_escape_code#3-bit_and_4-bit) i.e. those which should be supported by any terminal.
-
-There is also [`Fmt`](https://erratique.ch/software/fmt/doc/Fmt/). Unfortunately I couldn't work out how to use it from reading the docs, which don't give any examples. I think it may also integrate with `Cmdliner` somehow, which could be handy. It appears to support the Basic colours and styles and exposes a `val styled : style -> 'a t -> 'a t` signature (where `'a t` is _"the type for formatters of values of type `'a.`"_ 🤷‍♂️ ), which looks similar to ANSITerminal but only applying a single style at a time i.e. no bold+red. (I guess you can do that by nesting function calls though).
-
-In other languages there are libs like [colored](https://gitlab.com/dslackw/colored) (Python) and [chalk](https://www.npmjs.com/package/chalk) (JS) ...the latter being one of the most comprehensive I've seen.
-
-#### Update:
-
-I worked out how to use `Fmt`, which is like this:
-
-```ocaml
-Fmt.set_style_renderer Fmt.stdout Fmt.(`Ansi_tty);;
-Fmt.styled Fmt.(`Fg `Red) Fmt.string Fmt.stdout "wtf\n";;
-Fmt.styled Fmt.(`Bg `Blue) Fmt.int Fmt.stdout 999;;
-```
-
 ## Changelog
 
 #### 0.6.0
@@ -237,7 +229,7 @@ Fmt.styled Fmt.(`Bg `Blue) Fmt.int Fmt.stdout 999;;
 
 ## TODOs
 
-- tests for all methods (`sprintf` and the lexer are tested currently)
+- tests for all methods (`sprintf` and the lexer are tested currently), property-based tests
 - publish the printer and capabilities-detection as separate opam modules?
 - expose variant types for use with explicit `mark_open_stag` and close calls?
 - auto coercion to nearest supported colour, for high res colours on unsupported terminals, as per `chalk`
