@@ -20,23 +20,23 @@
     | "strikethru" -> "9"
     | name -> raise @@ InvalidStyleName name
 
-  (* see: https://jonasjacek.github.io/colors/ *)
+  (* see: https://www.ditig.com/256-colors-cheat-sheet *)
   let name_to_xterm_color = function
     | "black" -> "0"
-    | "red" -> "1"
+    | "maroon" -> "1"
     | "green" -> "2"
-    | "yellow" -> "3"
-    | "blue" -> "4"
-    | "magenta" -> "5"
-    | "cyan" -> "6"
-    | "light-gray" -> "7"
-    | "dark-gray" -> "8"
-    | "light-red" -> "9"
-    | "light-green" -> "10"
-    | "light-yellow" -> "11"
-    | "light-blue" -> "12"
-    | "light-magenta" -> "13"
-    | "light-cyan" -> "14"
+    | "olive" -> "3"
+    | "navy" -> "4"
+    | "purple" -> "5"
+    | "teal" -> "6"
+    | "silver" -> "7"
+    | "grey" -> "8"
+    | "red" -> "9"
+    | "lime" -> "10"
+    | "yellow" -> "11"
+    | "blue" -> "12"
+    | "fuchsia" -> "13"
+    | "aqua" -> "14"
     | "white" -> "15"
     | "grey-0" -> "16"
     | "navy-blue" -> "17"
@@ -370,7 +370,7 @@ rule to_code = parse
       qualified_color_from_rgb q r g b
     }
   (* CSS-style hsl colours *)
-  | ((qualifier as q)  ":")? (hsl "(" (("-"? int) as h) sep (int as s) "%" sep (int as l) "%" ")") {
+  | ((qualifier as q)  ":")? (hsl "(" (("-"? int) as h) sep (int as s) "%"? sep (int as l) "%"? ")") {
       qualified_color_from_hsl q h s l
     }
   (* xterm 256 colour names *)
