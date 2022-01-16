@@ -1,21 +1,49 @@
 module type Meta = sig
   val prefix : string
+  val simple : bool
 end
 
-let meta prefix = (module struct
+let meta prefix simple = (module struct
   let prefix = prefix
+  let simple = simple
 end : Meta)
 
 module Make (P : Spectrum.Printer) (M : Meta) = struct
   let test_sprintf raw_fmt expected () =
-    let fmt = Scanf.format_from_string raw_fmt (format_of_string "") in
-    let result = P.Simple.sprintf fmt in
+    let result = if M.simple then
+        let fmt = Scanf.format_from_string raw_fmt (format_of_string "") in
+        P.Simple.sprintf fmt
+      else
+        let b = Buffer.create 512 in
+        let ppf = Format.formatter_of_buffer b in
+        let reset = P.prepare_ppf ppf in
+        let fmt = Scanf.format_from_string raw_fmt (format_of_string "") in
+        ignore @@ Format.fprintf ppf fmt;
+        Format.pp_print_flush ppf ();
+        let result = Buffer.contents b in
+        Buffer.reset b;
+        reset ();
+        result
+    in
     let msg = Printf.sprintf "%s -> %s | %s" raw_fmt (String.escaped expected) (String.escaped result) in
     Alcotest.(check string) msg expected result
 
   let test_sprintf1 raw_fmt arg1 expected () =
-    let fmt = Scanf.format_from_string raw_fmt (format_of_string "%s") in
-    let result = P.Simple.sprintf fmt arg1 in
+    let result = if M.simple then
+        let fmt = Scanf.format_from_string raw_fmt (format_of_string "%s") in
+        P.Simple.sprintf fmt arg1
+      else
+        let b = Buffer.create 512 in
+        let ppf = Format.formatter_of_buffer b in
+        let reset = P.prepare_ppf ppf in
+        let fmt = Scanf.format_from_string raw_fmt (format_of_string "%s") in
+        ignore @@ Format.fprintf ppf fmt arg1;
+        Format.pp_print_flush ppf ();
+        let result = Buffer.contents b in
+        Buffer.reset b;
+        reset ();
+        result
+    in
     let msg = Printf.sprintf "%s -> %s | %s" raw_fmt (String.escaped expected) (String.escaped result) in
     Alcotest.(check string) msg expected result
 
@@ -35,6 +63,9 @@ module Make (P : Spectrum.Printer) (M : Meta) = struct
         test_case "Named (background): red" `Quick (test_sprintf "@{<bg:red>hello@}" "\027[0;48;5;9mhello\027[0m");
         test_case "Hex (background): FC9" `Quick (test_sprintf "@{<bg:#FC9>hello@}" "\027[0;48;2;255;204;153mhello\027[0m");
         test_case "Hex (background): f0c090" `Quick (test_sprintf "@{<bg:#f0c090>hello@}" "\027[0;48;2;240;192;144mhello\027[0m");
+        test_case "rgb(9, 21, 231)" `Quick (test_sprintf "@{<rgb(9 21 231)>hello@}" "\027[0;38;2;9;21;231mhello\027[0m");
+        test_case "hsl(75 100 50)" `Quick (test_sprintf "@{<hsl(75 100 50)>hello@}" "\027[0;38;2;191;255;0mhello\027[0m");
+        test_case "hsl(75 100% 50%)" `Quick (test_sprintf "@{<hsl(75 100%% 50%%)>hello@}" "\027[0;38;2;191;255;0mhello\027[0m");
       ];
       Printf.sprintf "%s: Nested" M.prefix, [
         test_case "0-3-0 tag stack" `Quick (
@@ -49,8 +80,10 @@ module Make (P : Spectrum.Printer) (M : Meta) = struct
     ]
 end
 
-module Exn = Make (Spectrum) (val meta "Exn")
-module Noexn = Make (Spectrum.Noexn) (val meta "Noexn")
+module Exn_simple = Make (Spectrum) (val meta "Exn Simple" true)
+module Exn_format = Make (Spectrum) (val meta "Exn Format" false)
+module Noexn_simple = Make (Spectrum.Noexn) (val meta "Noexn Simple" true)
+module Noexn_format = Make (Spectrum.Noexn) (val meta "Noexn Format" true)
 
 let test_sprintf_raises fmt exc () =
   let open Spectrum.Exn in
@@ -79,7 +112,7 @@ let get_invalid_tag_tests_exn =
 
 let get_invalid_tag_tests_noexn =
   let open Alcotest in
-  let open Noexn in
+  let open Noexn_simple in
   [
     "Noexn: Invalid tags", [
       test_case "Invalid color name (fg implicit)" `Quick (test_sprintf "@{<xxx>hello@}" "hello");
@@ -95,13 +128,17 @@ let get_invalid_tag_tests_noexn =
   ]
 
 let () =
-  let common_tests_exn = Exn.get_common_tests in
-  let common_tests_noexn = Noexn.get_common_tests in
+  let common_tests_exn_simple = Exn_simple.get_common_tests in
+  let common_tests_noexn_simple = Noexn_simple.get_common_tests in
+  let common_tests_exn_format = Exn_format.get_common_tests in
+  let common_tests_noexn_format = Noexn_format.get_common_tests in
   let invalid_tag_tests_exn = get_invalid_tag_tests_exn in
   let invalid_tag_tests_noexn = get_invalid_tag_tests_noexn in
   let tests = List.concat [
-      common_tests_exn;
-      common_tests_noexn;
+      common_tests_exn_simple;
+      common_tests_noexn_simple;
+      common_tests_exn_format;
+      common_tests_noexn_format;
       invalid_tag_tests_exn;
       invalid_tag_tests_noexn;
     ] in

@@ -14,5 +14,11 @@ let () =
   Format.print_string result;
   Format.fprintf ppf "@{<red>%s@}\n" "after";
   let reset = prepare_ppf ppf in
-  Format.fprintf ppf "@{<green>%s@}\n" "Hello world 👋";
+  Format.fprintf ppf "@{<green>%s@}\n" "using Format.fprintf 👋";
   reset ();
+  Format.fprintf ppf "@{<red>%s@}\n" "after reset ()";
+  let reset = prepare_ppf Format.str_formatter in
+  let result = Format.sprintf "@{<green>%s@}\n" "Format.sprintf doesn't work" in
+  Format.print_string result;
+  reset ();
+  Format.fprintf ppf "@{<red>%s@}\n" "after reset ()";
