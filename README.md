@@ -59,7 +59,7 @@ Spectrum.Simple.printf "@{<green>%s@}\n" "Hello world 👋";;
 
 This is handy when doing ad hoc printing, but bear in mind that it is doing the prepare/reset, as well as flushing the output buffer, every time you call one the methods. For most efficient use in your application it's better to use the explicit `prepare_ppf` form.
 
-NOTE: `Format.sprintf` uses its own buffer (not the `Format.str_formatter` singleton) so AFAICT there is no way for `prepare_pff` to enable Spectrum with it. This means if you need a styled sprintf you have to use `Spectrum.Simple.sprintf`, or use the longer way with `Format.fprintf` and your own buffer described in the [Format docs](https://ocaml.org/api/Format.html#VALsprintf).
+NOTE: `Format.sprintf` uses its own buffer (not the `Format.str_formatter` shared def) so AFAICT there is no way for `prepare_ppf` to enable Spectrum with it. This means if you need a styled sprintf you have to use `Spectrum.Simple.sprintf`, or use the longer way with `Format.fprintf` and your own buffer described in the [Format docs](https://ocaml.org/api/Format.html#VALsprintf).
 
 ### Tags
 
