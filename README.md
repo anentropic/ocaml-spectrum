@@ -198,7 +198,7 @@ type color_level =
   - ![#00ffff](https://via.placeholder.com/15/00ffff/000000?text=+) `aqua`
   - ![#ffffff](https://via.placeholder.com/15/ffffff/000000?text=+) `white`
 - `Eight_bit`: supports the [xterm 256-color palette][1]. Named colours beyond the first 16 above should keep their hue when bolded. CSS 24-bit colours likely won't work.
-  - NOTE: colour names from that list have been normalised by hyphenating, and where names are repated they are made unique with an alphabetical suffix, e.g. `SpringGreen3` is present in Spectrum as:
+  - NOTE: colour names from that list have been normalised by hyphenating, and where names are repeated they are made unique with an alphabetical suffix, e.g. `SpringGreen3` is present in Spectrum as:
     - ![#00af5f](https://via.placeholder.com/15/00af5f/000000?text=+) `spring-green-3a`
     - ![#00d75f](https://via.placeholder.com/15/00d75f/000000?text=+) `spring-green-3b`
   - See the defs at https://github.com/anentropic/ocaml-spectrum/blob/main/lib/lexer.mll#L24
