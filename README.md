@@ -117,6 +117,7 @@ Spectrum.Simple.printf "@{<bg:#f00>%s@}\n" "RED ALERT";;
 ```
 ![Screenshot 2022-01-15 at 19 24 22](https://user-images.githubusercontent.com/147840/149635190-70af1871-50c8-4e78-9369-a8ce71888106.png)
 
+#### Compound tags
 
 Finally, Spectrum also supports compound tags in comma-separated format, e.g.:
 
