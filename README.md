@@ -40,7 +40,7 @@ To use Spectrum we have to configure a [pretty-print formatter](https://ocaml.or
 This looks something like:
 
 ```ocaml
-let reset_ppf = Spectrum.prepare_ppf Format.std_formatter;;
+let reset_ppf = Spectrum.prepare_ppf Format.std_formatter;; (* prints to stdout *)
 Format.printf "@{<green>%s@}\n" "Hello world 👋";;
 (* when you're done with Spectrum printing you can use the returned function
    to restore the original ppf state (Spectrum disabled)... *)
