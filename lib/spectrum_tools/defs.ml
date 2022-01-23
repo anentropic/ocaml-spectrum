@@ -47,3 +47,7 @@ let load fname =
   | _ -> raise e_invalid
 
 let load_assoc fname = List.map (fun ac -> (ac.code, ac)) @@ load fname
+
+let get_defs () = load_assoc @@ Sys.getcwd () ^ "/lib/spectrum_tools/256-colors.json"
+
+let v4_of_ansi_color (def : ansi_color) = Color.of_rgb def.r def.g def.b
