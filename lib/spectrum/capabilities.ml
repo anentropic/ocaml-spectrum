@@ -201,6 +201,7 @@ end
 
 module Sys_Capabilities = Make(Sys)(SysOsInfo)
 
+(* default export *)
 include Sys_Capabilities
 
 type color_level_info = {
