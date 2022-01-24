@@ -36,9 +36,9 @@ let to_ansi_color = function
   | _ -> raise e_invalid
 
 (*
-loader for "256-colors.json"
-(from https://www.ditig.com/256-colors-cheat-sheet)
-...which contains defs of the xterm 256-color palette
+  loader for "256-colors.json"
+  (from https://www.ditig.com/256-colors-cheat-sheet)
+  ...which contains defs of the xterm 256-color palette
 *)
 let load fname =
   let data = Yojson.Safe.from_file fname in
