@@ -4,6 +4,11 @@ let (//) a b = float_of_int a /. float_of_int b
 (* rounds to nearest, .5 rounds up, -.5 rounds down *)
 let int_round n = Float.round n |> int_of_float
 
+let clamp min max n = match n with
+  | n when n < min -> min
+  | n when n > max -> max
+  | _ -> n
+
 let map_color f (color : Color.Rgba.t) = (f color.r), (f color.g), (f color.b)
 
 let product3 l l' l'' = 
@@ -11,6 +16,7 @@ let product3 l l' l'' =
       List.concat_map (fun e' ->
           List.map (fun e'' -> (e, e', e'')) l'') l') l
 
+let max3 a b c = max a (max b c)
 
 module type Showable = sig
   type t
