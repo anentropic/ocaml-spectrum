@@ -27,18 +27,18 @@ module type Converter = sig
   val rgb_to_ansi256 : Gg.v4 -> int
 end
 
-(* takes R,G,B 0..255 component values for one of the ANSI colours
-   (exact match only) and returns the corresponding ANSI code point *)
-let ansi256_rgb_to_code r g b = 16 + (r * 36) + (g * 6) + b
+(* takes R,G,B 'column' values for one of the ANSI colours
+   and returns the corresponding ANSI code point *)
+let ansi256_columns_to_code r g b = 16 + (r * 36) + (g * 6) + b
 
-(* takes 0..255 intensity value and returns nearest ANSI grey code *)
-let ansi_grey_code r =
-  if r < 8 then
+(* takes 0..255 luminance value and returns nearest ANSI grey code *)
+let ansi256_grey_to_code l =
+  if l < 8 then
     16  (* black *)
-  else if r > 248 then
+  else if l > 248 then
     231 (* white *)
   else
-    int_round ((r - 8) // 247 *. 24.) + 232
+    int_round ((l - 8) // 247 *. 24.) + 232
 
 
 module Chalk : Converter = struct
@@ -83,11 +83,11 @@ module Chalk : Converter = struct
         special case for grey-like colours
         the 232-255 code range is a 24 grey scale so we can get a closer match
       *)
-      ansi_grey_code color.r
+      ansi256_grey_to_code color.r
     else
       (* general colours *)
       let r, g, b = map_color quantize_256 color in
-      ansi256_rgb_to_code r g b
+      ansi256_columns_to_code r g b
 end
 
 (*
@@ -98,11 +98,10 @@ end
   sorting into buckets
 *)
 let rgb_component_range (color : Color.Rgba.t) =
-  List.fold_left max 0 [
-    abs (color.r - color.g);
-    abs (color.r - color.b);
-    abs (color.g - color.b);
-  ]
+  max3
+    (abs (color.r - color.g))
+    (abs (color.r - color.b))
+    (abs (color.g - color.b))
 
 let make_improved grey_threshold =
   let module M = struct
@@ -139,77 +138,106 @@ let make_improved grey_threshold =
           the 232-255 code range is a 24 grey scale so we can get a closer match
         *)
         let avg = int_round ((color.r + color.g + color.b) // 3) in
-        ansi_grey_code avg
+        ansi256_grey_to_code avg
       else
         (* general colours *)
         let r, g, b = map_color quantize_256 color in
-        ansi256_rgb_to_code r g b
+        ansi256_columns_to_code r g b
   end in
   (module M : Converter)
 
-module Improved = (val (make_improved 30) : Converter)
+module Improved = (val (make_improved 32) : Converter)
 
-(*
-  See https://stackoverflow.com/a/1678481/202168
-  This is the euclidian distance in LAB space
-*)
-let perceptual_distance rgb_a rgb_b =
-  Gg.V4.sub (Gg.Color.to_lab rgb_a) (Gg.Color.to_lab rgb_b)
-  |> Gg.V4.norm
 
-let ansi256_colour_values = IntAdjacencySet.of_list [0; 95; 135; 175; 215; 255]
-let ansi256_grey_values = IntAdjacencySet.of_list [
-    0; 8; 18; 28; 38; 48; 58; 68; 78; 88; 98;
-    108; 118; 128; 138; 148; 158; 168; 178; 188; 198;
-    208; 218; 228; 238; 255
-  ]
+let make_perceptual grey_threshold =
+  let module M = struct
 
-(* takes a component intensity 0..255 and returns the two adjacent values
-   from the ANSI palette base values 0, 95, 135, 175, 215, 255 *)
-let adjacent_ansi256_components = IntAdjacencySet.adjacent_values_exn ansi256_colour_values
-
-let adjacent_ansi256_grey_values = IntAdjacencySet.adjacent_values_exn ansi256_grey_values
-
-let adjacent_ansi256_colors color_v4 =
-  let color = Color.to_rgba color_v4 in
-  let r', g', b' = map_color adjacent_ansi256_components color in
-  let rgb_tuples = product3 r' g' b' in
-  List.map (fun (r, g, b) -> Color.of_rgb r g b) rgb_tuples
-
-let adjacent_ansi256_greys color_v4 =
-  let color = Color.to_rgba color_v4 in
-  let r', g', b' = map_color adjacent_ansi256_components color in
-  let rgb_tuples = product3 r' g' b' in
-  List.map (fun (r, g, b) -> Color.of_rgb r g b) rgb_tuples
-
-let ansi256_component_to_column = function
-  | 0 -> 0
-  | 95 -> 1
-  | 135 -> 2
-  | 175 -> 3
-  | 215 -> 4
-  | 255 -> 5
-  | i -> raise (Failure (Printf.sprintf "Invalid value: %d" i))
-
-let rgb_to_ansi256_perceptual color_v4 =
-  let color = Color.to_rgba color_v4 in
-  if rgb_component_range color < 16 then
     (*
-      special case for grey-like colours
-      the 232-255 code range is a 24 grey scale so we can get a closer match
-      TODO: these should be inserted as candidates rather than separate logic
+      See https://stackoverflow.com/a/1678481/202168
+      This is the euclidian distance in LAB space
     *)
-    let avg = int_round ((color.r + color.g + color.b) // 3) in
-    ansi_grey_code avg
-  else
-    (* general colours *)
-    let init = (255., Color.black) in
-    let candidate_distances = List.map (fun candidate ->
-        let distance = perceptual_distance color_v4 candidate in
-        (distance, candidate)
-      ) @@ adjacent_ansi256_colors color_v4
-    in
-    let (_, candidate) = List.fold_left min init candidate_distances in
-    let color = Color.to_rgba candidate in
-    let r, g, b = map_color ansi256_component_to_column color in
-    ansi256_rgb_to_code r g b
+    let perceptual_distance rgb_a rgb_b =
+      Gg.V4.sub (Gg.Color.to_lab rgb_a) (Gg.Color.to_lab rgb_b)
+      |> Gg.V4.norm
+
+    let ansi256_colour_values = IntAdjacencySet.of_list [
+        0; 95; 135; 175; 215; 255
+      ]
+    let ansi256_grey_values = IntAdjacencySet.of_list [
+        0; 8; 18; 28; 38; 48; 58; 68; 78; 88; 98;
+        108; 118; 128; 138; 148; 158; 168; 178; 188; 198;
+        208; 218; 228; 238; 255
+      ]
+    (*
+      takes a component intensity 0..255 and returns the two adjacent values
+      above+below from the ANSI palette base values 0, 95, 135, 175, 215, 255
+    *)
+    let adjacent_ansi256_components = IntAdjacencySet.adjacent_values_exn ansi256_colour_values
+    (* same but for the ANSI greyscale palette *)
+    let adjacent_ansi256_grey_values = IntAdjacencySet.adjacent_values_exn ansi256_grey_values
+
+    (*
+      a perceptual color -> greyscale conversion
+      a.k.a. the "weighted" or "luminosity" method
+      https://www.dynamsoft.com/blog/insights/image-processing/image-processing-101-color-space-conversion/
+      https://www.tutorialspoint.com/dip/grayscale_to_rgb_conversion.htm
+    *)
+    let to_greyscale (color: Color.Rgba.t) =
+      let r, g, b = map_color float_of_int color in
+      (0.299 *. r) +. (0.587 *. g) +. (0.114 *. b)
+      |> int_round
+      |> clamp 0 255
+
+    type candidate = ANSIColor of Gg.v4 | ANSIGrey of Gg.v4
+    let v4_of_candidate = function
+      | ANSIColor x -> x
+      | ANSIGrey x -> x
+
+    (* generate every combination of the above/below adjacent RGB values *)
+    let adjacent_ansi256_colors color_v4 =
+      let color = Color.to_rgba color_v4 in
+      let r', g', b' = map_color adjacent_ansi256_components color in
+      let rgb_tuples = product3 r' g' b' in
+      List.map (fun (r, g, b) -> ANSIColor (Color.of_rgb r g b)) rgb_tuples
+
+    let adjacent_ansi256_greys color_v4 =
+      let color = Color.to_rgba color_v4 in
+      let l' = adjacent_ansi256_grey_values (to_greyscale color) in
+      List.map (fun (l) -> ANSIGrey (Color.of_rgb l l l)) l'
+
+    (*
+      for RGB color values 0..255 -> 'column' index in the ANSI colours set
+      (exact match only - values must be already quantized)
+    *)
+    let ansi256_component_to_column = function
+      | 0 -> 0
+      | 95 -> 1
+      | 135 -> 2
+      | 175 -> 3
+      | 215 -> 4
+      | 255 -> 5
+      | i -> raise (Failure (Printf.sprintf "Invalid value: %d" i))
+
+    let rgb_to_ansi256 color_v4 =
+      (* if the colour is close to grey, include greyscale candidates too *)
+      let candidates = match rgb_component_range (Color.to_rgba color_v4) < grey_threshold with
+        | true -> adjacent_ansi256_colors color_v4 @ adjacent_ansi256_greys color_v4
+        | false -> adjacent_ansi256_colors color_v4
+      in
+      (* find candidate with the closest perceptual distance *)
+      let candidate_distances = List.map (fun candidate ->
+          let distance = perceptual_distance color_v4 (v4_of_candidate candidate) in
+          (distance, candidate)
+        ) @@ candidates
+      and init = (255., ANSIColor Color.black) in
+      let (_, candidate) = List.fold_left min init candidate_distances in
+      let color = Color.to_rgba (v4_of_candidate candidate) in
+      match candidate with
+      | ANSIColor _ ->
+        let r, g, b = map_color ansi256_component_to_column color in
+        ansi256_columns_to_code r g b
+      | ANSIGrey _ -> ansi256_grey_to_code color.r
+  end in
+  (module M : Converter)
+
+module Perceptual = (val (make_perceptual 32) : Converter)
