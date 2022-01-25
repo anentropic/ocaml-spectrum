@@ -1,7 +1,8 @@
+![spectrum](https://user-images.githubusercontent.com/147840/150885344-903be85d-5790-4bdb-82a2-542845046cc2.jpg)
 # spectrum
-Library for colour and formatting in the terminal.
+An OCaml library for colour and formatting in the terminal.
 
-It's a little DSL which is exposed via OCaml `Format` module's ["semantic tags"](https://ocaml.org/api/Format.html#tags) feature. String tags are defined for ANSI styles such as bold, underline etc and for named colours from the [xterm 256-color palette][1], as well as 24-bit colours via CSS-style hex codes and RGB or HSL values.
+It's a little DSL which is exposed via the `Format` module's ["semantic tags"](https://ocaml.org/api/Format.html#tags) feature. String tags are defined for ANSI styles such as bold, underline etc and for named colours from the [xterm 256-color palette][1], as well as 24-bit colours via CSS-style hex codes and RGB or HSL values.
 
 It's inspired by the examples given in ["Format Unraveled"](https://hal.archives-ouvertes.fr/hal-01503081/file/format-unraveled.pdf#page=11), a paper by Richard Bonichon & Pierre Weis, which also explains the cleverness behind OCaml's highly type-safe format string system.
 

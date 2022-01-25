@@ -1,7 +1,7 @@
 open Utils
 
 (*
-  the xterm 256 color palette is organised such that:
+  The ANSI 256 color palette is organised such that:
 
     0-15: the basic 'system' colours, RGB values of 0, 128, 255
       plus an extra grey of 192,192,192
@@ -9,12 +9,12 @@ open Utils
       so intervals of 40 with darkest interval missing and all offset +15
     232-255: greys in intervals of 10, offset and truncated to 8..238
 
-  the non-grey colours are organised into 'rows', with the six values of
+  The non-grey colours are organised into 'rows', with the six values of
   the B component as columns - the rows start with R:0 and G:0,
   incrementing G for the current R before incrementing R.
   starting at 16: 0,0,0
 
-  the 16 basic colours are organised as:
+  The 16 basic colours are organised as:
     0: 0,0,0
     1-6: combinations of 0,128
     7: 192,192,192
@@ -43,11 +43,13 @@ let ansi256_grey_to_code l =
 
 module Chalk : Converter = struct
   (*
-    returns ANSI code of approximate nearest xterm 256 palette color
+    Returns ANSI code of approximate nearest xterm 256 palette color
     for the given RGB color value.
 
     This is a port of the algorithm used by Chalk.js, coming from:
     https://github.com/Qix-/color-convert/blob/master/conversions.js#L546
+
+    It is computationally simplest of the three converters, however...
 
     Problem:
       (color.r // 255 *. 5.)
@@ -70,10 +72,11 @@ module Chalk : Converter = struct
     let color = Color.to_rgba color_v4 in
     (*
       The `>> 4` rshift sorts values into buckets of 16 width...
-      but of course some values which are adjacent will sort into
-      different buckets and won't be recognised as grey-like
-      ...this probably doesn't matter much since there are also
-      some pure greys in the general colours range
+      So this identifies 'grey-like' colours where r,g,b are all in the same
+      bucket. But of course some values which are adjacent will sort into
+      different buckets and then it won't be recognised as grey-like.
+      ...this probably doesn't matter too much in practice since there are
+      also some pure greys in the general colours range
     *)
     if (
       (Int.shift_right color.r 4) == (Int.shift_right color.g 4) &&
@@ -81,7 +84,8 @@ module Chalk : Converter = struct
     ) then
       (*
         special case for grey-like colours
-        the 232-255 code range is a 24 grey scale so we can get a closer match
+        the 232-255 code range is a 24 tone greyscale so we can get a closer
+        match than with the greys in the general colour range
       *)
       ansi256_grey_to_code color.r
     else
@@ -104,9 +108,18 @@ let rgb_component_range (color : Color.Rgba.t) =
     (abs (color.g - color.b))
 
 let make_improved grey_threshold =
+  (*
+    This sticks closely to the Chalk.js algorithm but has a more accurate
+    mapping to the ANSI palette by:
+    - grey-like colour detection by avg intensity rather than bit shift buckets
+    - non-grey-like colours quantized to their actual nearest ANSI target
+
+    This may be marginally slower than the original but is still pretty simple.
+  *)
   let module M = struct
     (*
-      Numerically we should sort into buckets of the half-way points, i.e.
+      Numerically we should sort into buckets of built around the half-way points
+      between each target value, i.e.
       0-47    (0)
       48-114  (95)
       115-154 (135)
@@ -126,16 +139,13 @@ let make_improved grey_threshold =
       else if i < 235 then 4
       else 5
 
-    (*
-      Attempts to fix the problems with the JS algorithm and
-      give a more accurate mapping, but is it slower maybe?
-    *)
     let rgb_to_ansi256 color_v4  =
       let color = Color.to_rgba color_v4 in
       if rgb_component_range color < grey_threshold then
         (*
           special case for grey-like colours
-          the 232-255 code range is a 24 grey scale so we can get a closer match
+          the 232-255 code range is a 24 tone greyscale so we can get a closer
+          match than with the greys in the general colour range
         *)
         let avg = int_round ((color.r + color.g + color.b) // 3) in
         ansi256_grey_to_code avg
@@ -150,11 +160,21 @@ module Improved = (val (make_improved 32) : Converter)
 
 
 let make_perceptual grey_threshold =
-  let module M = struct
+  (*
+    The [Improved] converter above should return numerically closest match.
 
+    However when researching palette quantization we find that there are
+    some algorithms that aim to provide 'perceptually' closest matches.
+
+    The key one is to compare colours via their Euclidian distance in the
+    LAB colour space. So for this converter we first find all the likely
+    target candidates in the ANSI palette, then return the closest measured
+    via that method.
+  *)
+  let module M = struct
     (*
       See https://stackoverflow.com/a/1678481/202168
-      This is the euclidian distance in LAB space
+      This is the Euclidian distance in LAB space
     *)
     let perceptual_distance rgb_a rgb_b =
       Gg.V4.sub (Gg.Color.to_lab rgb_a) (Gg.Color.to_lab rgb_b)
@@ -170,10 +190,10 @@ let make_perceptual grey_threshold =
       ]
     (*
       takes a component intensity 0..255 and returns the two adjacent values
-      above+below from the ANSI palette base values 0, 95, 135, 175, 215, 255
+      above and below it in the general colour range of the ANSI 256 palette
     *)
     let adjacent_ansi256_components = IntAdjacencySet.adjacent_values_exn ansi256_colour_values
-    (* same but for the ANSI greyscale palette *)
+    (* ...same but for the greyscale range of the ANSI 256 palette *)
     let adjacent_ansi256_grey_values = IntAdjacencySet.adjacent_values_exn ansi256_grey_values
 
     (*
@@ -240,4 +260,4 @@ let make_perceptual grey_threshold =
   end in
   (module M : Converter)
 
-module Perceptual = (val (make_perceptual 32) : Converter)
+module Perceptual = (val (make_perceptual 64) : Converter)
