@@ -1,7 +1,10 @@
 open Utils
 
 (*
-  The ANSI 256 color palette is organised such that:
+  What we call "ansi256" here are the xterm 256 color palette
+  i.e. colours set by using the ESC[38;5;<code>m sequence
+
+  The palette is organised such that:
 
     0-15: the basic 'system' colours, RGB values of 0, 128, 255
       plus an extra grey of 192,192,192
@@ -21,11 +24,68 @@ open Utils
     8: 128,128,128
     9-14: combinations of 0,255 (symmetrical to 1-6)
     15: 255,255,255
+
+  NOTE: there are no 128+255 combinations, only 0+128 and 0+255
+
+  (RGB values according to https://www.ditig.com/256-colors-cheat-sheet)
+
+  but terminals are configurable and Wikipedia shows different apps
+  choose different defaults for the 16 colour base palette:
+  https://en.wikipedia.org/wiki/ANSI_escape_code#3-bit_and_4-bit
 *)
+
+module Color = struct
+  include Color
+
+  module Hsva = struct
+    type t = {h: float; s: float; v: float; a: float}
+  end
+
+  (*
+    https://github.com/Qix-/color-convert/blob/master/conversions.js#L94
+  *)
+  let to_hsva color_v4 : Hsva.t =
+    let c = to_rgba' color_v4 in
+    let v = max3 c.r c.g c.b in
+    let diff = v -. (min3 c.r c.g c.b) in
+    let diffc c' = (v -. c') /. 6. /. (diff +. 1.) /. 2. in
+    let h, s = match diff with
+      | 0. -> 0., 0.
+      | _ -> begin
+          let rdiff, gdiff, bdiff = map_color' diffc c in
+          let s = diff /. v in
+          let h =
+            if c.r == v then
+              bdiff -. gdiff
+            else if c.g == v then
+              (1. /. 3.) +. rdiff -. bdiff
+            else
+              (2. /. 3.) +. gdiff -. rdiff
+          in
+          let h =
+            if h < 0. then
+              h +. 1.
+            else if h > 1. then
+              h -. 1.
+            else
+              h
+          in
+          h, s
+        end
+    in
+    {
+      h = h *. 360.;
+      s = s *. 100.;
+      v = v *. 100.;
+      a = 1.;
+    }
+end
 
 module type Converter = sig
   val rgb_to_ansi256 : Gg.v4 -> int
+  val rgb_to_ansi16 : Gg.v4 -> int
 end
+
 
 (* takes R,G,B 'column' values for one of the ANSI colours
    and returns the corresponding ANSI code point *)
@@ -40,8 +100,24 @@ let ansi256_grey_to_code l =
   else
     int_round ((l - 8) // 247 *. 24.) + 232
 
+(*
+  takes float RGB 0..1 color and returns 0..7 index
+  can be transformed to one of the base 16 colour codes:
+  30..37 regular intensity (fg)
+  40..47 regular (bg)
+  90..97 bright (fg) - can also use ESC[1;<regular>m i.e. 'bold' style
+  100..107 bright (bg)
+*)
+let to_ansi16_row (color : Color.Rgba'.t) =
+  Int.shift_left (int_round color.b) 2
+  lor
+  Int.shift_left (int_round color.g) 1
+  lor
+  int_round color.r
+
 
 module Chalk : Converter = struct
+
   (*
     Returns ANSI code of approximate nearest xterm 256 palette color
     for the given RGB color value.
@@ -64,10 +140,6 @@ module Chalk : Converter = struct
     Also note that in some cases there may be one of the 16 basic colors
     that is a closer match, but this will never return them.
   *)
-
-  (* returns the ansi code 'column' index of an ansi256 color value *)
-  let quantize_256 i = int_round (i // 255 *. 5.)
-
   let rgb_to_ansi256 color_v4 =
     let color = Color.to_rgba color_v4 in
     (*
@@ -90,8 +162,46 @@ module Chalk : Converter = struct
       ansi256_grey_to_code color.r
     else
       (* general colours *)
-      let r, g, b = map_color quantize_256 color in
+      let r, g, b = map_color (fun i ->
+          int_round (i // 255 *. 5.)
+        ) color in
       ansi256_columns_to_code r g b
+
+  (*
+    their method uses HSV, which is similar to HSL
+    in HSL, L is "lightness" and max L means white
+    in HSV, V is "value" and it interacts with saturation so that:
+    - max S, max V == max S, 0.5 L (in HSL) i.e. fully saturated bright colour
+    - min S, max V == white
+    - min V == black
+
+    so `let value = saturation` is a bit odd, but in the usual case they
+    will rgb -> hsv and take the V
+
+    V is a 0..100 scale
+
+    NOTE:
+    this is using a different escape code to the xterm256 ones:
+    https://en.wikipedia.org/wiki/ANSI_escape_code#3-bit_and_4-bit
+    but the colours are the same as codes 0..16 in the 256 palette
+
+    there are two ranges 30..37 and 90..97
+    being the std and bright colours respectively
+    code 30 == black
+
+    and if V >= 75% (i.e. squashed value == 2) then shift into the 'bright' range
+
+    NOTE:
+    these are 'foreground' codes
+  *)
+  let rgb_to_ansi16 color_v4 =
+    let rgb' = Color.to_rgba' color_v4
+    and hsv = Color.to_hsva color_v4 in
+    let value = Float.round @@ hsv.v /. 50. in
+    match value with
+    | 0. -> 30  (* if V < 25%, squash to black *)
+    | 2. -> 90 + (to_ansi16_row rgb')  (* if V >= 75%, shift to bright *)
+    | _  -> 30 + (to_ansi16_row rgb')  (* regular *)
 end
 
 (*
@@ -120,18 +230,15 @@ let make_improved grey_threshold =
     (*
       Numerically we should sort into buckets of built around the half-way points
       between each target value, i.e.
-      0-47    (0)
-      48-114  (95)
-      115-154 (135)
-      155-194 (175)
-      195-234 (215)
-      235-255 (255)
-
-      TODO: in theory binary search is faster, not really worth it for 6 values
-
-      returns the ansi code 'column' index of an ansi256 color value
+        0-47    (0)
+        48-114  (95)
+        115-154 (135)
+        155-194 (175)
+        195-234 (215)
+        235-255 (255)
+      from the bucket index for each component we can derive the ansi code
     *)
-    let quantize_256 i =
+    let quantized_bucket i =
       if i < 48 then 0
       else if i < 115 then 1
       else if i < 155 then 2
@@ -151,8 +258,10 @@ let make_improved grey_threshold =
         ansi256_grey_to_code avg
       else
         (* general colours *)
-        let r, g, b = map_color quantize_256 color in
+        let r, g, b = map_color quantized_bucket color in
         ansi256_columns_to_code r g b
+
+    let rgb_to_ansi16 = Chalk.rgb_to_ansi16
   end in
   (module M : Converter)
 
@@ -188,13 +297,8 @@ let make_perceptual grey_threshold =
         108; 118; 128; 138; 148; 158; 168; 178; 188; 198;
         208; 218; 228; 238; 255
       ]
-    (*
-      takes a component intensity 0..255 and returns the two adjacent values
-      above and below it in the general colour range of the ANSI 256 palette
-    *)
-    let adjacent_ansi256_components = IntAdjacencySet.adjacent_values_exn ansi256_colour_values
-    (* ...same but for the greyscale range of the ANSI 256 palette *)
-    let adjacent_ansi256_grey_values = IntAdjacencySet.adjacent_values_exn ansi256_grey_values
+
+    let adjacent = IntAdjacencySet.adjacent_values_exn
 
     (*
       a perceptual color -> greyscale conversion
@@ -208,22 +312,67 @@ let make_perceptual grey_threshold =
       |> int_round
       |> clamp 0 255
 
-    type candidate = ANSIColor of Gg.v4 | ANSIGrey of Gg.v4
+    type candidate =
+      | ANSI256Color of Gg.v4
+      | ANSI256Grey of Gg.v4
+      | ANSI16 of Gg.v4
+
     let v4_of_candidate = function
-      | ANSIColor x -> x
-      | ANSIGrey x -> x
+      | ANSI256Color x -> x
+      | ANSI256Grey x -> x
+      | ANSI16 x -> x
 
     (* generate every combination of the above/below adjacent RGB values *)
-    let adjacent_ansi256_colors color_v4 =
+    let adjacent_colors values_f color_v4 =
       let color = Color.to_rgba color_v4 in
-      let r', g', b' = map_color adjacent_ansi256_components color in
+      let r', g', b' = map_color values_f color in
       let rgb_tuples = product3 r' g' b' in
-      List.map (fun (r, g, b) -> ANSIColor (Color.of_rgb r g b)) rgb_tuples
+      List.map (fun (r, g, b) -> ANSI256Color (Color.of_rgb r g b)) rgb_tuples
 
-    let adjacent_ansi256_greys color_v4 =
+    let adjacent_greys values_f color_v4 =
       let color = Color.to_rgba color_v4 in
-      let l' = adjacent_ansi256_grey_values (to_greyscale color) in
-      List.map (fun (l) -> ANSIGrey (Color.of_rgb l l l)) l'
+      let l' = values_f (to_greyscale color) in
+      List.map (fun (l) -> ANSI256Grey (Color.of_rgb l l l)) l'
+
+    let ansi16_colors = [
+      ANSI16 (Color.of_rgb   0   0   0);
+      ANSI16 (Color.of_rgb 128   0   0);
+      ANSI16 (Color.of_rgb   0 128   0);
+      ANSI16 (Color.of_rgb 128 128   0);
+      ANSI16 (Color.of_rgb   0   0 128);
+      ANSI16 (Color.of_rgb 128   0 128);
+      ANSI16 (Color.of_rgb   0 128 128);
+      ANSI16 (Color.of_rgb 192 192 192);
+      ANSI16 (Color.of_rgb 128 128 128);
+      ANSI16 (Color.of_rgb 255   0   0);
+      ANSI16 (Color.of_rgb   0 255   0);
+      ANSI16 (Color.of_rgb 255 255   0);
+      ANSI16 (Color.of_rgb   0   0 255);
+      ANSI16 (Color.of_rgb 255   0 255);
+      ANSI16 (Color.of_rgb   0 255 255);
+      ANSI16 (Color.of_rgb 255 255 255);
+    ]
+
+    (* TODO: these need top use different escape code *)
+    let rgb_to_ansi16_code = function
+      |   0,   0,   0 -> 30
+      | 128,   0,   0 -> 31
+      |   0, 128,   0 -> 32
+      | 128, 128,   0 -> 33
+      |   0,   0, 128 -> 34
+      | 128,   0, 128 -> 35
+      |   0, 128, 128 -> 36
+      | 192, 192, 192 -> 37
+      | 128, 128, 128 -> 90
+      | 255,   0,   0 -> 91
+      |   0, 255,   0 -> 92
+      | 255, 255,   0 -> 93
+      |   0,   0, 255 -> 94
+      | 255,   0, 255 -> 95
+      |   0, 255, 255 -> 96
+      | 255, 255, 255 -> 97
+      | _ -> invalid_arg "Not in ANSI 16-color palette"
+
 
     (*
       for RGB color values 0..255 -> 'column' index in the ANSI colours set
@@ -238,25 +387,40 @@ let make_perceptual grey_threshold =
       | 255 -> 5
       | i -> raise (Failure (Printf.sprintf "Invalid value: %d" i))
 
-    let rgb_to_ansi256 color_v4 =
-      (* if the colour is close to grey, include greyscale candidates too *)
-      let candidates = match rgb_component_range (Color.to_rgba color_v4) < grey_threshold with
-        | true -> adjacent_ansi256_colors color_v4 @ adjacent_ansi256_greys color_v4
-        | false -> adjacent_ansi256_colors color_v4
-      in
+    let nearest_candidate color_v4 candidates =
       (* find candidate with the closest perceptual distance *)
       let candidate_distances = List.map (fun candidate ->
           let distance = perceptual_distance color_v4 (v4_of_candidate candidate) in
           (distance, candidate)
         ) @@ candidates
-      and init = (255., ANSIColor Color.black) in
+      and init = (255., ANSI16 Color.black) in
       let (_, candidate) = List.fold_left min init candidate_distances in
+      candidate
+
+    let code_of_candidate candidate =
       let color = Color.to_rgba (v4_of_candidate candidate) in
       match candidate with
-      | ANSIColor _ ->
+      | ANSI256Color _ ->
         let r, g, b = map_color ansi256_component_to_column color in
         ansi256_columns_to_code r g b
-      | ANSIGrey _ -> ansi256_grey_to_code color.r
+      | ANSI256Grey _ -> ansi256_grey_to_code color.r
+      | ANSI16 _ -> rgb_to_ansi16_code @@ (color.r, color.g, color.b)
+
+    let rgb_to_ansi256 color_v4 =
+      (* if the colour is close to grey, include greyscale candidates too *)
+      let candidates = match rgb_component_range (Color.to_rgba color_v4) < grey_threshold with
+        | true ->
+          adjacent_colors (adjacent ansi256_colour_values) color_v4
+          @ adjacent_greys (adjacent ansi256_grey_values) color_v4
+        | false -> adjacent_colors (adjacent ansi256_colour_values) color_v4
+      in
+      nearest_candidate color_v4 candidates
+      |> code_of_candidate
+
+    let rgb_to_ansi16 color_v4 =
+      nearest_candidate color_v4 ansi16_colors
+      |> code_of_candidate
+
   end in
   (module M : Converter)
 
