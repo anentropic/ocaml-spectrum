@@ -10,12 +10,14 @@ let clamp min max n = match n with
   | _ -> n
 
 let map_color f (color : Color.Rgba.t) = (f color.r), (f color.g), (f color.b)
+let map_color' f (color : Color.Rgba'.t) = (f color.r), (f color.g), (f color.b)
 
 let product3 l l' l'' = 
   List.concat_map (fun e ->
       List.concat_map (fun e' ->
           List.map (fun e'' -> (e, e', e'')) l'') l') l
 
+let min3 a b c = min a (min b c)
 let max3 a b c = max a (max b c)
 
 module type Showable = sig
@@ -112,9 +114,10 @@ function getColorIndex(color, level) {
 returns: int in range 0..255
 *)
 let color_index_256 color_v4 level =
-  let color = Color.to_rgba color_v4 in
-  let index = ref 0 in
-  let mask = Int.shift_right 0b10000000 level in
+  let color = Color.to_rgba color_v4
+  and index = ref 0
+  and mask = Int.shift_right 0b10000000 level
+  in
   if (color.r land mask) > 0 then index := !index lor 0b100;
   if (color.g land mask) > 0 then index := !index lor 0b010;
   if (color.b land mask) > 0 then index := !index lor 0b001;
@@ -139,13 +142,13 @@ let product pools =
   !result
 
 let range ?(from=0) until ?(step=1) =
-  let cmp = match step with
+  let (><) = match step with
     | i when i < 0 -> (>)
     | i when i > 0 -> (<)
     | _ -> raise (Invalid_argument "step must not be zero")
   in
   Seq.unfold (function
-        i when cmp i until -> Some (i, i + step) | _ -> None
+        i when i >< until -> Some (i, i + step) | _ -> None
     ) from
 
 (* enumerate all RGB values, as v4 vector colour *)
@@ -159,8 +162,15 @@ let rgb_seq ?(rmax=256) ?(gmax=256) ?(bmax=256) =
     ) (range rmax)
 
 (*
-  find nearest y, where x=2^y
+  Find nearest y, where x=2^y
   could be used to determine the Int.shift_right from a grey_threshold in
-  the Chalk rgb_to_ansi256 algorithm 
+  the Chalk rgb_to_ansi256 algorithm
+
+  e.g. power_of_2 17 -> 4
+
+  ...on reflection, this is the same as:
+  sqrt (float_of_int x) |> Float.floor |> int_of_float
+
+  (with that method you could use round instead of floor for different result)
 *)
 let power_of_2 x = log (float_of_int x) /. log 2. |> int_of_float
