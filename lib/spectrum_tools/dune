@@ -2,4 +2,4 @@
  (name spectrum_tools)
  (preprocess
   (pps ppx_deriving.show))
- (libraries color gg yojson spectrum))
+ (libraries color gg yojson spectrum pcre))

@@ -12,7 +12,7 @@ type numeric_version = {
 }
 
 let parse_numeric_version s =
-  let rex = Pcre.regexp "(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)" in
+  let rex = Pcre.regexp {|(?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+)|} in
   let substrings = Pcre.exec ~rex s in
   {
     major = Pcre.get_named_substring rex "major" substrings |> int_of_string;
