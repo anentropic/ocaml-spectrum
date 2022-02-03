@@ -174,3 +174,33 @@ let rgb_seq ?(rmax=256) ?(gmax=256) ?(bmax=256) =
   (with that method you could use round instead of floor for different result)
 *)
 let power_of_2 x = log (float_of_int x) /. log 2. |> int_of_float
+
+(* from Core Stdio, will be in 4.14 stdlib *)
+let fold_lines channel ~init ~f =
+  let rec loop acc =
+    let line = try Some (input_line channel)
+      with End_of_file -> None
+    in
+    match line with
+    | Some line -> loop (f acc line)
+    | None -> acc
+  in
+  loop init
+
+let input_lines channel =
+  List.rev
+    (fold_lines channel ~init:[] ~f:(fun lines line -> line :: lines))
+
+exception Errored of int
+exception Stopped of int
+exception Signaled of int
+
+let run cmd =
+  let in_ch = Unix.open_process_in cmd in
+  let lines = input_lines in_ch in
+  match Unix.close_process_in in_ch with
+  | Unix.WEXITED 0 -> lines
+  | Unix.WEXITED e -> raise @@ Errored e
+  | Unix.WSIGNALED s -> raise @@ Signaled s
+  | Unix.WSTOPPED s -> raise @@ Stopped s
+

@@ -22,3 +22,17 @@ let () =
   Format.print_string result;
   reset ();
   Format.fprintf ppf "@{<red>%s@}\n" "after reset ()";
+
+  Format.print_flush ();
+  print_endline "";
+
+  print_endline "Query xterm colours:";
+  let term_colours = Spectrum_tools.Query.Xterm.get_colours Unix.stdin in
+  (match term_colours.fg with
+   | Ok c -> Printf.printf ">> fg: %s\n" @@ Color.to_hexstring c
+   | Error e -> Printf.eprintf ">> fg Error: %s" e
+  );
+  (match term_colours.bg with
+   | Ok c -> Printf.printf ">> bg: %s\n" @@ Color.to_hexstring c
+   | Error e -> Printf.eprintf ">> bg Error: %s" e
+  );
