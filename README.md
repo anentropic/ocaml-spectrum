@@ -6,6 +6,8 @@ It's a little DSL which is exposed via the `Format` module's ["semantic tags"](h
 
 It's inspired by the examples given in ["Format Unraveled"](https://hal.archives-ouvertes.fr/hal-01503081/file/format-unraveled.pdf#page=11), a paper by Richard Bonichon & Pierre Weis, which also explains the cleverness behind OCaml's highly type-safe format string system.
 
+Many features are borrowed from those found in [chalk.js](https://github.com/chalk/chalk)
+
 ### Goals
 
 - Simple and ergonomic formatting of strings, especially where multiple styles are applied to same line.
@@ -181,7 +183,7 @@ type color_level =
 ```
 
 - `Unsupported`: probably best not to use colors or styling
-- `Basic`: supports 16 colors, i.e. the 8 basic colors plus "bright" version of each. They are equivalent to the first eight colours of the xterm 256-color set, with bright version accessed by setting the style to **bold**. So the available colour name tags are:
+- `Basic`: **NOTE not currently supported by Spectrum, we always output the 8-bit style ANSI codes** supports 16 colors, i.e. the 8 basic colors plus "bright" version of each. They are equivalent to the first eight colours of the xterm 256-color set, with bright version accessed by setting the style to **bold**. So the available colour name tags are:
   - ![#000000](https://via.placeholder.com/15/000000/000000?text=+) `black` (with `bold` will display as: `grey`)
   - ![#800000](https://via.placeholder.com/15/800000/000000?text=+) `maroon` (with `bold` will display as: `red`)
   - ![#008000](https://via.placeholder.com/15/008000/000000?text=+) `green` (with `bold` will display as: `lime`)
@@ -231,11 +233,12 @@ type color_level =
 
 ## TODOs
 
+- auto coercion to nearest supported colour, for high res colours on unsupported terminals, as per `chalk`
+  - don't output any codes if level is `Unsupported`
+  - output basic codes when level is `Basic` 
 - tests for all methods (`sprintf` and the lexer are tested currently), property-based tests
 - publish the printer and capabilities-detection as separate opam modules?
 - expose variant types for use with explicit `mark_open_stag` and close calls?
-- auto coercion to nearest supported colour, for high res colours on unsupported terminals, as per `chalk`
-  - don't output any codes if level is `Unsupported`
 
 
 [1]: https://www.ditig.com/256-colors-cheat-sheet
