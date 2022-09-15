@@ -17,7 +17,7 @@ Many features are borrowed from those found in [chalk.js](https://github.com/cha
 ### Non-goals
 
 - Any extended "Terminal UI" kind of features, we're just doing text styling (but hopefully it should fit in fine with `Format` or `Fmt`'s existing box and table features etc)
-- Maximum performance: if you are formatting high volumes of logs you may like to look at the alternatoive below. (Performance should be ok but it's not benchmarked and at the end of the day we have to parse the string tags)
+- Maximum performance: if you are formatting high volumes of logs you may like to look at the alternative below. (Performance should be ok but it's not benchmarked and at the end of the day we have to parse the string tags)
 
 ### See also
 
