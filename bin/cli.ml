@@ -1,6 +1,6 @@
 (*
  a quick demo to sanity-check our efforts are actually visible...
- dune exec -- ./bin/cli.exe
+ dune exec -- bin/cli.exe
 *)
 let () =
   let open Spectrum in

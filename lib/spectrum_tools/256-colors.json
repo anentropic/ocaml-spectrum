@@ -87,7 +87,7 @@
         "s":100,
         "l":25
       },
-      "name":"Purple"
+      "name":"Purple1"
     },
     {
       "colorId":6,
@@ -297,7 +297,7 @@
         "s":100,
         "l":34
       },
-      "name":"Blue3"
+      "name":"Blue3a"
     },
     {
       "colorId":20,
@@ -312,7 +312,7 @@
         "s":100,
         "l":42
       },
-      "name":"Blue3"
+      "name":"Blue3b"
     },
     {
       "colorId":21,
@@ -357,7 +357,7 @@
         "s":100,
         "l":18
       },
-      "name":"DeepSkyBlue4"
+      "name":"DeepSkyBlue4a"
     },
     {
       "colorId":24,
@@ -372,7 +372,7 @@
         "s":100,
         "l":26
       },
-      "name":"DeepSkyBlue4"
+      "name":"DeepSkyBlue4b"
     },
     {
       "colorId":25,
@@ -387,7 +387,7 @@
         "s":100,
         "l":34
       },
-      "name":"DeepSkyBlue4"
+      "name":"DeepSkyBlue4c"
     },
     {
       "colorId":26,
@@ -477,7 +477,7 @@
         "s":100,
         "l":34
       },
-      "name":"DeepSkyBlue3"
+      "name":"a"
     },
     {
       "colorId":32,
@@ -492,7 +492,7 @@
         "s":100,
         "l":42
       },
-      "name":"DeepSkyBlue3"
+      "name":"DeepSkyBlue3b"
     },
     {
       "colorId":33,
@@ -522,7 +522,7 @@
         "s":100,
         "l":34
       },
-      "name":"Green3"
+      "name":"Green3a"
     },
     {
       "colorId":35,
@@ -537,7 +537,7 @@
         "s":100,
         "l":34
       },
-      "name":"SpringGreen3"
+      "name":"SpringGreen3a"
     },
     {
       "colorId":36,
@@ -612,7 +612,7 @@
         "s":100,
         "l":42
       },
-      "name":"Green3"
+      "name":"Green3b"
     },
     {
       "colorId":41,
@@ -627,7 +627,7 @@
         "s":100,
         "l":42
       },
-      "name":"SpringGreen3"
+      "name":"SpringGreen3b"
     },
     {
       "colorId":42,
@@ -642,7 +642,7 @@
         "s":100,
         "l":42
       },
-      "name":"SpringGreen2"
+      "name":"SpringGreen2a"
     },
     {
       "colorId":43,
@@ -717,7 +717,7 @@
         "s":100,
         "l":50
       },
-      "name":"SpringGreen2"
+      "name":"SpringGreen2b"
     },
     {
       "colorId":48,
@@ -792,7 +792,7 @@
         "s":100,
         "l":18
       },
-      "name":"DarkRed"
+      "name":"DarkRed1"
     },
     {
       "colorId":53,
@@ -807,7 +807,7 @@
         "s":100,
         "l":18
       },
-      "name":"DeepPink4"
+      "name":"DeepPink4a"
     },
     {
       "colorId":54,
@@ -822,7 +822,7 @@
         "s":100,
         "l":26
       },
-      "name":"Purple4"
+      "name":"Purple4a"
     },
     {
       "colorId":55,
@@ -837,7 +837,7 @@
         "s":100,
         "l":34
       },
-      "name":"Purple4"
+      "name":"Purple4b"
     },
     {
       "colorId":56,
@@ -852,7 +852,7 @@
         "s":100,
         "l":42
       },
-      "name":"Purple3"
+      "name":"Purple3a"
     },
     {
       "colorId":57,
@@ -882,7 +882,7 @@
         "s":100,
         "l":18
       },
-      "name":"Orange4"
+      "name":"Orange4a"
     },
     {
       "colorId":59,
@@ -927,7 +927,7 @@
         "s":33,
         "l":52
       },
-      "name":"SlateBlue3"
+      "name":"SlateBlue3a"
     },
     {
       "colorId":62,
@@ -942,7 +942,7 @@
         "s":60,
         "l":60
       },
-      "name":"SlateBlue3"
+      "name":"SlateBlue3b"
     },
     {
       "colorId":63,
@@ -987,7 +987,7 @@
         "s":17,
         "l":45
       },
-      "name":"DarkSeaGreen4"
+      "name":"DarkSeaGreen4a"
     },
     {
       "colorId":66,
@@ -1062,7 +1062,7 @@
         "s":100,
         "l":34
       },
-      "name":"Chartreuse3"
+      "name":"Chartreuse3a"
     },
     {
       "colorId":71,
@@ -1077,7 +1077,7 @@
         "s":33,
         "l":52
       },
-      "name":"DarkSeaGreen4"
+      "name":"DarkSeaGreen4b"
     },
     {
       "colorId":72,
@@ -1092,7 +1092,7 @@
         "s":33,
         "l":52
       },
-      "name":"CadetBlue"
+      "name":"CadetBlue1"
     },
     {
       "colorId":73,
@@ -1107,7 +1107,7 @@
         "s":33,
         "l":52
       },
-      "name":"CadetBlue"
+      "name":"CadetBlue2"
     },
     {
       "colorId":74,
@@ -1137,7 +1137,7 @@
         "s":100,
         "l":68
       },
-      "name":"SteelBlue1"
+      "name":"SteelBlue1a"
     },
     {
       "colorId":76,
@@ -1152,7 +1152,7 @@
         "s":100,
         "l":42
       },
-      "name":"Chartreuse3"
+      "name":"Chartreuse3b"
     },
     {
       "colorId":77,
@@ -1167,7 +1167,7 @@
         "s":60,
         "l":60
       },
-      "name":"PaleGreen3"
+      "name":"PaleGreen3a"
     },
     {
       "colorId":78,
@@ -1227,7 +1227,7 @@
         "s":100,
         "l":68
       },
-      "name":"SteelBlue1"
+      "name":"SteelBlue1b"
     },
     {
       "colorId":82,
@@ -1242,7 +1242,7 @@
         "s":100,
         "l":50
       },
-      "name":"Chartreuse2"
+      "name":"Chartreuse2a"
     },
     {
       "colorId":83,
@@ -1272,7 +1272,7 @@
         "s":100,
         "l":68
       },
-      "name":"SeaGreen1"
+      "name":"SeaGreen1a"
     },
     {
       "colorId":85,
@@ -1287,7 +1287,7 @@
         "s":100,
         "l":68
       },
-      "name":"SeaGreen1"
+      "name":"SeaGreen1b"
     },
     {
       "colorId":86,
@@ -1302,7 +1302,7 @@
         "s":100,
         "l":68
       },
-      "name":"Aquamarine1"
+      "name":"Aquamarine1a"
     },
     {
       "colorId":87,
@@ -1332,7 +1332,7 @@
         "s":100,
         "l":26
       },
-      "name":"DarkRed"
+      "name":"DarkRed2"
     },
     {
       "colorId":89,
@@ -1347,7 +1347,7 @@
         "s":100,
         "l":26
       },
-      "name":"DeepPink4"
+      "name":"DeepPink4b"
     },
     {
       "colorId":90,
@@ -1362,7 +1362,7 @@
         "s":100,
         "l":26
       },
-      "name":"DarkMagenta"
+      "name":"DarkMagenta1"
     },
     {
       "colorId":91,
@@ -1377,7 +1377,7 @@
         "s":100,
         "l":34
       },
-      "name":"DarkMagenta"
+      "name":"DarkMagenta2"
     },
     {
       "colorId":92,
@@ -1392,7 +1392,7 @@
         "s":100,
         "l":42
       },
-      "name":"DarkViolet"
+      "name":"DarkViolet1"
     },
     {
       "colorId":93,
@@ -1407,7 +1407,7 @@
         "s":100,
         "l":50
       },
-      "name":"Purple"
+      "name":"Purple2"
     },
     {
       "colorId":94,
@@ -1422,7 +1422,7 @@
         "s":100,
         "l":26
       },
-      "name":"Orange4"
+      "name":"Orange4b"
     },
     {
       "colorId":95,
@@ -1467,7 +1467,7 @@
         "s":33,
         "l":52
       },
-      "name":"MediumPurple3"
+      "name":"MediumPurple3a"
     },
     {
       "colorId":98,
@@ -1482,7 +1482,7 @@
         "s":60,
         "l":60
       },
-      "name":"MediumPurple3"
+      "name":"MediumPurple3b"
     },
     {
       "colorId":99,
@@ -1512,7 +1512,7 @@
         "s":100,
         "l":26
       },
-      "name":"Yellow4"
+      "name":"Yellow4a"
     },
     {
       "colorId":101,
@@ -1602,7 +1602,7 @@
         "s":100,
         "l":34
       },
-      "name":"Yellow4"
+      "name":"Yellow4b"
     },
     {
       "colorId":107,
@@ -1617,7 +1617,7 @@
         "s":33,
         "l":52
       },
-      "name":"DarkOliveGreen3"
+      "name":"DarkOliveGreen3a"
     },
     {
       "colorId":108,
@@ -1647,7 +1647,7 @@
         "s":20,
         "l":60
       },
-      "name":"LightSkyBlue3"
+      "name":"LightSkyBlue3a"
     },
     {
       "colorId":110,
@@ -1662,7 +1662,7 @@
         "s":50,
         "l":68
       },
-      "name":"LightSkyBlue3"
+      "name":"LightSkyBlue3b"
     },
     {
       "colorId":111,
@@ -1692,7 +1692,7 @@
         "s":100,
         "l":42
       },
-      "name":"Chartreuse2"
+      "name":"Chartreuse2b"
     },
     {
       "colorId":113,
@@ -1707,7 +1707,7 @@
         "s":60,
         "l":60
       },
-      "name":"DarkOliveGreen3"
+      "name":"DarkOliveGreen3b"
     },
     {
       "colorId":114,
@@ -1722,7 +1722,7 @@
         "s":50,
         "l":68
       },
-      "name":"PaleGreen3"
+      "name":"PaleGreen3b"
     },
     {
       "colorId":115,
@@ -1737,7 +1737,7 @@
         "s":50,
         "l":68
       },
-      "name":"DarkSeaGreen3"
+      "name":"DarkSeaGreen3a"
     },
     {
       "colorId":116,
@@ -1797,7 +1797,7 @@
         "s":100,
         "l":68
       },
-      "name":"LightGreen"
+      "name":"LightGreen1"
     },
     {
       "colorId":120,
@@ -1812,7 +1812,7 @@
         "s":100,
         "l":76
       },
-      "name":"LightGreen"
+      "name":"LightGreen2"
     },
     {
       "colorId":121,
@@ -1827,7 +1827,7 @@
         "s":100,
         "l":76
       },
-      "name":"PaleGreen1"
+      "name":"PaleGreen1a"
     },
     {
       "colorId":122,
@@ -1842,7 +1842,7 @@
         "s":100,
         "l":76
       },
-      "name":"Aquamarine1"
+      "name":"Aquamarine1b"
     },
     {
       "colorId":123,
@@ -1872,7 +1872,7 @@
         "s":100,
         "l":34
       },
-      "name":"Red3"
+      "name":"Red3a"
     },
     {
       "colorId":125,
@@ -1887,7 +1887,7 @@
         "s":100,
         "l":34
       },
-      "name":"DeepPink4"
+      "name":"DeepPink4c"
     },
     {
       "colorId":126,
@@ -1917,7 +1917,7 @@
         "s":100,
         "l":34
       },
-      "name":"Magenta3"
+      "name":"Magenta3a"
     },
     {
       "colorId":128,
@@ -1932,7 +1932,7 @@
         "s":100,
         "l":42
       },
-      "name":"DarkViolet"
+      "name":"DarkViolet2"
     },
     {
       "colorId":129,
@@ -1947,7 +1947,7 @@
         "s":100,
         "l":50
       },
-      "name":"Purple"
+      "name":"Purple3b"
     },
     {
       "colorId":130,
@@ -1962,7 +1962,7 @@
         "s":100,
         "l":34
       },
-      "name":"DarkOrange3"
+      "name":"DarkOrange3a"
     },
     {
       "colorId":131,
@@ -1977,7 +1977,7 @@
         "s":33,
         "l":52
       },
-      "name":"IndianRed"
+      "name":"IndianRed1a"
     },
     {
       "colorId":132,
@@ -1992,7 +1992,7 @@
         "s":33,
         "l":52
       },
-      "name":"HotPink3"
+      "name":"HotPink3a"
     },
     {
       "colorId":133,
@@ -2037,7 +2037,7 @@
         "s":100,
         "l":68
       },
-      "name":"MediumPurple2"
+      "name":"MediumPurple2a"
     },
     {
       "colorId":136,
@@ -2067,7 +2067,7 @@
         "s":33,
         "l":52
       },
-      "name":"LightSalmon3"
+      "name":"LightSalmon3a"
     },
     {
       "colorId":138,
@@ -2112,7 +2112,7 @@
         "s":50,
         "l":68
       },
-      "name":"MediumPurple2"
+      "name":"MediumPurple2b"
     },
     {
       "colorId":141,
@@ -2142,7 +2142,7 @@
         "s":100,
         "l":34
       },
-      "name":"Gold3"
+      "name":"Gold3a"
     },
     {
       "colorId":143,
@@ -2232,7 +2232,7 @@
         "s":100,
         "l":42
       },
-      "name":"Yellow3"
+      "name":"Yellow3a"
     },
     {
       "colorId":149,
@@ -2247,7 +2247,7 @@
         "s":60,
         "l":60
       },
-      "name":"DarkOliveGreen3"
+      "name":"DarkOliveGreen3c"
     },
     {
       "colorId":150,
@@ -2262,7 +2262,7 @@
         "s":50,
         "l":68
       },
-      "name":"DarkSeaGreen3"
+      "name":"DarkSeaGreen3b"
     },
     {
       "colorId":151,
@@ -2277,7 +2277,7 @@
         "s":33,
         "l":76
       },
-      "name":"DarkSeaGreen2"
+      "name":"DarkSeaGreen2a"
     },
     {
       "colorId":152,
@@ -2352,7 +2352,7 @@
         "s":100,
         "l":76
       },
-      "name":"PaleGreen1"
+      "name":"PaleGreen1b"
     },
     {
       "colorId":157,
@@ -2367,7 +2367,7 @@
         "s":100,
         "l":84
       },
-      "name":"DarkSeaGreen2"
+      "name":"DarkSeaGreen2b"
     },
     {
       "colorId":158,
@@ -2382,7 +2382,7 @@
         "s":100,
         "l":84
       },
-      "name":"DarkSeaGreen1"
+      "name":"DarkSeaGreen1a"
     },
     {
       "colorId":159,
@@ -2412,7 +2412,7 @@
         "s":100,
         "l":42
       },
-      "name":"Red3"
+      "name":"Red3b"
     },
     {
       "colorId":161,
@@ -2427,7 +2427,7 @@
         "s":100,
         "l":42
       },
-      "name":"DeepPink3"
+      "name":"DeepPink3a"
     },
     {
       "colorId":162,
@@ -2442,7 +2442,7 @@
         "s":100,
         "l":42
       },
-      "name":"DeepPink3"
+      "name":"DeepPink3b"
     },
     {
       "colorId":163,
@@ -2457,7 +2457,7 @@
         "s":100,
         "l":42
       },
-      "name":"Magenta3"
+      "name":"Magenta3b"
     },
     {
       "colorId":164,
@@ -2472,7 +2472,7 @@
         "s":100,
         "l":42
       },
-      "name":"Magenta3"
+      "name":"Magenta3c"
     },
     {
       "colorId":165,
@@ -2487,7 +2487,7 @@
         "s":100,
         "l":50
       },
-      "name":"Magenta2"
+      "name":"Magenta2a"
     },
     {
       "colorId":166,
@@ -2502,7 +2502,7 @@
         "s":100,
         "l":42
       },
-      "name":"DarkOrange3"
+      "name":"DarkOrange3b"
     },
     {
       "colorId":167,
@@ -2517,7 +2517,7 @@
         "s":60,
         "l":60
       },
-      "name":"IndianRed"
+      "name":"IndianRed2"
     },
     {
       "colorId":168,
@@ -2532,7 +2532,7 @@
         "s":60,
         "l":60
       },
-      "name":"HotPink3"
+      "name":"HotPink3b"
     },
     {
       "colorId":169,
@@ -2547,7 +2547,7 @@
         "s":60,
         "l":60
       },
-      "name":"HotPink2"
+      "name":"HotPink2a"
     },
     {
       "colorId":170,
@@ -2577,7 +2577,7 @@
         "s":100,
         "l":68
       },
-      "name":"MediumOrchid1"
+      "name":"MediumOrchid1a"
     },
     {
       "colorId":172,
@@ -2607,7 +2607,7 @@
         "s":60,
         "l":60
       },
-      "name":"LightSalmon3"
+      "name":"LightSalmon3b"
     },
     {
       "colorId":174,
@@ -2682,7 +2682,7 @@
         "s":100,
         "l":42
       },
-      "name":"Gold3"
+      "name":"Gold3b"
     },
     {
       "colorId":179,
@@ -2772,7 +2772,7 @@
         "s":100,
         "l":42
       },
-      "name":"Yellow3"
+      "name":"Yellow3b"
     },
     {
       "colorId":185,
@@ -2802,7 +2802,7 @@
         "s":50,
         "l":68
       },
-      "name":"LightGoldenrod2"
+      "name":"LightGoldenrod2a"
     },
     {
       "colorId":187,
@@ -2877,7 +2877,7 @@
         "s":100,
         "l":68
       },
-      "name":"DarkOliveGreen1"
+      "name":"DarkOliveGreen1a"
     },
     {
       "colorId":192,
@@ -2892,7 +2892,7 @@
         "s":100,
         "l":76
       },
-      "name":"DarkOliveGreen1"
+      "name":"DarkOliveGreen1b"
     },
     {
       "colorId":193,
@@ -2907,7 +2907,7 @@
         "s":100,
         "l":84
       },
-      "name":"DarkSeaGreen1"
+      "name":"DarkSeaGreen1b"
     },
     {
       "colorId":194,
@@ -2982,7 +2982,7 @@
         "s":100,
         "l":50
       },
-      "name":"DeepPink1"
+      "name":"DeepPink1a"
     },
     {
       "colorId":199,
@@ -2997,7 +2997,7 @@
         "s":100,
         "l":50
       },
-      "name":"DeepPink1"
+      "name":"DeepPink1b"
     },
     {
       "colorId":200,
@@ -3012,7 +3012,7 @@
         "s":100,
         "l":50
       },
-      "name":"Magenta2"
+      "name":"Magenta2b"
     },
     {
       "colorId":201,
@@ -3057,7 +3057,7 @@
         "s":100,
         "l":68
       },
-      "name":"IndianRed1"
+      "name":"IndianRed1b"
     },
     {
       "colorId":204,
@@ -3072,7 +3072,7 @@
         "s":100,
         "l":68
       },
-      "name":"IndianRed1"
+      "name":"IndianRed1c"
     },
     {
       "colorId":205,
@@ -3087,7 +3087,7 @@
         "s":100,
         "l":68
       },
-      "name":"HotPink"
+      "name":"HotPink1"
     },
     {
       "colorId":206,
@@ -3102,7 +3102,7 @@
         "s":100,
         "l":68
       },
-      "name":"HotPink"
+      "name":"HotPink2b"
     },
     {
       "colorId":207,
@@ -3117,7 +3117,7 @@
         "s":100,
         "l":68
       },
-      "name":"MediumOrchid1"
+      "name":"MediumOrchid1b"
     },
     {
       "colorId":208,
@@ -3327,7 +3327,7 @@
         "s":100,
         "l":68
       },
-      "name":"LightGoldenrod2"
+      "name":"LightGoldenrod2b"
     },
     {
       "colorId":222,
@@ -3342,7 +3342,7 @@
         "s":100,
         "l":76
       },
-      "name":"LightGoldenrod2"
+      "name":"LightGoldenrod2c"
     },
     {
       "colorId":223,

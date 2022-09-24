@@ -1,4 +1,4 @@
-type ansi_color = {
+type t = {
   name: string;
   code: int;
   r: int;
@@ -6,30 +6,32 @@ type ansi_color = {
   b: int;
 }
 
+let to_color (def : t) = Color.of_rgb def.r def.g def.b
+
 let e_invalid = Failure "Invalid json data"
 
-let to_int = function
+let int_of_yojson = function
   | `Int i -> i
   | _ -> raise e_invalid
 
-let to_str = function
+let str_of_yojson = function
   | `String s -> s
   | _ -> raise e_invalid
 
-let to_rgb_tuple = function
+let rgb_tuple_of_yojson = function
   | `Assoc a -> (
-      to_int @@ List.assoc "r" a,
-      to_int @@ List.assoc "g" a,
-      to_int @@ List.assoc "b" a
+      int_of_yojson @@ List.assoc "r" a,
+      int_of_yojson @@ List.assoc "g" a,
+      int_of_yojson @@ List.assoc "b" a
     )
   | _ -> raise e_invalid
 
-let to_ansi_color = function
+let ansi_color_of_yojson = function
   | `Assoc a -> begin
-      let (r, g, b) = to_rgb_tuple @@ List.assoc "rgb" a in
+      let (r, g, b) = rgb_tuple_of_yojson @@ List.assoc "rgb" a in
       {
-        name = to_str @@ List.assoc "name" a;
-        code = to_int @@ List.assoc "colorId" a;
+        name = str_of_yojson @@ List.assoc "name" a;
+        code = int_of_yojson @@ List.assoc "colorId" a;
         r; g; b;
       }
     end
@@ -43,11 +45,11 @@ let to_ansi_color = function
 let load fname =
   let data = Yojson.Safe.from_file fname in
   match data with
-  | `List colors -> List.map to_ansi_color colors
+  | `List colors -> List.map ansi_color_of_yojson colors
   | _ -> raise e_invalid
 
 let load_assoc fname = List.map (fun ac -> (ac.code, ac)) @@ load fname
 
 let get_defs () = load_assoc @@ Sys.getcwd () ^ "/lib/spectrum_tools/256-colors.json"
 
-let v4_of_ansi_color (def : ansi_color) = Color.of_rgb def.r def.g def.b
+let v4_of_ansi_color (def : t) = Color.of_rgb def.r def.g def.b
