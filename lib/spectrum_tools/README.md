@@ -1,7 +1,9 @@
 We want to codegen the variants and variant-to-rgb functions, using the X11 colors defined here:
 
 - https://www.ditig.com/256-colors-cheat-sheet
-- https://www.ditig.com/downloads/256-colors.json
+- https://www.ditig.com/downloads/256-colors
+
+(NOTE: the latter has many duplicate color names, the json file in this repo has now been edited to disambiguate them)
 
 Then we can:
 

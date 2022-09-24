@@ -23,7 +23,7 @@ def query_colours():
             print('\033]10;?\07\033]11;?\07')
             r, _, _ = select.select([ fp ], [], [], 0.1)
             if fp in r:
-                data = fp.read(256)
+                data = fp.read(48)  # must match length of expected output
                 return COLOUR_RE.findall(data)
             else:
                 print("no input available")
