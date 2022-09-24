@@ -12,6 +12,8 @@ let clamp min max n = match n with
 let map_color f (color : Color.Rgba.t) = (f color.r), (f color.g), (f color.b)
 let map_color' f (color : Color.Rgba'.t) = (f color.r), (f color.g), (f color.b)
 
+let map3 f (a, b, c) = (f a), (f b), (f c)
+
 let product3 l l' l'' = 
   List.concat_map (fun e ->
       List.concat_map (fun e' ->
@@ -19,6 +21,29 @@ let product3 l l' l'' =
 
 let min3 a b c = min a (min b c)
 let max3 a b c = max a (max b c)
+
+(*
+  Find nearest y, where x=2^y
+  could be used to determine the Int.shift_right from a grey_threshold in
+  the Chalk rgb_to_ansi256 algorithm
+
+  the general solution is: y = log x / log 2 (for 2^y)
+  let nearest_sqrt x = log (float_of_int x) /. log 2. |> int_of_float
+
+  e.g. nearest_sqrt 17 -> 4
+
+  ...on reflection, this is the same as:
+  sqrt (float_of_int x) |> Float.floor |> int_of_float
+
+  (with that method you could use round instead of floor for different result)
+
+  they are both super fast, but the sqrt method is ~50% faster:
+    log method:  1.33 WALL ( 1.32 usr +  0.02 sys =  1.33 CPU) @ 74977862.79/s (n=100000000)
+   sqrt method:  0.83 WALL ( 0.83 usr +  0.00 sys =  0.83 CPU) @ 120053063.45/s (n=100000000)
+  sqrt rounded:  0.85 WALL ( 0.84 usr +  0.01 sys =  0.84 CPU) @ 118393635.16/s (n=100000000)
+*)
+let nearest_sqrt x = sqrt (float_of_int x) |> Float.floor |> int_of_float
+let nearest_sqrt' x = sqrt (float_of_int x) |> Float.round |> int_of_float
 
 module type Showable = sig
   type t
@@ -161,19 +186,6 @@ let rgb_seq ?(rmax=256) ?(gmax=256) ?(bmax=256) =
         ) (range gmax)
     ) (range rmax)
 
-(*
-  Find nearest y, where x=2^y
-  could be used to determine the Int.shift_right from a grey_threshold in
-  the Chalk rgb_to_ansi256 algorithm
-
-  e.g. power_of_2 17 -> 4
-
-  ...on reflection, this is the same as:
-  sqrt (float_of_int x) |> Float.floor |> int_of_float
-
-  (with that method you could use round instead of floor for different result)
-*)
-let power_of_2 x = log (float_of_int x) /. log 2. |> int_of_float
 
 (* from Core Stdio, will be in 4.14 stdlib *)
 let fold_lines channel ~init ~f =

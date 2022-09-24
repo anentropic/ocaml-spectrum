@@ -369,7 +369,7 @@ let hsl = ['h' 'H'] ['s' 'S'] ['l' 'L']
 
 rule to_code = parse
   (* ANSI style codes *)
-  | style as name { name_to_ansi_style name }
+  | style as name { Control (Style.of_string name) }
 
   (* CSS-style hex colours *)
   | ((qualifier as q)  ":")? ("#" hexcode as hex) {
@@ -403,8 +403,8 @@ rule to_code = parse
     | Some code -> code :: parse lexbuf
     | None -> []
 
-  let tag_to_code tag =
+  let tag_to_compound_style tag =
     let lexbuf = Lexing.from_string tag in
-    try Ok (String.concat ";" @@ parse lexbuf)  
+    try Ok (parse lexbuf)  
     with e -> Error e
 }

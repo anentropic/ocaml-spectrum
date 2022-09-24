@@ -1,5 +1,6 @@
 module Capabilities = Capabilities
 module Lexer = Lexer
+module Parser = Parser
 
 module type Printer = sig
   val prepare_ppf : Format.formatter -> unit -> unit
@@ -26,7 +27,58 @@ let stack_to_esc stack =
   )
   ^ "m"
 
-let make_printer raise_errors =
+module type Serializer = sig
+  val to_code : Parser.token list -> string
+end
+
+module True_color_Serializer : Serializer = struct
+  let to_code tokens =
+    let open Parser in
+    List.map (function
+        | Control s -> string_of_int @@ Style.to_code s
+        | Foreground NamedBasicColor c -> string_of_int @@ Basic.to_code c
+        | Foreground Named256Color c -> "38;5;" ^ string_of_int @@ Xterm256.to_code c
+        | Foreground RgbColor c -> "38;2;" ^ Rgb.to_code c
+        | Background NamedBasicColor c -> string_of_int @@ Basic.to_code c + 10
+        | Background Named256Color c -> "48;5;" ^ string_of_int @@ Xterm256.to_code c
+        | Background RgbColor c -> "48;2;" ^ Rgb.to_code c
+      ) tokens
+    |> String.concat ";"
+end
+
+module Xterm256_Serializer : Serializer = struct
+  let to_code tokens =
+    let open Parser in
+    let quantized = Spectrum_tools.Convert.Perceptual.rgb_to_ansi256 in
+    List.map (function
+        | Control s -> string_of_int @@ Style.to_code s
+        | Foreground NamedBasicColor c -> string_of_int @@ Basic.to_code c
+        | Foreground Named256Color c -> "38;5;" ^ string_of_int @@ Xterm256.to_code c
+        | Foreground RgbColor c -> "38;5;" ^ string_of_int @@ quantized c
+        | Background NamedBasicColor c -> string_of_int @@ Basic.to_code c + 10
+        | Background Named256Color c -> "48;5;" ^ string_of_int @@ Xterm256.to_code c
+        | Background RgbColor c -> "48;2;" ^ string_of_int @@ quantized c
+      ) tokens
+    |> String.concat ";"
+end
+
+module Basic_Serializer : Serializer = struct
+  let to_code tokens =
+    let open Parser in
+    let quantized = Spectrum_tools.Convert.Perceptual.rgb_to_ansi16 in
+    List.map (function
+        | Control s -> string_of_int @@ Style.to_code s
+        | Foreground NamedBasicColor c -> string_of_int @@ Basic.to_code c
+        | Foreground Named256Color c -> Xterm256.to_color c |> quantized |> string_of_int
+        | Foreground RgbColor c -> string_of_int @@ quantized c
+        | Background NamedBasicColor c -> string_of_int @@ Basic.to_code c + 10
+        | Background Named256Color c -> Xterm256.to_color c |> quantized |> (+) 10 |> string_of_int
+        | Background RgbColor c -> string_of_int @@ quantized c + 10
+      ) tokens
+    |> String.concat ";"
+end
+
+let make_printer raise_errors to_code =
   let module M = struct
     (** prepare the [ppf] as a side-effect, return [reset] to restore
         original state in the [kfprintf] callback *)
@@ -60,8 +112,8 @@ let make_printer raise_errors =
       let mark_open_stag stag =
         let _ = match stag with
           | Format.String_tag s -> begin
-              match Lexer.tag_to_code @@ String.lowercase_ascii s with
-              | Ok s -> Stack.push s stack
+              match Lexer.tag_to_compound_style @@ String.lowercase_ascii s with
+              | Ok c -> Stack.push (to_code c) stack
               | Error e -> conditionally_raise e stack
             end
           | _ -> ignore @@ original_stag_functions.mark_open_stag stag
@@ -114,8 +166,8 @@ let make_printer raise_errors =
   end in
   (module M : Printer)
 
-module Exn = (val (make_printer true) : Printer)
+module Exn = (val (make_printer true True_color_Serializer.to_code) : Printer)
 
-module Noexn = (val (make_printer false) : Printer)
+module Noexn = (val (make_printer false True_color_Serializer.to_code) : Printer)
 
 include Noexn
