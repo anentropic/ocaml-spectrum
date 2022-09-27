@@ -3,6 +3,7 @@ module Palette = Palette
 module Utils = Utils
 
 open Ppxlib
+module Ast = Ast_builder.Default
 
 (*
 Example palette module:
@@ -27,28 +28,17 @@ module Basic : Palette.M = struct
 end
 *)
 
-let mod_type_txt dotted_path =
-  (* TODO: I guess we could do a fold here to handle any no of segments *)
-  match String.split_on_char ',' dotted_path with
-  | [] -> raise (Failure "Empty module-type dotted path")
-  | [a] -> Lident a
-  | [a; b] -> Ldot (Lident a, b)
-  | [a; b; c] -> Ldot (Ldot (Lident a, b), c)
-  | _ -> raise (Failure "Too many segments in module-type dotted path")
-
 let variant_of_defs ~loc defs = 
   let constructor name =
     (* one member of the variant *)
-    {
-      pcd_name = {txt = name; loc};
-      pcd_args = Pcstr_tuple [];
-      pcd_res = None;
-      pcd_loc = loc;
-      pcd_attributes = [];
-    }
+    Ast.constructor_declaration
+      ~loc
+      ~name: {txt = name; loc}
+      ~args: (Pcstr_tuple [])
+      ~res: None
   in
-  Ast_builder.Default.pstr_type ~loc Recursive [
-    Ast_builder.Default.type_declaration
+  Ast.pstr_type ~loc Recursive [
+    Ast.type_declaration
       ~loc
       ~name: {txt = "t"; loc}
       ~params: []
@@ -62,71 +52,68 @@ let variant_of_defs ~loc defs =
 let of_string_f_of_defs ~loc defs =
   let def_to_case (def : Loader.t) =
     let name = Utils.camel_to_kebab def.name in
-    {
-      pc_lhs = Ast_builder.Default.ppat_constant ~loc (Pconst_string (name, loc, None));
-      pc_guard = None;
-      pc_rhs = Ast_builder.Default.pexp_construct ~loc {txt = Lident def.name; loc} None;
-    }
+    Ast.case
+      ~lhs: (Ast.ppat_constant ~loc (Pconst_string (name, loc, None)))
+      ~guard: None
+      ~rhs: (Ast.pexp_construct ~loc {txt = Lident def.name; loc} None)
   in
-  let default_case = {
-    pc_lhs = [%pat? name];
-    pc_guard = None;
-    pc_rhs = [%expr raise @@ Palette.InvalidColorName name];
-  } in
+  let default_case =
+    Ast.case
+      ~lhs: [%pat? name]
+      ~guard: None
+      ~rhs: [%expr raise @@ Palette.InvalidColorName name]
+  in
   let cases = List.map (fun (_, def) -> def_to_case def) defs in
-  Ast_builder.Default.pexp_function ~loc (cases @ [default_case])
+  Ast.pexp_function ~loc (cases @ [default_case])
+
+let const_integer_of_int i =
+  Pconst_integer (Int.to_string i, None)
 
 (* build AST for the generated to_code method *)
 let to_code_f_of_defs ~loc defs =
   let def_to_case (def : Loader.t) =
-    {
-      pc_lhs = Ast_builder.Default.ppat_construct ~loc {txt = Lident def.name; loc} None;
-      pc_guard = None;
-      pc_rhs = Ast_builder.Default.pexp_constant ~loc (Pconst_integer (Int.to_string def.code, None));
-    }
+    Ast.case
+      ~lhs: (Ast.ppat_construct ~loc {txt = Lident def.name; loc} None)
+      ~guard: None
+      ~rhs: (Ast.pexp_constant ~loc (const_integer_of_int def.code))
   in
   let cases = List.map (fun (_, def) -> def_to_case def) defs in
-  Ast_builder.Default.pexp_function ~loc cases
+  Ast.pexp_function ~loc cases
+
+let apply_color_of_def ~loc (def : Loader.t) =
+  Ast.pexp_apply ~loc
+    (Ast.pexp_ident ~loc {txt = Ldot (Lident "Color", "of_rgb"); loc})
+    (List.map (fun c ->
+         (Nolabel, Ast.pexp_constant ~loc (const_integer_of_int c)))
+        [def.r; def.g; def.b])
 
 (* build AST for the generated to_color method *)
 let to_color_f_of_defs ~loc defs =
   let def_to_case (def : Loader.t) =
-    {
-      pc_lhs = Ast_builder.Default.ppat_construct ~loc {txt = Lident def.name; loc} None;
-      pc_guard = None;
-      pc_rhs = Ast_builder.Default.pexp_apply ~loc
-          (Ast_builder.Default.pexp_ident ~loc {txt = Ldot (Lident "Color", "of_rgb"); loc})
-          (List.map (fun c ->
-               (Nolabel, Ast_builder.Default.pexp_constant ~loc (Pconst_integer (Int.to_string c, None))))
-              [def.r; def.g; def.b]);
-    }
+    Ast.case
+      ~lhs: (Ast.ppat_construct ~loc {txt = Lident def.name; loc} None)
+      ~guard: None
+      ~rhs: (apply_color_of_def ~loc def)
   in
   let cases = List.map (fun (_, def) -> def_to_case def) defs in
-  Ast_builder.Default.pexp_function ~loc cases
+  Ast.pexp_function ~loc cases
 
 (* build AST for the generated color_list *)
 let color_list_of_defs ~loc defs =
-  let def_to_color_expr (def : Loader.t) =
-    Ast_builder.Default.pexp_apply ~loc
-      (Ast_builder.Default.pexp_ident ~loc {txt = Ldot (Lident "Color", "of_rgb"); loc})
-      (List.map
-         (fun c ->
-            (Nolabel, Ast_builder.Default.pexp_constant ~loc (Pconst_integer (Int.to_string c, None))))
-         [def.r; def.g; def.b])
-  in
   let colors_list_expr =
+    (* AST for a List is recursive nested Head::Tail pairs *)
     List.fold_right
       (fun (_, def) accumulated ->
-         Ast_builder.Default.pexp_construct
+         Ast.pexp_construct
            ~loc
            {txt = Lident "::"; loc}
-           (Some (Ast_builder.Default.pexp_tuple ~loc [def_to_color_expr def; accumulated])))
+           (Some (Ast.pexp_tuple ~loc [apply_color_of_def ~loc def; accumulated])))
       defs
-      (Ast_builder.Default.pexp_construct ~loc {txt = Lident "[]"; loc} None)
+      (Ast.pexp_construct ~loc {txt = Lident "[]"; loc} None)
   in
-  Ast_builder.Default.pstr_value ~loc Nonrecursive [
-    Ast_builder.Default.value_binding ~loc
-      ~pat: (Ast_builder.Default.ppat_var ~loc {txt = "color_list"; loc})
+  Ast.pstr_value ~loc Nonrecursive [
+    Ast.value_binding ~loc
+      ~pat: (Ast.ppat_var ~loc {txt = "color_list"; loc})
       ~expr: colors_list_expr;
   ]
 
@@ -145,7 +132,7 @@ let expand ~ctxt filepath =
     [%stri let to_color = [%e to_color_f_of_defs ~loc defs]];
     color_list_of_defs ~loc defs;
   ] in
-  Ast_builder.Default.pmod_structure ~loc mod_struct
+  Ast.pmod_structure ~loc mod_struct
 
 let palette_extension =
   Extension.V3.declare
