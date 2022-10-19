@@ -10,6 +10,7 @@ let clamp min max n =
   | n when n > max -> max
   | _ -> n
 
+(** apply [f] to each component of [color] *)
 let map_color f (color : Color.Rgba.t) = (f color.r), (f color.g), (f color.b)
 let map_color' f (color : Color.Rgba'.t) = (f color.r), (f color.g), (f color.b)
 
@@ -22,6 +23,9 @@ let product3 l l' l'' =
 
 let min3 a b c = min a (min b c)
 let max3 a b c = max a (max b c)
+
+let min_fold l = List.fold_left min (List.hd l) (List.tl l)
+let max_fold l = List.fold_left max (List.hd l) (List.tl l)
 
 (*
   Find nearest y, where x=2^y
@@ -57,6 +61,7 @@ module type OrderedShowable = sig
   include Showable with type t := t
 end
 
+(* an ordered set of 'showable' elements *)
 module ShowableSet = struct
   include Set
   module type S = sig
@@ -76,6 +81,10 @@ end
 module AdjacencySet_Make (El : OrderedShowable) : AdjacencySet with type elt = El.t = struct
   include ShowableSet.Make(El)
 
+  (*
+    from an ordered set of values, return a list of those which are 'adjacent'
+    to the target value i.e. the ones immediately higher and lower
+  *)
   let adjacent_values set value =
     match split value set with
     | _, true, _ -> Some [value]
@@ -92,6 +101,7 @@ module AdjacencySet_Make (El : OrderedShowable) : AdjacencySet with type elt = E
     | None -> invalid_arg @@ El.show value
 end
 
+(* a 'showable' Int *)
 module Int' = struct
   include Int
   type t = int [@@deriving show]
@@ -105,7 +115,7 @@ module IntAdjacencySet = AdjacencySet_Make(Int')
 let rgb_int_of_srgb_component x =
   (*
   Gg color float values are in sRGB space, we need to convert
-  them back into simple RGB. gg only provides method to work on
+  them back into simple RGB. Gg only provides method to work on
   whole vector, e.g. we could:
   (Color.gray_tone x |> Gg.Color.to_srgb |> Color.to_rgba).r
 
@@ -128,16 +138,20 @@ each 'level' of the index subdivides the parent cube into 8 smaller cubes
 (and in 2D you'd have a quadtree based on squares)
 so with `level` and `color_index` you can locate 
 
-function getColorIndex(color, level) {
-  let index = 0;
-  let mask = 0b10000000 >> level;
-  if (color.red & mask) index |= 0b100;
-  if (color.green & mask) index |= 0b010;
-  if (color.blue & mask) index |= 0b001;
-  return index;
-}
+Javascript:
+  function getColorIndex(color, level) {
+    let index = 0;
+    let mask = 0b10000000 >> level;
+    if (color.red & mask) index |= 0b100;
+    if (color.green & mask) index |= 0b010;
+    if (color.blue & mask) index |= 0b001;
+    return index;
+  }
 
 returns: int in range 0..255
+
+i.e. we have evenly partitioned a 256 color palette, this function
+will tell you the index of the target colour in this palette
 *)
 let color_index_256 color_v4 level =
   let color = Color.to_rgba color_v4
