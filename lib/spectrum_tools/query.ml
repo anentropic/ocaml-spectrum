@@ -96,12 +96,10 @@ module Xterm = struct
   let parse_colour s =
     let rex = Pcre.regexp {|rgb:([0-9a-f]{1,4})/([0-9a-f]{1,4})/([0-9a-f]{1,4})|} in
     try
-      begin
-        match Pcre.get_opt_substrings (Pcre.exec ~rex s) with
-        | [| _; Some r; Some g; Some b;|] ->
-          Ok ( Color.of_rgb (hex_to_8bit r) (hex_to_8bit g) (hex_to_8bit b) )
-        | _ -> Error ( failwith @@ Printf.sprintf "Could not extract RGB from: %s" s )
-      end
+      match Pcre.get_opt_substrings (Pcre.exec ~rex s) with
+      | [| _; Some r; Some g; Some b;|] ->
+        Ok ( Color.of_rgb (hex_to_8bit r) (hex_to_8bit g) (hex_to_8bit b) )
+      | _ -> Error ( failwith @@ Printf.sprintf "Could not extract RGB from: %s" s )
     with Not_found -> Error ( failwith @@ Printf.sprintf "Unrecognised colour string: %s" s )
 
   let get_colours fd =
