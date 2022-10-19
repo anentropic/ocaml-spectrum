@@ -91,26 +91,28 @@ let make_printer raise_errors to_code =
         Format.pp_set_formatter_stag_functions ppf (original_stag_functions);
       in
       (* if error and not raising, we won't output any codes for the open stag *)
-      let conditionally_raise e stack = match raise_errors with
+      let conditionally_raise e stack =
+        match raise_errors with
         | true -> reset (); raise e
         | false -> Stack.clear stack
       in
-      let materialise stack = match Stack.is_empty stack with
+      let materialise stack =
+        match Stack.is_empty stack with
         | true -> ""
         | false -> stack_to_esc stack
       in
       (*
-        Rather than trying to turn on/off individual styles as
-        tags are opened and closed it is easier (and probably more
-        reliable) to just output the whole style stack at each
-        transition. To ensure accurate rendering the first element
-        in the stack is always the 'reset' code.
+        Rather than trying to turn on/off individual styles as tags are opened
+        and closed it is easier (and probably more reliable) to just output
+        the whole style stack at each transition. To ensure accurate rendering
+        the first element in the stack is always the 'reset' code.
         See:
         https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_(Select_Graphic_Rendition)_parameters
       *)
       let stack = Stack.of_seq @@ Seq.return "0" in
       let mark_open_stag stag =
-        let _ = match stag with
+        let _ =
+          match stag with
           | Format.String_tag s -> begin
               match Lexer.tag_to_compound_style @@ String.lowercase_ascii s with
               | Ok c -> Stack.push (to_code c) stack
@@ -131,10 +133,10 @@ let make_printer raise_errors to_code =
       reset
 
     (*
-      these methods expose a handy one-shot interface that does not
-      require explicitly configuring a ppf beforehand, at the cost of
-      being less efficient if you have a program making many styled
-      print calls to the same ppf
+      these methods expose a handy one-shot interface that does not require
+      explicitly configuring a ppf beforehand, at the cost of being less
+      efficient if you have a program making many styled print calls to the
+      same ppf
     *)
     module Simple = struct
       let fprintf (ppf : Format.formatter) fmt =

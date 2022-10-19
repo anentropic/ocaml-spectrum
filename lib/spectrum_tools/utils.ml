@@ -4,7 +4,8 @@ let (//) a b = float_of_int a /. float_of_int b
 (* rounds to nearest, .5 rounds up, -.5 rounds down *)
 let int_round n = Float.round n |> int_of_float
 
-let clamp min max n = match n with
+let clamp min max n =
+  match n with
   | n when n < min -> min
   | n when n > max -> max
   | _ -> n
@@ -167,7 +168,8 @@ let product pools =
   !result
 
 let range ?(from=0) until ?(step=1) =
-  let (><) = match step with
+  let (><) =
+    match step with
     | i when i < 0 -> (>)
     | i when i > 0 -> (<)
     | _ -> raise (Invalid_argument "step must not be zero")
