@@ -27,14 +27,13 @@ let rgb_tuple_of_yojson = function
   | _ -> raise e_invalid
 
 let ansi_color_of_yojson = function
-  | `Assoc a -> begin
-      let (r, g, b) = rgb_tuple_of_yojson @@ List.assoc "rgb" a in
-      {
-        name = str_of_yojson @@ List.assoc "name" a;
-        code = int_of_yojson @@ List.assoc "colorId" a;
-        r; g; b;
-      }
-    end
+  | `Assoc a ->
+    let r, g, b = rgb_tuple_of_yojson @@ List.assoc "rgb" a in
+    {
+      name = str_of_yojson @@ List.assoc "name" a;
+      code = int_of_yojson @@ List.assoc "colorId" a;
+      r; g; b;
+    }
   | _ -> raise e_invalid
 
 (*
