@@ -36,7 +36,7 @@ module type CapabilitiesProvider = sig
 end
 
 module Make (Env: EnvProvider) (OsInfo: OsInfoProvider) : CapabilitiesProvider = struct
-  (*  *)
+  (* parse env var to determine which color level to force, if any *)
   let env_force_level () =
     match Env.getenv_opt "FORCE_COLOR" with
     | Some "true" -> Some Basic
