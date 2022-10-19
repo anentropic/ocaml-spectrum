@@ -1,6 +1,5 @@
 module type M = sig
-  (* variant of colour names *)
-  type t
+  type t  (* variant of colour names *)
 
   val of_string : string -> t
 

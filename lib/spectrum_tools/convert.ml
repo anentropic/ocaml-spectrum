@@ -289,9 +289,22 @@ module Perceptual : Converter = struct
     Gg.V4.sub (Gg.Color.to_lab rgb_a) (Gg.Color.to_lab rgb_b)
     |> Gg.V4.norm
 
+  (*
+    TODO: this hack doesn't work with custom palettes as there is no guarantee
+    the RGB components are all quantized to the same, or any, set of values
+  *)
   let ansi256_colour_values = IntAdjacencySet.of_list [
       0; 95; 135; 175; 215; 255
     ]
+
+  (*
+    TODO: these are found at the end of 256-colors.json, with names
+    approximately their luminance value (i.e. "Grey46" is l:46, though
+    there are some discrepancies)
+
+    One idea would be to extract all the true greys from the custom palette
+    and build this list from their values.
+  *)
   let ansi256_grey_values = IntAdjacencySet.of_list [
       0; 8; 18; 28; 38; 48; 58; 68; 78; 88; 98;
       108; 118; 128; 138; 148; 158; 168; 178; 188; 198;
@@ -342,7 +355,8 @@ module Perceptual : Converter = struct
     default Xterm basic palette according to above)
     ...we should allow specifying different palettes?
 
-    TODO: these are also defined in parser.ml
+    TODO: these are also defined in parser.ml & spectrum_palette/16-colors.json
+    we should derive these function from the 
   *)
   let ansi16_colors = [
     ANSI16 (Color.of_rgb   0   0   0);

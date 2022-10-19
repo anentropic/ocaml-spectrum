@@ -31,6 +31,12 @@ module type Serializer = sig
   val to_code : Parser.token list -> string
 end
 
+(*
+  TODO:
+  functor-ise these so that the Xterm256 (and Basic?) modules are
+  configurable, along with the quantizer (i.e. Perceptual or whatever)
+  i.e. could use custom palettes
+*)
 module True_color_Serializer : Serializer = struct
   let to_code tokens =
     let open Parser in
@@ -167,6 +173,11 @@ let make_printer raise_errors to_code =
     end
   end in
   (module M : Printer)
+
+(*
+  TODO:
+  substitute appropriate serializer based on capabilities detection
+*)
 
 module Exn = (val (make_printer true True_color_Serializer.to_code) : Printer)
 

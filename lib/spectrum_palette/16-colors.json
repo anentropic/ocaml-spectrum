@@ -1,0 +1,146 @@
+[
+    {
+      "colorId": 30,
+      "rgb":{
+        "r": 0,
+        "g": 0,
+        "b": 0
+      },
+      "name": "BasicBlack"
+    },
+    {
+      "colorId": 31,
+      "rgb":{
+        "r": 128,
+        "g": 0,
+        "b": 0
+      },
+      "name": "BasicRed"
+    },
+    {
+      "colorId": 32,
+      "rgb":{
+        "r": 0,
+        "g": 128,
+        "b": 0
+      },
+      "name": "BasicGreen"
+    },
+    {
+      "colorId": 33,
+      "rgb":{
+        "r": 128,
+        "g": 128,
+        "b": 0
+      },
+      "name": "BasicYellow"
+    },
+    {
+      "colorId": 34,
+      "rgb":{
+        "r": 0,
+        "g": 0,
+        "b": 128
+      },
+      "name": "BasicBlue"
+    },
+    {
+      "colorId": 35,
+      "rgb":{
+        "r": 128,
+        "g": 0,
+        "b": 128
+      },
+      "name": "BasicMagenta"
+    },
+    {
+      "colorId": 36,
+      "rgb":{
+        "r": 0,
+        "g": 128,
+        "b": 128
+      },
+      "name": "BasicCyan"
+    },
+    {
+      "colorId": 37,
+      "rgb":{
+        "r": 128,
+        "g": 128,
+        "b": 128
+      },
+      "name": "BasicWhite"
+    },
+    {
+      "colorId": 90,
+      "rgb":{
+        "r": 192,
+        "g": 192,
+        "b": 192
+      },
+      "name": "BrightBlack"
+    },
+    {
+      "colorId": 91,
+      "rgb":{
+        "r": 255,
+        "g": 0,
+        "b": 0
+      },
+      "name": "BrightRed"
+    },
+    {
+      "colorId": 92,
+      "rgb":{
+        "r": 0,
+        "g": 255,
+        "b": 0
+      },
+      "name": "BrightGreen"
+    },
+    {
+      "colorId": 93,
+      "rgb":{
+        "r": 255,
+        "g": 255,
+        "b": 0
+      },
+      "name": "BrightYellow"
+    },
+    {
+      "colorId": 94,
+      "rgb":{
+        "r": 0,
+        "g": 0,
+        "b": 255
+      },
+      "name": "BrightBlue"
+    },
+    {
+      "colorId": 95,
+      "rgb":{
+        "r": 255,
+        "g": 0,
+        "b": 255
+      },
+      "name": "BrightMagenta"
+    },
+    {
+      "colorId": 96,
+      "rgb":{
+        "r": 0,
+        "g": 255,
+        "b": 255
+      },
+      "name": "BrightCyan"
+    },
+    {
+      "colorId": 97,
+      "rgb":{
+        "r": 255,
+        "g": 255,
+        "b": 255
+      },
+      "name": "BrightWhite"
+    }
+]
