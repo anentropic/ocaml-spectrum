@@ -292,6 +292,9 @@ module Perceptual : Converter = struct
   (*
     TODO: this hack doesn't work with custom palettes as there is no guarantee
     the RGB components are all quantized to the same, or any, set of values
+
+    The downward quantizations for every color could be statially calculated
+    as a big switch in the generated palette module
   *)
   let ansi256_colour_values = IntAdjacencySet.of_list [
       0; 95; 135; 175; 215; 255
