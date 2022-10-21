@@ -124,7 +124,7 @@ let color_list_of_defs ~loc defs =
 *)
 let expand ~ctxt filepath =
   let loc = Expansion_context.Extension.extension_point_loc ctxt in
-  let defs = Loader.load_assoc @@ Sys.getcwd () ^ filepath in
+  let defs = Loader.load_assoc filepath in
   let mod_struct = [
     variant_of_defs ~loc defs;
     [%stri let of_string = [%e of_string_f_of_defs ~loc defs]];
