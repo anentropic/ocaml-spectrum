@@ -232,3 +232,8 @@ let run cmd =
   | Unix.WSIGNALED s -> raise @@ Signaled s
   | Unix.WSTOPPED s -> raise @@ Stopped s
 
+let p_to_string p =
+  Printf.sprintf "V3(x: %s, y: %s, z: %s)"
+    (Gg.V3.x p |> Float.to_string)
+    (Gg.V3.y p |> Float.to_string)
+    (Gg.V3.z p |> Float.to_string)

@@ -71,36 +71,139 @@ Gg.Color.to_lab is a V4 -> V4 translation, i.e. floats with 0-1 range
 octants per level (start at 1): (2. ** level) ** 3.
 *)
 
+(*
+  sparse octree where leaves are Gg.V3 vectors
+  (octants without leaves are omitted)
+*)
 module Octree = struct
   type t =
     | Leaf of Gg.V3.t
     | Node of node
-
   and node = {
+    children: t list;
     level: int;
     offset: Gg.V3.t;
-    x0_y0_z0: t option; (* 0 | 0 0 0 *)
-    x0_y0_z1: t option; (* 1 | 0 0 1 *)
-    x0_y1_z0: t option; (* 2 | 0 1 0 *)
-    x0_y1_z1: t option; (* 3 | 0 1 1 *)
-    x1_y0_z0: t option; (* 4 | 1 0 0 *)
-    x1_y0_z1: t option; (* 5 | 1 0 1 *)
-    x1_y1_z0: t option; (* 6 | 1 1 0 *)
-    x1_y1_z1: t option; (* 7 | 1 1 1 *)
+    index: int;
+    (*
+      octants:
+      x0_y0_z0: 0 | 0 0 0
+      x0_y0_z1: 1 | 0 0 1
+      x0_y1_z0: 2 | 0 1 0
+      x0_y1_z1: 3 | 0 1 1
+      x1_y0_z0: 4 | 1 0 0
+      x1_y0_z1: 5 | 1 0 1
+      x1_y1_z0: 6 | 1 1 0
+      x1_y1_z1: 7 | 1 1 1
+    *)
   }
 
-  let children node =
-    List.filter_map (fun n -> n) [
-      node.x0_y0_z0;
-      node.x0_y0_z1;
-      node.x0_y1_z0;
-      node.x0_y1_z1;
-      node.x1_y0_z0;
-      node.x1_y0_z1;
-      node.x1_y1_z0;
-      node.x1_y1_z1;
-    ]
+  type root = {
+    max_depth: int;
+    tree: node;
+  }
+
+  (* init an octree root *)
+  let empty max_depth =
+    match max_depth with
+    | d when d < 1 -> raise @@ Invalid_argument "max_depth must be >= 1"
+    | _ ->
+      {
+        max_depth;
+        tree = {
+          children = [];
+          level = 1;
+          offset = Gg.V3.of_tuple (0., 0., 0.);
+          index = 0;
+        }
+      }
+
+  (* -- internal -- *)
+  let octant_index_for_p tree p =
+    let subdiv = 1. /. 2. ** (Float.of_int tree.level) in
+    let mask getter mask =
+      let mid = getter tree.offset +. subdiv in
+      match getter p with
+      | a when a < mid -> 0
+      | _ -> mask
+    in
+    (mask Gg.V3.x 4) lor (mask Gg.V3.y 2) lor (mask Gg.V3.z 1)
+
+  (* -- internal -- *)
+  let octant_offset tree index =
+    let offset_size = 1. /. 2. ** (Float.of_int tree.level) in
+    let offset getter mask =
+      match index land mask with  (* 0 or 1 *)
+      | 0 -> getter tree.offset
+      | _ -> getter tree.offset +. offset_size
+    in
+    Gg.V3.of_tuple ((offset Gg.V3.x 4), (offset Gg.V3.y 2), (offset Gg.V3.z 1))
+
+  (* add a new leaf to the octree *)
+  let add root p =
+    let rec construct tree p =
+      let get_or_make_node level =
+        let index = octant_index_for_p tree p in
+        ignore @@ Printf.printf "level: %s, index: %s\n" (Int.to_string level) (Int.to_string index);
+        let existing = List.find_opt (function
+            | Node n when n.index == index -> true
+            | _ -> false
+          ) tree.children
+        in
+        match existing with
+        | Some (Node n) -> n, false
+        | Some (Leaf _) ->
+          raise @@ Invalid_argument "Leaf not expected"  (* filtered above *)
+        | None ->
+          let offset = octant_offset tree index in
+          {
+            children = [];
+            level;
+            offset;
+            index;
+          }, true
+      in
+      match tree.level with
+      | l when l < root.max_depth ->
+        let node, created = get_or_make_node (tree.level + 1) in
+        let constructed = construct node p in
+        (* TODO should only cons if new, else want to replace existing node in list *)
+        let children =
+          match created with
+          | true -> List.cons (Node constructed) tree.children
+          | false ->
+            List.cons (Node constructed) (
+              List.filter (function
+                  | Node n when n.index == node.index -> false
+                  | _ -> true
+                ) tree.children
+            )
+        in
+        { tree with children }
+      | _ ->
+        let leaf = Leaf p in
+        let children = List.cons leaf tree.children in
+        { tree with children }
+    in
+    let tree = construct root.tree p in
+    {
+      max_depth = root.max_depth;
+      tree;
+    }
+
+  let of_list max_depth l =
+    List.fold_left add (empty max_depth) l
+
+  let leaves tree =
+    let rec collect leaves children =
+      List.fold_left (fun leaves child ->
+          match child with
+          | Leaf l -> List.cons l leaves
+          | Node n -> collect leaves n.children
+        ) leaves children
+    in
+    collect [] tree.children
 end
+
 
 (* always positive (i.e. has no direction) *)
 let distance a b = Gg.V3.sub a b |> Gg.V3.norm
@@ -108,22 +211,37 @@ let distance a b = Gg.V3.sub a b |> Gg.V3.norm
 (*
   scale and translate p with octant so that octant coords cover -1,-1,-1 to 1,1,1
   (our root octant is natively 0,0,0 to 1,1,1)
+
+  e.g. level 2, octant is 0.5*0.5
+  scale by 4*
+  octant 000 grows from 0,0.5 to 0,2
+  offset by -1,-1,-1
 *)
 let p_to_normalised (octant : Octree.node) p =
+  let open Octree in
   let level = Float.of_int octant.level in
-  let scale = Gg.V3.map (fun i -> i *. level *. 2.) in
+  let scale = Gg.V3.map (fun a -> a *. level *. 2.) in
   let base_offset = Gg.V3.of_tuple (-1., -1., -1.) in
-  let offset = scale (Gg.V3.sub base_offset octant.offset) in
+  (* ignore @@ Printf.printf "> octant.offset: %s\n" (Utils.p_to_string octant.offset); *)
+  let offset = Gg.V3.sub base_offset (scale octant.offset) in
+  (* ignore @@ Printf.printf "> offset: %s\n" (Utils.p_to_string offset); *)
   Gg.V3.add (scale p) offset
 
 (* so that we can compare normalised octant distances with p2p distances *)
 let d_from_normalised (octant : Octree.node) d =
   let level = Float.of_int octant.level in
-  d /. level
+  d /. level /. 2.
 
-(* https://math.stackexchange.com/a/2133235/181250 *)
+(*
+  https://math.stackexchange.com/a/2133235/181250
+*)
 let octant_min_distance octant p =
   let x, y, z = p_to_normalised octant p |> Gg.V3.map abs_float |> Gg.V3.to_tuple in
+  (* ignore @@ Printf.printf
+     "normalised+abs x: %s, y: %s, z: %s\n"
+     (Float.to_string x)
+     (Float.to_string y)
+     (Float.to_string z); *)
   let d =
     if x <= 1. then
       if y <= 1. then
@@ -145,6 +263,7 @@ let octant_min_distance octant p =
     else
       sqrt ((x -. 1.) ** 2. +. (y -. 1.) ** 2. +. (z -. 1.) ** 2.)
   in
+  (* ignore @@ Printf.printf "raw octant d: %s\n" (Float.to_string d); *)
   d_from_normalised octant d
 
 module K = struct
@@ -157,29 +276,50 @@ module P = struct
 end
 module PQ = Psq.Make(K)(P)
 
-let octant_offset level i parent_offset =
-  let base_offset = 1. /. 2. ** (Float.of_int level) in
-  let offset getter mask =
-    match i land mask with  (* 0 or 1 *)
-    | 0 -> getter parent_offset
-    | _ -> getter parent_offset +. base_offset
+let nearest tree p =
+  let rec nearest' pq tree p =
+    (* enqueue children of current octant *)
+    let pq = PQ.add_seq (
+        let open Octree in
+        List.map (fun child ->
+            match child with
+            | Octree.Leaf l ->
+              let d = distance l p in
+              ignore @@ Printf.printf "push Leaf, d: %s\n" (Float.to_string d);
+              (child, d)
+            | Octree.Node n ->
+              let d = octant_min_distance n p in
+              ignore @@ Printf.printf
+                "push Node(level: %s, index: %s), d: %s\n"
+                (Int.to_string n.level)
+                (Int.to_string n.index)
+                (Float.to_string d);
+              (child, d)
+          ) tree.children
+        |> List.to_seq
+      ) pq
+    in
+    (*
+      pop best match
+      if we pushed any leaves above we should be in the octant of the best match
+      (or else if an adjacent node has smaller min distance than any leaf we will pop
+      that instead)
+    *)
+    match PQ.pop pq with
+    | Some ((tree, d), pq) -> begin
+        match tree with
+        | Leaf l ->
+          ignore @@ Printf.printf "popped Leaf, d: %s\n" (Float.to_string d);
+          (l, d)
+        | Node n ->
+          (* recurse *)
+          ignore @@ Printf.printf
+            "popped (level: %s, index: %s), d: %s\n"
+            (Int.to_string n.level)
+            (Int.to_string n.index)
+            (Float.to_string d);
+          nearest' pq n p
+      end
+    | None -> raise Not_found  (* would mean our tree is empty *)
   in
-  Gg.V3.of_tuple ((offset Gg.V3.x 4), (offset Gg.V3.y 2), (offset Gg.V3.z 1))
-
-let rec nearest pq tree p =
-  let pq = PQ.add_seq (
-      List.map (fun child ->
-          match child with
-          | Octree.Leaf l -> (child, distance l p)
-          | Octree.Node n -> (child, octant_min_distance n p)
-        ) @@ Octree.children tree
-      |> List.to_seq
-    ) pq
-  in
-  match PQ.pop pq with
-  | Some ((tree, _), pq) -> begin
-      match tree with
-      | Leaf l -> l
-      | Node n -> nearest pq n p
-    end
-  | None -> raise Not_found  (* would mean our tree is empty *)
+  nearest' PQ.empty tree p
