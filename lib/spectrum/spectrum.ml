@@ -36,6 +36,40 @@ end
   functor-ise these so that the Xterm256 (and Basic?) modules are
   configurable, along with the quantizer (i.e. Perceptual or whatever)
   i.e. could use custom palettes
+
+  for 16 <-> 256 transformations we could build a translator for any
+  two Palette modules via ppx, which could brute-force the best matches
+  at compile time
+
+  for arbitrary RGB -> palette color we need a runtime method since
+  the heuristic shortcuts below won't work for abitrary palettes
+  (although how useful is a palette which deviates far from Xterm?
+  ...is it still useful to effectively map our RGB -> Xterm -> custom?)
+
+  we need some 'index' data structure to allow fast retrieval of closest
+  match from palette for arbitrary RGB value. presumably this index can
+  be generated via ppx at compile time
+
+  initial research turned up the 'voronoi octree' method, see:
+  https://link.springer.com/content/pdf/10.1007/s00138-017-0889-4.pdf
+  or just an octree - the voronoi part is to handle unevenly distributed
+  points, but we would expect an even distribution for a terminal palette
+  see: https://en.wikipedia.org/wiki/Octree
+  "octrees are not the same as k-d trees: k-d trees split along a dimension
+  and octrees split around a point. Also k-d trees are always binary, which
+  is not the case for octrees"
+  it is a 3D data structure, built of recursively subdivided voxels
+  An octree would need:
+  - an origin (e.g. 0,0,0)
+  - a size (e.g. 256)
+  - a max depth (e.g. 8 subdivisions would go down to individual cells
+    of the underlying 16.8m color space)
+  feels like we can probably use bit-shifting!
+
+  less exotic would be a b-tree per R,G,B ... allowing to efficiently
+  fetch the 'adjacent' colours, which can then be compared perceptually
+  much as per current algorithm
+  see https://hbr.github.io/fmlib/odoc/fmlib_std/Fmlib_std/Btree/index.html
 *)
 module True_color_Serializer : Serializer = struct
   let to_code tokens =

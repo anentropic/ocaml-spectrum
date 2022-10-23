@@ -419,8 +419,8 @@ module Perceptual : Converter = struct
         let distance = perceptual_distance color_v4 (v4_of_candidate candidate) in
         (distance, candidate)
       ) @@ candidates
-    and init = (255., ANSI16 Color.black) in
-    let (_, candidate) = List.fold_left min init candidate_distances in
+    in
+    let (_, candidate) = min_fold candidate_distances in
     candidate
 
   let code_of_candidate candidate =
