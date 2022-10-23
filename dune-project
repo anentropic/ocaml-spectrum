@@ -48,6 +48,7 @@
   (pcre (>= 7.5))
   (opam-state (>= 2.1))
   (ppx_deriving (>= 5.2))
+  (psq (>= 0.2))
   (yojson (>= 1.7))
   ; test deps
   (alcotest (and :with-test (>= 1.4)))
