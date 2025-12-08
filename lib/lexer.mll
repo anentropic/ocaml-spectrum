@@ -286,8 +286,9 @@
   let from_hex hex =
     match Color.of_hexstring hex with
     | Some color ->
-        let c = Color.to_rgba color in
-        Printf.sprintf "%i;%i;%i" c.r c.g c.b
+        (* Extract RGB values from the color *)
+        let r, g, b = Color.to_int_tuple color in
+        Printf.sprintf "%i;%i;%i" r g b
     | None -> raise @@ InvalidHexColor hex  (* unreachable *)
 
   let fg_from_hex hex = "38;2;" ^ from_hex hex
