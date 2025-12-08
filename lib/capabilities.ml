@@ -12,12 +12,12 @@ type numeric_version = {
 }
 
 let parse_numeric_version s =
-  let rex = Pcre.regexp "(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)" in
-  let substrings = Pcre.exec ~rex s in
+  let rex = Str.regexp "\\([0-9]+\\)\\.\\([0-9]+\\)\\.\\([0-9]+\\)" in
+  let _ = Str.search_forward rex s 0 in
   {
-    major = Pcre.get_named_substring rex "major" substrings |> int_of_string;
-    minor = Pcre.get_named_substring rex "minor" substrings |> int_of_string;
-    patch = Pcre.get_named_substring rex "patch" substrings |> int_of_string;
+    major = Str.matched_group 1 s |> int_of_string;
+    minor = Str.matched_group 2 s |> int_of_string;
+    patch = Str.matched_group 3 s |> int_of_string;
   }
 
 module type EnvProvider = sig
@@ -89,9 +89,10 @@ module Make (Env: EnvProvider) (OsInfo: OsInfoProvider) : CapabilitiesProvider =
 
   let teamcity_level () =
     let get_level () =
-      let rex = Pcre.regexp "^(9\\.(0*[1-9]\\d*)\\.|\\d{2,}\\.)" in
+      let rex = Str.regexp "^\\(9\\.\\(0*[1-9][0-9]*\\)\\|[0-9][0-9]+\\)\\." in
       (* assume we've already tested for TEAMCITY_VERSION in env *)
-      match Pcre.pmatch ~rex (Env.getenv "TEAMCITY_VERSION") with
+      let version = Env.getenv "TEAMCITY_VERSION" in
+      match Str.string_match rex version 0 with
       | true -> Basic
       | false -> Unsupported
     in
@@ -122,14 +123,18 @@ module Make (Env: EnvProvider) (OsInfo: OsInfoProvider) : CapabilitiesProvider =
     | _ -> Unsupported
 
   let term_is_256_color term =
-    let open Pcre in
-    let rex = regexp ~flags:[`CASELESS] "-256(color)?$" in
-    pmatch ~rex term
+    let rex = Str.regexp_case_fold "-256\\(color\\)?$" in
+    try
+      let _ = Str.search_forward rex term 0 in
+      true
+    with Not_found -> false
 
   let term_is_16_color term =
-    let open Pcre in
-    let rex = regexp ~flags:[`CASELESS] "^screen|^xterm|^vt100|^vt220|^rxvt|color|ansi|cygwin|linux" in
-    pmatch ~rex term
+    let rex = Str.regexp_case_fold "^screen\\|^xterm\\|^vt100\\|^vt220\\|^rxvt\\|color\\|ansi\\|cygwin\\|linux" in
+    try
+      let _ = Str.search_forward rex term 0 in
+      true
+    with Not_found -> false
 
   (* This logic is adapted from the nodejs Chalk library
      see https://github.com/chalk/supports-color/blob/main/index.js *)

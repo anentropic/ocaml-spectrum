@@ -16,7 +16,6 @@
  (depends
   (ocaml (>= 4.10))
   (color (>= 0.2))
-  (pcre (>= 7.5))
   (opam-state (>= 2.1))
   (ppx_deriving (>= 5.2))
   ; test deps
