@@ -199,21 +199,26 @@ let os_info_provider is_windows os_version =
 module SysOsInfo = struct
   let is_windows () = Sys.win32
   let os_version () =
-    (* OpamSysPoll.os_version API changed in opam-state >= 2.2 *)
-    (* For Windows, we try to read from the registry or environment *)
+    (* OpamSysPoll.os_version API changed in opam-state >= 2.5.0 *)
+    (* For Windows, we try to read from the ver command *)
     (* For other systems, version detection isn't used so return None *)
     if not Sys.win32 then None
     else
-      (* Try to get Windows version from common environment variables *)
+      (* Try to get Windows version from the ver command *)
       try
         let cmd = "ver" in
         let ic = Unix.open_process_in cmd in
         let line = input_line ic in
-        let _ = Unix.close_process_in ic in
-        (* Extract version from output like "Microsoft Windows [Version 10.0.19041.1234]" *)
-        let rex = Pcre.regexp "\\d+\\.\\d+\\.\\d+" in
-        let substrings = Pcre.exec ~rex line in
-        Some (Pcre.get_substring substrings 0)
+        let status = Unix.close_process_in ic in
+        (match status with
+        | Unix.WEXITED 0 ->
+            (* Extract version from output like "Microsoft Windows [Version 10.0.19041.1234]" *)
+            let rex = Pcre.regexp "\\d+\\.\\d+\\.\\d+" in
+            (try
+              let substrings = Pcre.exec ~rex line in
+              Some (Pcre.get_substring substrings 0)
+            with Not_found -> None)
+        | _ -> None)
       with _ -> None
 end
 
