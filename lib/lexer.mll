@@ -317,8 +317,8 @@
     let h = float_of_string h in
     let s = parse_float_percent s /. 100. in
     let l = parse_float_percent l /. 100. in
-    let color = Color.of_hsl h s l |> Color.to_rgba in
-    Printf.sprintf "%i;%i;%i" color.r color.g color.b
+    let r, g, b = Color.of_hsl h s l |> Color.to_int_tuple in
+    Printf.sprintf "%i;%i;%i" r g b
 
   let fg_from_hsl h s l = "38;2;" ^ from_hsl h s l
   let bg_from_hsl h s l = "48;2;" ^ from_hsl h s l
