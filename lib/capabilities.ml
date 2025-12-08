@@ -89,7 +89,7 @@ module Make (Env: EnvProvider) (OsInfo: OsInfoProvider) : CapabilitiesProvider =
 
   let teamcity_level () =
     let get_level () =
-      let rex = Str.regexp "^\\(9\\.\\(0*[1-9][0-9]*\\)\\|[0-9][0-9]+\\)\\." in
+      let rex = Str.regexp "^\\(9\\.\\(0*[1-9][0-9]*\\)\\.\\|[0-9][0-9]+\\.\\)" in
       (* assume we've already tested for TEAMCITY_VERSION in env *)
       let version = Env.getenv "TEAMCITY_VERSION" in
       match Str.string_match rex version 0 with
