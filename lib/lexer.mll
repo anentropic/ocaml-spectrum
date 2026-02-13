@@ -283,11 +283,19 @@
   let fg_from_name name = "38;5;" ^ name_to_xterm_color name
   let bg_from_name name = "48;5;" ^ name_to_xterm_color name
 
+  let rgb_from_hex_string hex =
+    let parse2 i =
+      String.sub hex i 2
+      |> fun s -> int_of_string ("0x" ^ s)
+    in
+    (parse2 1, parse2 3, parse2 5)
+
   let from_hex hex =
     match Color.of_hexstring hex with
     | Some color ->
-        let c = Color.to_rgba color in
-        Printf.sprintf "%i;%i;%i" c.r c.g c.b
+        let canonical_hex = Color.to_hexstring color in
+        let r, g, b = rgb_from_hex_string canonical_hex in
+        Printf.sprintf "%i;%i;%i" r g b
     | None -> raise @@ InvalidHexColor hex  (* unreachable *)
 
   let fg_from_hex hex = "38;2;" ^ from_hex hex
@@ -316,8 +324,10 @@
     let h = float_of_string h in
     let s = parse_float_percent s /. 100. in
     let l = parse_float_percent l /. 100. in
-    let color = Color.of_hsl h s l |> Color.to_rgba in
-    Printf.sprintf "%i;%i;%i" color.r color.g color.b
+    let color = Color.Hsl.(v h s l |> to_gg) in
+    let canonical_hex = Color.to_hexstring color in
+    let r, g, b = rgb_from_hex_string canonical_hex in
+    Printf.sprintf "%i;%i;%i" r g b
 
   let fg_from_hsl h s l = "38;2;" ^ from_hsl h s l
   let bg_from_hsl h s l = "48;2;" ^ from_hsl h s l

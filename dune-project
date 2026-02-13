@@ -15,7 +15,7 @@
  (description "Using OCaml Format module's 'semantic tags' with named colours and CSS-style hex colours.")
  (depends
   (ocaml (>= 4.14))
-  (color (>= 0.2))
+  (color (>= 0.3.0))
   (re (>= 1.11.0))
   (opam-state (>= 2.1))
   (ppx_deriving (>= 5.2))
