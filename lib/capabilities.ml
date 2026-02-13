@@ -12,13 +12,14 @@ type numeric_version = {
 }
 
 let parse_numeric_version s =
-  let rex = Pcre.regexp "(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)" in
-  let substrings = Pcre.exec ~rex s in
-  {
-    major = Pcre.get_named_substring rex "major" substrings |> int_of_string;
-    minor = Pcre.get_named_substring rex "minor" substrings |> int_of_string;
-    patch = Pcre.get_named_substring rex "patch" substrings |> int_of_string;
-  }
+  let rex = Re.Perl.compile_pat "^([0-9]+)\\.([0-9]+)\\.([0-9]+)$" in
+  match Re.exec_opt rex s with
+  | Some groups -> {
+      major = Re.Group.get groups 1 |> int_of_string;
+      minor = Re.Group.get groups 2 |> int_of_string;
+      patch = Re.Group.get groups 3 |> int_of_string;
+    }
+  | None -> raise Not_found
 
 module type EnvProvider = sig
   val getenv_opt : string -> string option
@@ -89,9 +90,9 @@ module Make (Env: EnvProvider) (OsInfo: OsInfoProvider) : CapabilitiesProvider =
 
   let teamcity_level () =
     let get_level () =
-      let rex = Pcre.regexp "^(9\\.(0*[1-9]\\d*)\\.|\\d{2,}\\.)" in
+      let rex = Re.Perl.compile_pat "^(9\\.(0*[1-9]\\d*)\\.|\\d{2,}\\.)" in
       (* assume we've already tested for TEAMCITY_VERSION in env *)
-      match Pcre.pmatch ~rex (Env.getenv "TEAMCITY_VERSION") with
+      match Re.execp rex (Env.getenv "TEAMCITY_VERSION") with
       | true -> Basic
       | false -> Unsupported
     in
@@ -122,14 +123,12 @@ module Make (Env: EnvProvider) (OsInfo: OsInfoProvider) : CapabilitiesProvider =
     | _ -> Unsupported
 
   let term_is_256_color term =
-    let open Pcre in
-    let rex = regexp ~flags:[`CASELESS] "-256(color)?$" in
-    pmatch ~rex term
+    let rex = Re.Perl.compile_pat ~opts:[`Caseless] "-256(color)?$" in
+    Re.execp rex term
 
   let term_is_16_color term =
-    let open Pcre in
-    let rex = regexp ~flags:[`CASELESS] "^screen|^xterm|^vt100|^vt220|^rxvt|color|ansi|cygwin|linux" in
-    pmatch ~rex term
+    let rex = Re.Perl.compile_pat ~opts:[`Caseless] "^screen|^xterm|^vt100|^vt220|^rxvt|color|ansi|cygwin|linux" in
+    Re.execp rex term
 
   (* This logic is adapted from the nodejs Chalk library
      see https://github.com/chalk/supports-color/blob/main/index.js *)
@@ -198,7 +197,7 @@ let os_info_provider is_windows os_version =
 (* the legit OS info *)
 module SysOsInfo = struct
   let is_windows () = Sys.win32
-  let os_version () = OpamSysPoll.os_version ()
+  let os_version () = OpamSysPoll.os_version OpamVariable.Map.empty
 end
 
 module Sys_Capabilities = Make(Sys)(SysOsInfo)

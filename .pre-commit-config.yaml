@@ -3,20 +3,20 @@ repos:
     hooks:
       - id: dune-build-fmt
         name: dune build @fmt
-        entry: dune build @fmt --auto-promote
+        entry: opam exec -- dune build @fmt --auto-promote
         pass_filenames: false
         language: system
         types: [text]
       - id: ocp-indent
         name: ocp-indent
-        entry: ocp-indent --inplace
+        entry: opam exec -- ocp-indent --inplace
         language: system
         files: '.+\.mli?$'
         types: [text]
       # because seems like `dune build @fmt` doesn't regen the .opam file
       - id: dune-build
         name: dune build
-        entry: dune build
+        entry: opam exec -- dune build
         pass_filenames: false
         language: system
         types: [text]
