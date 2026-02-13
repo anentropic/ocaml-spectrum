@@ -14,12 +14,25 @@
  (synopsis "Library for colour and formatting in the terminal")
  (description "Using OCaml Format module's 'semantic tags' with named colours and CSS-style hex colours.")
  (depends
-  (ocaml (>= 4.10))
+  (ocaml (>= 4.14))
   (color (>= 0.2))
-  (pcre (>= 7.5))
+  (re (>= 1.11.0))
   (opam-state (>= 2.1))
   (ppx_deriving (>= 5.2))
+
   ; test deps
   (alcotest (and :with-test (>= 1.4)))
   (junit_alcotest (and :with-test (>= 2.0)))
+
+  ; dev deps
+  ; opam install . --deps-only --with-dev-setup
+  ; - for pre-commit hooks: formatting and build
+  (ocamlformat :with-dev-setup)
+  (ocp-indent :with-dev-setup)
+  (opam-publish :with-dev-setup)
+  ; - for REPL 
+  (utop :with-dev-setup)
+
+  ; docs deps
+  (odoc :with-doc)
  ))
