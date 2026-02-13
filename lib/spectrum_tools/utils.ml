@@ -109,6 +109,17 @@ end
 
 module IntAdjacencySet = AdjacencySet_Make(Int')
 
+(*
+https://cs3110.github.io/textbook/chapters/ds/memoization.html#memoization-using-higher-order-functions
+*)
+let memoise f =
+  let table = Hashtbl.create 16 in
+  fun arg ->
+    try Hashtbl.find table arg
+    with Not_found ->
+      let result = f arg in
+      Hashtbl.add table arg result;
+      result
 
 (* ---- UNUSED scratch pad ---- *)
 
@@ -138,7 +149,7 @@ each 'level' of the index subdivides the parent cube into 8 smaller cubes
 (and in 2D you'd have a quadtree based on squares)
 so with `level` and `color_index` you can locate 
 
-Javascript:
+JS version:
   function getColorIndex(color, level) {
     let index = 0;
     let mask = 0b10000000 >> level;
@@ -152,6 +163,14 @@ returns: int in range 0..255
 
 i.e. we have evenly partitioned a 256 color palette, this function
 will tell you the index of the target colour in this palette
+
+Not the same thing, but here is an OCaml implementation of generating
+256 color palette from image, using an octree:
+https://rosettacode.org/wiki/Color_quantization#OCaml
+In this case the palette will consist of most frequent colors in the
+image rather than evenly diving the RGB space - the octree is used as
+'buckets' to assign pixels to, then fullest buckets are chosen.
+Based on: http://www.leptonica.org/color-quantization.html
 *)
 let color_index_256 color_v4 level =
   let color = Color.to_rgba color_v4
@@ -180,6 +199,11 @@ let product pools =
         ) pool
     ) pools;
   !result
+
+let product2 a b =
+  List.concat_map (fun x ->
+      List.map (fun y -> x, y) b
+    ) a
 
 let range ?(from=0) until ?(step=1) =
   let (><) =
@@ -233,6 +257,10 @@ let run cmd =
   | Unix.WSTOPPED s -> raise @@ Stopped s
 
 let p_to_string p =
+  (*
+    alternatively:
+    Gg.V3.pp Format.std_formatter p;;
+  *)
   Printf.sprintf "V3(x: %s, y: %s, z: %s)"
     (Gg.V3.x p |> Float.to_string)
     (Gg.V3.y p |> Float.to_string)

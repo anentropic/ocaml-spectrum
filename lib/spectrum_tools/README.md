@@ -5,6 +5,11 @@ We want to codegen the variants and variant-to-rgb functions, using the X11 colo
 
 (NOTE: the latter has many duplicate color names, the json file in this repo has now been edited to disambiguate them)
 
+TODO: we might also consider supporting CSS colour names as secondary aliases - they are almost the same, see:
+
+- https://en.wikipedia.org/wiki/X11_color_names#Clashes_between_web_and_X11_colors_in_the_CSS_color_scheme
+- https://www.w3.org/TR/css-color-3/#svg-color
+
 Then we can:
 
 - use the variant as `Format.stag`
