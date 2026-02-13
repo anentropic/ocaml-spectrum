@@ -279,6 +279,11 @@ end
   LAB colour space. So for this converter we first find all the likely
   target candidates in the ANSI palette, then return the closest measured
   via that method.
+
+  TODO:
+  Possibly the 'OKLab' colourspace is even better for perceptual matching
+  See: https://meat.io/oksolar
+  https://bottosson.github.io/posts/oklab/
 *)
 module Perceptual : Converter = struct
   (*

@@ -71,6 +71,54 @@ Gg.Color.to_lab is a V4 -> V4 translation, i.e. floats with 0-1 range
 octants per level (start at 1): (2. ** level) ** 3.
 *)
 
+module type Vec3 = sig
+  (*
+    e.g. https://erratique.ch/software/gg/doc/Gg/V3/
+    TODO our code expects values in range 0...1 on all axes
+    the to/from normalised functions and subdiv/offset_size in our
+    code would need tweaking to support parameterised value range
+  *)
+
+  type t
+
+  val v : float -> float -> float -> t
+  (** [v x y z] is the vector [(x y z)]. *)
+
+  val x : t -> float
+  (** [x v] is the x component of [v]. *)
+
+  val y : t -> float
+  (** [y v] is the y component of [v]. *)
+
+  val z : t -> float
+  (** [z v] is the z component of [v]. *)
+
+  val of_tuple : (float * float * float) -> t
+  (** [of_tuple (x, y, z)] is [v x y z]. *)
+
+  val to_tuple : t -> (float * float * float)
+  (** [to_tuple v] is [(x v, y v, z v)]. *)
+
+  val add : t -> t -> t
+  (** [add u v] is the vector addition [u + v]. *)
+
+  val sub : t -> t -> t
+  (** [sub u v] is the vector subtraction [u - v]. *)
+
+  val norm : t -> float
+  (** [norm v] is the norm [|v| = sqrt v.v]. *)
+
+  val ( + ) : t -> t -> t
+  (** [u + v] is [add u v]. *)
+
+  val ( - ) : t -> t -> t
+  (** [u - v] is [sub u v]. *)
+
+  val map : (float -> float) -> t -> t
+  (** [map f v] is the component wise application of [f] to [v]. *)
+
+end
+
 (*
   sparse octree where leaves are Gg.V3 vectors
   (octants without leaves are omitted)
@@ -143,7 +191,6 @@ module Octree = struct
     let rec construct tree p =
       let get_or_make_node level =
         let index = octant_index_for_p tree p in
-        ignore @@ Printf.printf "level: %s, index: %s\n" (Int.to_string level) (Int.to_string index);
         let existing = List.find_opt (function
             | Node n when n.index == index -> true
             | _ -> false
@@ -166,8 +213,18 @@ module Octree = struct
       | l when l < root.max_depth ->
         let node, created = get_or_make_node (tree.level + 1) in
         let constructed = construct node p in
-        (* TODO should only cons if new, else want to replace existing node in list *)
         let children =
+          (*
+          TODO is there a better data structure for the children list so we
+          don't have to scan and rebuild it each time a child is added?
+          List has insert O(1), update O(n)
+          Maybe Hashtbl? mutable, insertion and update both O(1) ?
+          Or Array? fixed length, mutable, insertion O(n) but update O(1)
+          ...but we would not "insert", only update, due to fixed size
+          ...array is initialised when created so we'd store an option type
+          either of these would also provide random access by index in O(1)
+          and being mutable means the parent record can be updated in place
+          *)
           match created with
           | true -> List.cons (Node constructed) tree.children
           | false ->
@@ -193,6 +250,10 @@ module Octree = struct
   let of_list max_depth l =
     List.fold_left add (empty max_depth) l
 
+  let of_seq max_depth s =
+    Seq.fold_left add (empty max_depth) s
+
+  (* recursively find the leaves below a given octant *)
   let leaves tree =
     let rec collect leaves children =
       List.fold_left (fun leaves child ->
@@ -220,11 +281,9 @@ let distance a b = Gg.V3.sub a b |> Gg.V3.norm
 let p_to_normalised (octant : Octree.node) p =
   let open Octree in
   let level = Float.of_int octant.level in
-  let scale = Gg.V3.map (fun a -> a *. level *. 2.) in
   let base_offset = Gg.V3.of_tuple (-1., -1., -1.) in
-  (* ignore @@ Printf.printf "> octant.offset: %s\n" (Utils.p_to_string octant.offset); *)
+  let scale = Gg.V3.map (fun a -> a *. level *. 2.) in
   let offset = Gg.V3.sub base_offset (scale octant.offset) in
-  (* ignore @@ Printf.printf "> offset: %s\n" (Utils.p_to_string offset); *)
   Gg.V3.add (scale p) offset
 
 (* so that we can compare normalised octant distances with p2p distances *)
@@ -237,11 +296,6 @@ let d_from_normalised (octant : Octree.node) d =
 *)
 let octant_min_distance octant p =
   let x, y, z = p_to_normalised octant p |> Gg.V3.map abs_float |> Gg.V3.to_tuple in
-  (* ignore @@ Printf.printf
-     "normalised+abs x: %s, y: %s, z: %s\n"
-     (Float.to_string x)
-     (Float.to_string y)
-     (Float.to_string z); *)
   let d =
     if x <= 1. then
       if y <= 1. then
@@ -263,7 +317,6 @@ let octant_min_distance octant p =
     else
       sqrt ((x -. 1.) ** 2. +. (y -. 1.) ** 2. +. (z -. 1.) ** 2.)
   in
-  (* ignore @@ Printf.printf "raw octant d: %s\n" (Float.to_string d); *)
   d_from_normalised octant d
 
 module K = struct
@@ -285,40 +338,27 @@ let nearest tree p =
             match child with
             | Octree.Leaf l ->
               let d = distance l p in
-              ignore @@ Printf.printf "push Leaf, d: %s\n" (Float.to_string d);
               (child, d)
             | Octree.Node n ->
               let d = octant_min_distance n p in
-              ignore @@ Printf.printf
-                "push Node(level: %s, index: %s), d: %s\n"
-                (Int.to_string n.level)
-                (Int.to_string n.index)
-                (Float.to_string d);
               (child, d)
           ) tree.children
         |> List.to_seq
       ) pq
     in
     (*
-      pop best match
-      if we pushed any leaves above we should be in the octant of the best match
-      (or else if an adjacent node has smaller min distance than any leaf we will pop
-      that instead)
+      pop current best match
+      if we pushed any leaves above we are likely in the octant of the best
+      match and best leaf could be our match, or else if an adjacent node
+      (will have been already pushed) has smaller min distance than any leaf
+      in the queue we will pop the instead and explore that branch... meaning
+      if we ever pop a leaf here it should be our best match
     *)
     match PQ.pop pq with
-    | Some ((tree, d), pq) -> begin
+    | Some ((tree, _), pq) -> begin
         match tree with
-        | Leaf l ->
-          ignore @@ Printf.printf "popped Leaf, d: %s\n" (Float.to_string d);
-          (l, d)
-        | Node n ->
-          (* recurse *)
-          ignore @@ Printf.printf
-            "popped (level: %s, index: %s), d: %s\n"
-            (Int.to_string n.level)
-            (Int.to_string n.index)
-            (Float.to_string d);
-          nearest' pq n p
+        | Leaf l -> l
+        | Node n -> nearest' pq n p
       end
     | None -> raise Not_found  (* would mean our tree is empty *)
   in
