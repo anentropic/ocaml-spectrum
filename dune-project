@@ -17,7 +17,7 @@
   (ocaml (>= 4.14))
   (color (>= 0.3.0))
   (re (>= 1.11.0))
-  (opam-state (>= 2.1))
+  (opam-state (>= 2.5.0))
   (ppx_deriving (>= 5.2))
 
   ; test deps
@@ -26,11 +26,10 @@
 
   ; dev deps
   ; opam install . --deps-only --with-dev-setup
-  ; - for pre-commit hooks: formatting and build
   (ocamlformat :with-dev-setup)
   (ocp-indent :with-dev-setup)
   (opam-publish :with-dev-setup)
-  ; - for REPL 
+  (ocaml-lsp-server :with-dev-setup)
   (utop :with-dev-setup)
 
   ; docs deps

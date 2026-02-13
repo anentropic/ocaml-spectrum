@@ -197,7 +197,7 @@ let os_info_provider is_windows os_version =
 (* the legit OS info *)
 module SysOsInfo = struct
   let is_windows () = Sys.win32
-  let os_version () = OpamSysPoll.os_version ()
+  let os_version () = OpamSysPoll.os_version OpamVariable.Map.empty
 end
 
 module Sys_Capabilities = Make(Sys)(SysOsInfo)
