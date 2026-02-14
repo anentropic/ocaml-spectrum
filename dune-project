@@ -45,10 +45,9 @@
  (depends
   (ocaml (>= 4.10))
   (color (>= 0.2))
-  (pcre (>= 7.5))
+  (re (>= 1.11.0))
   (opam-state (>= 2.1))
   (ppx_deriving (>= 5.2))
-  (psq (>= 0.2))
   (yojson (>= 1.7))
   ; test deps
   (alcotest (and :with-test (>= 1.4)))
@@ -63,7 +62,7 @@
  (depends
   (ocaml (>= 4.10))
   (color (>= 0.2))
-  (pcre (>= 7.5))
+  (re (>= 1.11.0))
   (opam-state (>= 2.1))
   (ppx_deriving (>= 5.2))
   (yojson (>= 1.7))

@@ -106,7 +106,6 @@ module Make (Env: EnvProvider) (OsInfo: OsInfoProvider) : CapabilitiesProvider =
   let iterm_level () =
     (* assume we've already tested for TERM_PROGRAM in env
        and therefore TERM_PROGRAM_VERSION is expected *)
-    try
     let get_level () =
       match parse_numeric_version (Env.getenv "TERM_PROGRAM_VERSION") with
       | v when v.major >= 3 -> True_color

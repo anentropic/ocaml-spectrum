@@ -3,4 +3,4 @@
  (kind ppx_rewriter)
  (preprocess
   (pps ppxlib.metaquot))
- (libraries color yojson ppxlib pcre))
+ (libraries color yojson ppxlib re))

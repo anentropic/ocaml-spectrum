@@ -46,21 +46,6 @@ let distance a b = Gg.V4.sub a b |> Gg.V4.norm;;
 
 That appears to be the Euclidean distance, see https://en.wikipedia.org/wiki/Color_quantization
 
-https://stackoverflow.com/questions/14618005/how-to-reduce-colors-to-a-specified-palette recommends using a https://en.wikipedia.org/wiki/K-d_tree I guess as a data structure to store the target palette and then search it for nearest match.
+https://stackoverflow.com/questions/14618005/how-to-reduce-colors-to-a-specified-palette recommends using a https://en.wikipedia.org/wiki/K-d_tree as a data structure to store the target palette and search nearest matches.
 
-https://www.cs.umd.edu/~mount/Papers/DCC.pdf compares perforamnce of the K-d tree search with two related approaches.
-
-https://observablehq.com/@tmcw/octree-color-quantization
-
-https://cstheory.stackexchange.com/questions/8470/why-would-one-ever-use-an-octree-over-a-kd-tree ...seems octree is simpler and suitable when the distribution is fairly homogenous - which the 256 color palette basically is.
-
-I think how nearest neighbour on octree would work for this is:
-
-- index all the xterm colours into the octree... the tree recursively divides the 3D colour space up into regular cubes, the colour index tells us which cube a colour is found in (?)
-- for an arbitrary colour, this allows us to rapidly find the xterm colours in the same cube
-- according to https://link.springer.com/article/10.1007/s00138-017-0889-4 the usual algorithm then backtracks to add points from adjacent cubes (since the cubes are buckets and actual NN may be in the adjacent one)
-  - the paper actually provides a fast non-backtracking algo by pre-computing voronoi cells of the palette
-  - octree is used to quickly find the voronoi cell that the src colour falls into... each leaf cube of the octree should be a sub-region of one voronoi cell (i.e. the octree is subdivided until no leaves intersect multiple cells)
-  - centre point of the leaf voronoi cell is the nearest neighbour i.e. xterm palette colour
-- I guess if no candidates are found it backtracks further until some are found
-- we now have a shortlist of nearest neighbour candidates, we can compare distance of each against our src colour
+If we revisit spatial indexing in this codebase, use the external `oktree` package rather than keeping indexing research notes here.

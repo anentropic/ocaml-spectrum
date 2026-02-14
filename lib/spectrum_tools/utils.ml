@@ -10,9 +10,37 @@ let clamp min max n =
   | n when n > max -> max
   | _ -> n
 
+module Rgba = struct
+  type t = { r : int; g : int; b : int; a : float }
+end
+
+module Rgba' = struct
+  type t = { r : float; g : float; b : float; a : float }
+end
+
+let to_rgba color =
+  let c = Gg.Color.to_srgb color in
+  {
+    Rgba.r = int_of_float (Float.round (255. *. Gg.Color.r c));
+    g = int_of_float (Float.round (255. *. Gg.Color.g c));
+    b = int_of_float (Float.round (255. *. Gg.Color.b c));
+    a = Gg.Color.a c;
+  }
+
+let to_rgba' color =
+  let c = Gg.Color.to_srgb color in
+  {
+    Rgba'.r = Gg.Color.r c;
+    g = Gg.Color.g c;
+    b = Gg.Color.b c;
+    a = Gg.Color.a c;
+  }
+
+let of_rgb r g b = Color.Rgb.(v r g b |> to_gg)
+
 (** apply [f] to each component of [color] *)
-let map_color f (color : Color.Rgba.t) = (f color.r), (f color.g), (f color.b)
-let map_color' f (color : Color.Rgba'.t) = (f color.r), (f color.g), (f color.b)
+let map_color f (color : Rgba.t) = (f color.r), (f color.g), (f color.b)
+let map_color' f (color : Rgba'.t) = (f color.r), (f color.g), (f color.b)
 
 let map3 f (a, b, c) = (f a), (f b), (f c)
 
@@ -114,12 +142,15 @@ https://cs3110.github.io/textbook/chapters/ds/memoization.html#memoization-using
 *)
 let memoise f =
   let table = Hashtbl.create 16 in
-  fun arg ->
-    try Hashtbl.find table arg
-    with Not_found ->
+  let inner arg =
+    match Hashtbl.find_opt table arg with
+    | Some result -> result
+    | None ->
       let result = f arg in
       Hashtbl.add table arg result;
       result
+  in
+  inner
 
 (* ---- UNUSED scratch pad ---- *)
 
@@ -128,7 +159,7 @@ let rgb_int_of_srgb_component x =
   Gg color float values are in sRGB space, we need to convert
   them back into simple RGB. Gg only provides method to work on
   whole vector, e.g. we could:
-  (Color.gray_tone x |> Gg.Color.to_srgb |> Color.to_rgba).r
+  (Color.gray_tone x |> to_rgba).r
 
   to avoid this we copy some logic from:
   https://github.com/dbuenzli/gg/blob/master/src/gg.ml#L2714
@@ -144,36 +175,14 @@ let rgb_int_of_srgb_component x =
 (*
 https://observablehq.com/@tmcw/octree-color-quantization
 
-imagine a cube
-each 'level' of the index subdivides the parent cube into 8 smaller cubes
-(and in 2D you'd have a quadtree based on squares)
-so with `level` and `color_index` you can locate 
+NOTE: not a 'real' octree, this is a simplification that only works
+for a 256-colour palette which evenly divides the space
+(commonly used 256 color palettes do not do this so it can give bad results)
 
-JS version:
-  function getColorIndex(color, level) {
-    let index = 0;
-    let mask = 0b10000000 >> level;
-    if (color.red & mask) index |= 0b100;
-    if (color.green & mask) index |= 0b010;
-    if (color.blue & mask) index |= 0b001;
-    return index;
-  }
-
-returns: int in range 0..255
-
-i.e. we have evenly partitioned a 256 color palette, this function
-will tell you the index of the target colour in this palette
-
-Not the same thing, but here is an OCaml implementation of generating
-256 color palette from image, using an octree:
-https://rosettacode.org/wiki/Color_quantization#OCaml
-In this case the palette will consist of most frequent colors in the
-image rather than evenly diving the RGB space - the octree is used as
-'buckets' to assign pixels to, then fullest buckets are chosen.
-Based on: http://www.leptonica.org/color-quantization.html
+TODO: replace with oktree lib
 *)
 let color_index_256 color_v4 level =
-  let color = Color.to_rgba color_v4
+  let color = to_rgba color_v4
   and index = ref 0
   and mask = Int.shift_right 0b10000000 level
   in
@@ -221,7 +230,7 @@ let rgb_seq ?(rmax=256) ?(gmax=256) ?(bmax=256) =
   Seq.flat_map (fun r ->
       Seq.flat_map (fun g ->
           Seq.map (fun b ->
-              Color.of_rgb r g b
+              of_rgb r g b
             ) (range bmax)
         ) (range gmax)
     ) (range rmax)

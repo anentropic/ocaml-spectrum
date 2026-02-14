@@ -38,6 +38,36 @@ open Utils
 module Color = struct
   include Color
 
+  module Rgba = struct
+    type t = { r : int; g : int; b : int; a : float }
+  end
+
+  module Rgba' = struct
+    type t = { r : float; g : float; b : float; a : float }
+  end
+
+  let of_rgb r g b = Rgb.(v r g b |> to_gg)
+
+  let to_rgba color =
+    let c = Gg.Color.to_srgb color in
+    {
+      Rgba.r = int_of_float (Float.round (255. *. Gg.Color.r c));
+      g = int_of_float (Float.round (255. *. Gg.Color.g c));
+      b = int_of_float (Float.round (255. *. Gg.Color.b c));
+      a = Gg.Color.a c;
+    }
+
+  let to_rgba' color =
+    let c = Gg.Color.to_srgb color in
+    {
+      Rgba'.r = Gg.Color.r c;
+      g = Gg.Color.g c;
+      b = Gg.Color.b c;
+      a = Gg.Color.a c;
+    }
+
+  let of_hsl h s l = Hsl.(v h s l |> to_gg)
+
   module Hsva = struct
     type t = {h: float; s: float; v: float; a: float}
   end
@@ -53,7 +83,9 @@ module Color = struct
     let h, s = match diff with
       | 0. -> 0., 0.
       | _ -> begin
-          let rdiff, gdiff, bdiff = map_color' diffc c in
+          let rdiff = diffc c.r
+          and gdiff = diffc c.g
+          and bdiff = diffc c.b in
           let s = diff /. v in
           let h =
             if c.r == v then
@@ -86,6 +118,9 @@ module type Converter = sig
   val rgb_to_ansi256 : ?grey_threshold:int -> Gg.v4 -> int
   val rgb_to_ansi16 : Gg.v4 -> int
 end
+
+let map_color f (color : Color.Rgba.t) = (f color.r), (f color.g), (f color.b)
+let map_color' f (color : Color.Rgba'.t) = (f color.r), (f color.g), (f color.b)
 
 
 (* takes R,G,B 'column' values for one of the ANSI colours
