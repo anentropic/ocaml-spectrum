@@ -36,7 +36,7 @@ module Style = struct
     | Italic -> 3
     | Underline -> 4
     | Blink -> 5
-    | RapidBlink-> 5
+    | RapidBlink-> 6
     | Inverse -> 7
     | Hidden -> 8
     | Strikethru -> 9
@@ -55,10 +55,21 @@ module Basic : Palette.M = [%palette "lib/spectrum_palette/16-colors.json"]
 *)
 module Xterm256 : Palette.M = [%palette "lib/spectrum_palette/256-colors.json"]
 
+type rgba = { r : int; g : int; b : int; a : float }
+
+let rgba_of_color color =
+  let c = Gg.Color.to_srgb color in
+  {
+    r = int_of_float (Float.round (255. *. Gg.Color.r c));
+    g = int_of_float (Float.round (255. *. Gg.Color.g c));
+    b = int_of_float (Float.round (255. *. Gg.Color.b c));
+    a = Gg.Color.a c;
+  }
+
 
 module Rgb = struct
   let to_code color =
-    let c = Color.to_rgba color in
+    let c = rgba_of_color color in
     (string_of_int c.r) ^ ";"
     ^ (string_of_int c.g) ^ ";"
     ^ (string_of_int c.b)
@@ -105,7 +116,7 @@ let from_rgb r g b =
   let r = parse_int_256 r in
   let g = parse_int_256 g in
   let b = parse_int_256 b in
-  Color.of_rgb r g b
+  Color.Rgb.(v r g b |> to_gg)
   |> rgbcolor
 
 let parse_float_percent s =
@@ -117,7 +128,7 @@ let from_hsl h s l =
   let h = float_of_string h in
   let s = parse_float_percent s /. 100. in
   let l = parse_float_percent l /. 100. in
-  Color.of_hsl h s l
+  Color.Hsl.(v h s l |> to_gg)
   |> rgbcolor
 
 let qualified q color =

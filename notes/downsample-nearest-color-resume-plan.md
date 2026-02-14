@@ -16,12 +16,12 @@ Definition of done (P-1): lexer no longer carries duplicated hardcoded xterm nam
 
 ## P0 — Make branch build/test green again
 
-- [ ] Ensure opam switch has required libraries for new split packages (`pcre`, `psq`, etc.).
-- [ ] Run clean build and tests:
+- [x] Ensure opam switch has required libraries for new split packages (`re`, etc.).
+- [x] Run clean build and tests:
   - `opam exec -- dune clean`
   - `opam exec -- dune build`
   - `opam exec -- dune test`
-- [ ] Capture exact failures (if any) and decide if they are:
+- [x] Capture exact failures (if any) and decide if they are:
   - real regressions,
   - environment/setup issues,
   - expected WIP behavior.
@@ -71,15 +71,11 @@ Definition of done (P3): conversion no longer relies on scattered duplicated con
 
 ---
 
-## P4 — Decide octree fate (productize or park)
+## P4 — Optional indexing follow-up
 
-- [ ] Choose one:
-  1. integrate octree search as production nearest-neighbor backend,
-  2. keep perceptual candidate strategy as production and move octree to experimental docs,
-  3. gate octree behind feature flag/module boundary.
-- [ ] If integrating octree, add correctness tests against brute-force nearest for sample sets.
+- [ ] If nearest-neighbor indexing is needed later, integrate the external `oktree` package.
 
-Definition of done (P4): one clear nearest-neighbor strategy is canonical.
+Definition of done (P4): indexing strategy is explicit and externalized.
 
 ---
 
@@ -91,7 +87,7 @@ Definition of done (P4): one clear nearest-neighbor strategy is canonical.
 
 If time remains:
 
-4. Start de-duplication work (`P3`) before touching octree decisions.
+4. Start de-duplication work (`P3`) before any indexing integration.
 
 ---
 

@@ -6,7 +6,7 @@ type t = {
   b: int;
 }
 
-let to_color (def : t) = Color.of_rgb def.r def.g def.b
+let to_color (def : t) = Color.Rgb.(v def.r def.g def.b |> to_gg)
 
 let e_invalid = Failure "Invalid json data"
 
@@ -68,4 +68,4 @@ let load_assoc fname = List.map (fun ac -> (ac.code, ac)) @@ load fname
 
 let get_defs () = load_assoc @@ Sys.getcwd () ^ "/lib/spectrum_palette/256-colors.json"
 
-let v4_of_ansi_color (def : t) = Color.of_rgb def.r def.g def.b
+let v4_of_ansi_color (def : t) = Color.Rgb.(v def.r def.g def.b |> to_gg)

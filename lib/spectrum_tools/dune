@@ -3,4 +3,4 @@
  (public_name spectrum_tools)
  (preprocess
   (pps ppx_deriving.show))
- (libraries color gg pcre psq))
+ (libraries color gg re))

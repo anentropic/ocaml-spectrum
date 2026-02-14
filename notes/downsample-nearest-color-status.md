@@ -21,7 +21,7 @@ Key outcomes so far:
 1. Repo architecture split into 3 public libraries:
    - `spectrum` (runtime tagging/printing/parser integration)
    - `spectrum_palette` (palette loading + PPX codegen from JSON)
-   - `spectrum_tools` (conversion algorithms, octree exploration, query tools)
+   - `spectrum_tools` (conversion algorithms, query tools)
 2. Parser palette definitions moved from hardcoded forms to generated modules via PPX over JSON palette files.
 3. `lexer.mll` now correctly delegates parsing/validation to `Parser` instead of carrying a giant hardcoded xterm name map.
 4. Multiple RGB->restricted palette conversion strategies implemented, including perceptual (LAB-distance) nearest matching.
@@ -72,13 +72,6 @@ Key outcomes so far:
 - Current default exported module still wires true-color serializer for `Exn` and `Noexn`.
 - Explicit TODO remains for capability-based serializer selection.
 
-### 5) Octree / nearest-neighbor exploration
-
-- Added octree module and priority-queue search prototype:
-  - `lib/spectrum_tools/octree.ml`
-- Contains detailed notes and partial implementation for nearest-neighbor traversal in octree partitions.
-- Current state appears exploratory/prototype rather than integrated production path.
-
 ### 6) Terminal color query utilities
 
 - Added xterm fg/bg query helper and parsing:
@@ -101,8 +94,7 @@ Key outcomes so far:
 
 In the current local switch/environment, build and tests do not pass due to missing dependencies:
 
-- Missing library `pcre`
-- Missing library `psq`
+- Missing library `re`
 
 Observed via:
 
@@ -119,7 +111,6 @@ The branch’s chosen approach is coherent:
 
 1. **Data-driven palettes** (JSON + PPX) to avoid hand-maintained giant match statements.
 2. **Runtime quantization for arbitrary RGB** with a perceptual nearest-match strategy.
-3. Exploration of **spatial indexing** (octree) for faster nearest search on larger/custom palettes.
 
 This matches your remembered goal: utilities for normalizing arbitrary colors into restricted palettes, with groundwork for broader/custom palette support.
 
@@ -142,5 +133,4 @@ This matches your remembered goal: utilities for normalizing arbitrary colors in
 3. `lib/spectrum/lexer.mll` (now parser-delegating after fix)
 4. `lib/spectrum_tools/convert.ml` (actual quantization logic)
 5. `lib/spectrum_palette/spectrum_palette.ml` (PPX generation model)
-6. `lib/spectrum_tools/octree.ml` (future/perf direction)
 7. `tests/dune` and `tests/capabilities.ml` (test status)

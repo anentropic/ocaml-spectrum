@@ -46,30 +46,9 @@ end
   (although how useful is a palette which deviates far from Xterm?
   ...is it still useful to effectively map our RGB -> Xterm -> custom?)
 
-  we need some 'index' data structure to allow fast retrieval of closest
-  match from palette for arbitrary RGB value. presumably this index can
-  be generated via ppx at compile time
-
-  initial research turned up the 'voronoi octree' method, see:
-  https://link.springer.com/content/pdf/10.1007/s00138-017-0889-4.pdf
-  or just an octree - the voronoi part is to handle unevenly distributed
-  points, but we would expect an even distribution for a terminal palette
-  see: https://en.wikipedia.org/wiki/Octree
-  "octrees are not the same as k-d trees: k-d trees split along a dimension
-  and octrees split around a point. Also k-d trees are always binary, which
-  is not the case for octrees"
-  it is a 3D data structure, built of recursively subdivided voxels
-  An octree would need:
-  - an origin (e.g. 0,0,0)
-  - a size (e.g. 256)
-  - a max depth (e.g. 8 subdivisions would go down to individual cells
-    of the underlying 16.8m color space)
-  feels like we can probably use bit-shifting!
-
-  less exotic would be a b-tree per R,G,B ... allowing to efficiently
-  fetch the 'adjacent' colours, which can then be compared perceptually
-  much as per current algorithm
-  see https://hbr.github.io/fmlib/odoc/fmlib_std/Fmlib_std/Btree/index.html
+  if we later need an acceleration index for arbitrary palettes,
+  prefer integrating the external `oktree` package rather than keeping
+  indexing research/prototypes in this repository.
 *)
 module True_color_Serializer : Serializer = struct
   let to_code tokens =

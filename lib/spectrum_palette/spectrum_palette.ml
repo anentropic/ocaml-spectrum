@@ -82,10 +82,15 @@ let to_code_f_of_defs ~loc defs =
 
 let apply_color_of_def ~loc (def : Loader.t) =
   Ast.pexp_apply ~loc
-    (Ast.pexp_ident ~loc {txt = Ldot (Lident "Color", "of_rgb"); loc})
-    (List.map (fun c ->
-         (Nolabel, Ast.pexp_constant ~loc (const_integer_of_int c)))
-        [def.r; def.g; def.b])
+    (Ast.pexp_ident ~loc {txt = Ldot (Ldot (Lident "Color", "Rgb"), "to_gg"); loc})
+    [
+      (Nolabel,
+       Ast.pexp_apply ~loc
+         (Ast.pexp_ident ~loc {txt = Ldot (Ldot (Lident "Color", "Rgb"), "v"); loc})
+         (List.map (fun c ->
+              (Nolabel, Ast.pexp_constant ~loc (const_integer_of_int c)))
+             [def.r; def.g; def.b]))
+    ]
 
 (* build AST for the generated to_color method *)
 let to_color_f_of_defs ~loc defs =
@@ -117,6 +122,33 @@ let color_list_of_defs ~loc defs =
       ~expr: colors_list_expr;
   ]
 
+let rec find_in_ancestors ~start relpath =
+  let candidate = Filename.concat start relpath in
+  if Sys.file_exists candidate then Some candidate
+  else
+    let parent = Filename.dirname start in
+    if String.equal parent start then None
+    else find_in_ancestors ~start:parent relpath
+
+let resolve_palette_filepath filepath =
+  if not (Filename.is_relative filepath) then filepath
+  else if Sys.file_exists filepath then filepath
+  else
+    match Sys.getenv_opt "DUNE_SOURCEROOT" with
+    | Some root ->
+      let candidate = Filename.concat root filepath in
+      if Sys.file_exists candidate then candidate
+      else (
+        match find_in_ancestors ~start:(Sys.getcwd ()) filepath with
+        | Some p -> p
+        | None -> filepath
+      )
+    | None -> (
+        match find_in_ancestors ~start:(Sys.getcwd ()) filepath with
+        | Some p -> p
+        | None -> filepath
+      )
+
 (*
   Generate a Palette module from the given json config
 
@@ -124,7 +156,7 @@ let color_list_of_defs ~loc defs =
 *)
 let expand ~ctxt filepath =
   let loc = Expansion_context.Extension.extension_point_loc ctxt in
-  let defs = Loader.load_assoc filepath in
+  let defs = Loader.load_assoc (resolve_palette_filepath filepath) in
   let mod_struct = [
     variant_of_defs ~loc defs;
     [%stri let of_string = [%e of_string_f_of_defs ~loc defs]];
