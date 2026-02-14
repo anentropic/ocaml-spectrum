@@ -3,6 +3,10 @@ name: PR build and test
 on:
   pull_request:
 
+permissions:
+  checks: write
+  pull-requests: write
+
 jobs:
   build-and-test:
     strategy:
@@ -31,5 +35,4 @@ jobs:
         if: always()
         with:
           check_name: Dune unit test results
-          comment_mode: update last
           files: _build/default/tests/junit-*.xml
