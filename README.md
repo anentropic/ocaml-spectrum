@@ -182,38 +182,28 @@ type color_level =
   | True_color  (* FORCE_COLOR=3 *)
 ```
 
-<style>
-.color-swatch {
-  display: inline-block;
-  width: 15px;
-  height: 15px;
-  border: 1px solid black;
-  vertical-align: middle;
-}
-</style>
-
 - `Unsupported`: probably best not to use colors or styling
 - `Basic`: **NOTE not currently supported by Spectrum, we always output the 8-bit style ANSI codes** supports 16 colors, i.e. the 8 basic colors plus "bright" version of each. They are equivalent to the first eight colours of the xterm 256-color set, with bright version accessed by setting the style to **bold**. So the available colour name tags are:
-  - <span class="color-swatch" style="background-color: #000000;"></span> `black` (with `bold` will display as: `grey`)
-  - <span class="color-swatch" style="background-color: #800000;"></span> `maroon` (with `bold` will display as: `red`)
-  - <span class="color-swatch" style="background-color: #008000;"></span> `green` (with `bold` will display as: `lime`)
-  - <span class="color-swatch" style="background-color: #808000;"></span> `olive` (with `bold` will display as: `yellow`)
-  - <span class="color-swatch" style="background-color: #000080;"></span> `navy` (with `bold` will display as: `blue`)
-  - <span class="color-swatch" style="background-color: #800080;"></span> `purple` (with `bold` will display as: `fuchsia`)
-  - <span class="color-swatch" style="background-color: #008080;"></span> `teal` (with `bold` will display as: `aqua`)
-  - <span class="color-swatch" style="background-color: #c0c0c0;"></span> `silver` (with `bold` will display as: `white`)
-  - <span class="color-swatch" style="background-color: #808080;"></span> `grey`
-  - <span class="color-swatch" style="background-color: #ff0000;"></span> `red`
-  - <span class="color-swatch" style="background-color: #00ff00;"></span> `lime`
-  - <span class="color-swatch" style="background-color: #ffff00;"></span> `yellow`
-  - <span class="color-swatch" style="background-color: #0000ff;"></span> `blue`
-  - <span class="color-swatch" style="background-color: #ff00ff;"></span> `fuchsia`
-  - <span class="color-swatch" style="background-color: #00ffff;"></span> `aqua`
-  - <span class="color-swatch" style="background-color: #ffffff;"></span> `white`
+  - <font color="#000000">■</font> `black` (with `bold` will display as: `grey`)
+  - <font color="#800000">■</font> `maroon` (with `bold` will display as: `red`)
+  - <font color="#008000">■</font> `green` (with `bold` will display as: `lime`)
+  - <font color="#808000">■</font> `olive` (with `bold` will display as: `yellow`)
+  - <font color="#000080">■</font> `navy` (with `bold` will display as: `blue`)
+  - <font color="#800080">■</font> `purple` (with `bold` will display as: `fuchsia`)
+  - <font color="#008080">■</font> `teal` (with `bold` will display as: `aqua`)
+  - <font color="#c0c0c0">■</font> `silver` (with `bold` will display as: `white`)
+  - <font color="#808080">■</font> `grey`
+  - <font color="#ff0000">■</font> `red`
+  - <font color="#00ff00">■</font> `lime`
+  - <font color="#ffff00">■</font> `yellow`
+  - <font color="#0000ff">■</font> `blue`
+  - <font color="#ff00ff">■</font> `fuchsia`
+  - <font color="#00ffff">■</font> `aqua`
+  - <font color="#ffffff">■</font> `white`
 - `Eight_bit`: supports the [xterm 256-color palette][1]. Named colours beyond the first 16 above should keep their hue when bolded. CSS 24-bit colours likely won't work.
   - NOTE: colour names from that list have been normalised by hyphenating, and where names are repeated they are made unique with an alphabetical suffix, e.g. `SpringGreen3` is present in Spectrum as:
-    - <span class="color-swatch" style="background-color: #00af5f;"></span> `spring-green-3a`
-    - <span class="color-swatch" style="background-color: #00d75f;"></span> `spring-green-3b`
+    - <font color="#00af5f">■</font> `spring-green-3a`
+    - <font color="#00d75f">■</font> `spring-green-3b`
   - See the defs at https://github.com/anentropic/ocaml-spectrum/blob/main/lib/lexer.mll#L24
 - `True_color`: should support everything
 
