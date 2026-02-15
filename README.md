@@ -184,26 +184,26 @@ type color_level =
 
 - `Unsupported`: probably best not to use colors or styling
 - `Basic`: **NOTE not currently supported by Spectrum, we always output the 8-bit style ANSI codes** supports 16 colors, i.e. the 8 basic colors plus "bright" version of each. They are equivalent to the first eight colours of the xterm 256-color set, with bright version accessed by setting the style to **bold**. So the available colour name tags are:
-  - <font color="#000000">■</font> `black` (with `bold` will display as: `grey`)
-  - <font color="#800000">■</font> `maroon` (with `bold` will display as: `red`)
-  - <font color="#008000">■</font> `green` (with `bold` will display as: `lime`)
-  - <font color="#808000">■</font> `olive` (with `bold` will display as: `yellow`)
-  - <font color="#000080">■</font> `navy` (with `bold` will display as: `blue`)
-  - <font color="#800080">■</font> `purple` (with `bold` will display as: `fuchsia`)
-  - <font color="#008080">■</font> `teal` (with `bold` will display as: `aqua`)
-  - <font color="#c0c0c0">■</font> `silver` (with `bold` will display as: `white`)
-  - <font color="#808080">■</font> `grey`
-  - <font color="#ff0000">■</font> `red`
-  - <font color="#00ff00">■</font> `lime`
-  - <font color="#ffff00">■</font> `yellow`
-  - <font color="#0000ff">■</font> `blue`
-  - <font color="#ff00ff">■</font> `fuchsia`
-  - <font color="#00ffff">■</font> `aqua`
-  - <font color="#ffffff">■</font> `white`
+  - <svg width="16" height="16" xmlns="http://www.w3.org/2000/svg"><rect width="15" height="15" fill="#000000" stroke="black" stroke-width="1"/></svg> `black` (with `bold` will display as: `grey`)
+  - <svg width="16" height="16" xmlns="http://www.w3.org/2000/svg"><rect width="15" height="15" fill="#800000" stroke="black" stroke-width="1"/></svg> `maroon` (with `bold` will display as: `red`)
+  - <svg width="16" height="16" xmlns="http://www.w3.org/2000/svg"><rect width="15" height="15" fill="#008000" stroke="black" stroke-width="1"/></svg> `green` (with `bold` will display as: `lime`)
+  - <svg width="16" height="16" xmlns="http://www.w3.org/2000/svg"><rect width="15" height="15" fill="#808000" stroke="black" stroke-width="1"/></svg> `olive` (with `bold` will display as: `yellow`)
+  - <svg width="16" height="16" xmlns="http://www.w3.org/2000/svg"><rect width="15" height="15" fill="#000080" stroke="black" stroke-width="1"/></svg> `navy` (with `bold` will display as: `blue`)
+  - <svg width="16" height="16" xmlns="http://www.w3.org/2000/svg"><rect width="15" height="15" fill="#800080" stroke="black" stroke-width="1"/></svg> `purple` (with `bold` will display as: `fuchsia`)
+  - <svg width="16" height="16" xmlns="http://www.w3.org/2000/svg"><rect width="15" height="15" fill="#008080" stroke="black" stroke-width="1"/></svg> `teal` (with `bold` will display as: `aqua`)
+  - <svg width="16" height="16" xmlns="http://www.w3.org/2000/svg"><rect width="15" height="15" fill="#c0c0c0" stroke="black" stroke-width="1"/></svg> `silver` (with `bold` will display as: `white`)
+  - <svg width="16" height="16" xmlns="http://www.w3.org/2000/svg"><rect width="15" height="15" fill="#808080" stroke="black" stroke-width="1"/></svg> `grey`
+  - <svg width="16" height="16" xmlns="http://www.w3.org/2000/svg"><rect width="15" height="15" fill="#ff0000" stroke="black" stroke-width="1"/></svg> `red`
+  - <svg width="16" height="16" xmlns="http://www.w3.org/2000/svg"><rect width="15" height="15" fill="#00ff00" stroke="black" stroke-width="1"/></svg> `lime`
+  - <svg width="16" height="16" xmlns="http://www.w3.org/2000/svg"><rect width="15" height="15" fill="#ffff00" stroke="black" stroke-width="1"/></svg> `yellow`
+  - <svg width="16" height="16" xmlns="http://www.w3.org/2000/svg"><rect width="15" height="15" fill="#0000ff" stroke="black" stroke-width="1"/></svg> `blue`
+  - <svg width="16" height="16" xmlns="http://www.w3.org/2000/svg"><rect width="15" height="15" fill="#ff00ff" stroke="black" stroke-width="1"/></svg> `fuchsia`
+  - <svg width="16" height="16" xmlns="http://www.w3.org/2000/svg"><rect width="15" height="15" fill="#00ffff" stroke="black" stroke-width="1"/></svg> `aqua`
+  - <svg width="16" height="16" xmlns="http://www.w3.org/2000/svg"><rect width="15" height="15" fill="#ffffff" stroke="black" stroke-width="1"/></svg> `white`
 - `Eight_bit`: supports the [xterm 256-color palette][1]. Named colours beyond the first 16 above should keep their hue when bolded. CSS 24-bit colours likely won't work.
   - NOTE: colour names from that list have been normalised by hyphenating, and where names are repeated they are made unique with an alphabetical suffix, e.g. `SpringGreen3` is present in Spectrum as:
-    - <font color="#00af5f">■</font> `spring-green-3a`
-    - <font color="#00d75f">■</font> `spring-green-3b`
+    - <svg width="16" height="16" xmlns="http://www.w3.org/2000/svg"><rect width="15" height="15" fill="#00af5f" stroke="black" stroke-width="1"/></svg> `spring-green-3a`
+    - <svg width="16" height="16" xmlns="http://www.w3.org/2000/svg"><rect width="15" height="15" fill="#00d75f" stroke="black" stroke-width="1"/></svg> `spring-green-3b`
   - See the defs at https://github.com/anentropic/ocaml-spectrum/blob/main/lib/lexer.mll#L24
 - `True_color`: should support everything
 
