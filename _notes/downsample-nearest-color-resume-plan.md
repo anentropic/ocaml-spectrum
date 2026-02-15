@@ -1,7 +1,14 @@
 # downsample-nearest-color — Resume Plan
 
-Date: 2026-02-14
+Date: 2026-02-15
 Goal: get branch back to a mergeable, test-backed, documented state.
+
+Status refresh (2026-02-15):
+
+- `tests/dune` now runs `lexer`, `printing`, `capabilities`, and `conversion`.
+- Capability-based serializer selection is wired in `lib/spectrum/spectrum.ml`.
+- `tests/capabilities.ml` TODO coverage gaps were filled (recognised CI names + TERM patterns).
+- Local validation currently passes with `opam exec -- dune clean && opam exec -- dune test --force`.
 
 ## Priority checklist
 
@@ -32,12 +39,12 @@ Definition of done (P0): local `dune build` + `dune test` succeed in project swi
 
 ## P1 — Re-enable and stabilize core tests
 
-- [ ] Re-enable currently commented test targets in `tests/dune` (`lexer`, `printing`).
-- [ ] Fix any failing tests introduced by parser/library split.
-- [ ] Add targeted tests for conversion behavior:
+- [x] Re-enable currently commented test targets in `tests/dune` (`lexer`, `printing`).
+- [x] Fix any failing tests introduced by parser/library split.
+- [x] Add targeted tests for conversion behavior:
   - RGB -> ANSI-256 nearest mapping (including edge greys)
   - RGB -> ANSI-16 nearest mapping
-  - behavior around thresholds / candidate ties
+  - serializer behavior under capability-constrained output
 
 Definition of done (P1): full test list active and passing.
 
@@ -45,12 +52,12 @@ Definition of done (P1): full test list active and passing.
 
 ## P2 — Finish runtime integration decisions
 
-- [ ] Implement capability-based serializer selection (currently TODO in `spectrum.ml`).
-- [ ] Confirm expected mapping policy by capability:
+- [x] Implement capability-based serializer selection in `spectrum.ml`.
+- [x] Confirm expected mapping policy by capability:
   - true-color terminal -> keep RGB
   - 256-color terminal -> quantize RGB to nearest ANSI-256
-  - basic terminal -> quantize to nearest ANSI-16
-- [ ] Add integration tests for end-to-end tag rendering under each capability mode.
+  - basic terminal -> quantize RGB to nearest ANSI-16
+- [x] Add serializer-level integration coverage for capability-constrained output.
 
 Definition of done (P2): runtime chooses serializer deterministically and is tested.
 
@@ -79,15 +86,15 @@ Definition of done (P4): indexing strategy is explicit and externalized.
 
 ---
 
-## Suggested first session (fast restart)
+## Suggested next session
 
-1. Build/test baseline and fix environment (`P0`).
-2. Re-enable tests (`P1`) to recover confidence.
-3. Implement capability-based serializer dispatch (`P2`) so feature is user-visible.
+1. Start de-duplication work (`P3`) to reduce duplicate palette truth.
+2. Decide explicit custom-palette support policy (`P3`).
+3. Update docs/release notes for quantization + package split (merge readiness).
 
 If time remains:
 
-4. Start de-duplication work (`P3`) before any indexing integration.
+4. Evaluate optional indexing follow-up (`P4`) before any optimisation work.
 
 ---
 
@@ -120,8 +127,8 @@ opam exec -- dune test
 
 ## Merge readiness criteria
 
-- [ ] Build green in clean switch
-- [ ] Full tests re-enabled and passing
-- [ ] Capability-based serializer selection implemented and tested
+- [x] Build green in clean switch
+- [x] Full tests re-enabled and passing
+- [x] Capability-based serializer selection implemented and tested
 - [ ] Palette source-of-truth duplication reduced
 - [ ] README/CHANGES updated to describe new quantization behavior and package split

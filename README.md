@@ -228,8 +228,8 @@ You can override the detected capability level by setting the `FORCE_COLOR` envi
 #### 0.7.0
 - **automatic color quantization**: RGB and HSL colors are now automatically downsampled to ANSI-256 or ANSI-16 based on detected terminal capabilities
 - use perceptually accurate LAB color space distance for nearest-color matching
-- split architecture into `spectrum` (main runtime), `spectrum_palette.ppx` (palette codegen PPX), and `spectrum_tools` (color conversion utilities)
-- palette JSON definitions now live in `lib/spectrum/*.json`, with generated palette modules centralized in `lib/spectrum/palettes.ml`
+- split architecture into `spectrum` (main runtime), `spectrum_palette_ppx` (palette codegen PPX), and `spectrum_tools` (color conversion utilities)
+- palette JSON definitions now live in `lib/spectrum/*.json`, with generated shared palette modules in `lib/spectrum_palettes/terminal.ml`
 - improved test coverage with comprehensive color conversion tests
 
 #### 0.6.0
@@ -256,7 +256,7 @@ You can override the detected capability level by setting the `FORCE_COLOR` envi
 
 ## TODOs
 
-- tests for all methods (sprintf, lexer, and printer are tested currently), property-based tests
+- broaden automated coverage with property-based tests and additional tie/threshold regression cases
 - publish the printer and capabilities-detection as separate opam modules?
 - expose variant types for use with explicit `mark_open_stag` and close calls?
 - consider custom palette support (currently only xterm 256-color palette is supported)

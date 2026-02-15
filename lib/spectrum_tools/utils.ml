@@ -178,8 +178,6 @@ https://observablehq.com/@tmcw/octree-color-quantization
 NOTE: not a 'real' octree, this is a simplification that only works
 for a 256-colour palette which evenly divides the space
 (commonly used 256 color palettes do not do this so it can give bad results)
-
-TODO: replace with oktree lib
 *)
 let color_index_256 color_v4 level =
   let color = to_rgba color_v4

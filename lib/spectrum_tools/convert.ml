@@ -317,7 +317,7 @@ end
   For ANSI-256 we preserve historical behaviour by searching only xterm
   codes 16..255 (colour cube + greys), excluding basic codes 0..15.
 
-  TODO:
+  Idea:
   Possibly the 'OKLab' colourspace is even better for perceptual matching
   See: https://meat.io/oksolar
   https://bottosson.github.io/posts/oklab/

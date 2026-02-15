@@ -2,7 +2,7 @@
 
 When managing dependencies use an opam switch.
 
-When completing a task that touched OCaml or Dune code, first do ``dune clean && dune test --force`. The use VSCode tools to "OCaml: Restart Language Server". The use `get_errors` tool to check for issues and then fix them.
+When completing a task that touched OCaml or Dune code, first do `dune clean && dune test --force`. Use builtin tools to restart the OCaml language server. Then use builtin tools to check for issues in project files and fix them.
 
 Ignore errors in files under `_scratchpad` or `_notes`.
 

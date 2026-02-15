@@ -1,31 +1,25 @@
 # downsample-nearest-color — Branch Status
 
-Date: 2026-02-14
+Date: 2026-02-15
 Compared against: `main`
 Current branch: `downsample-nearest-color`
 
-Post-fix update (2026-02-14): `lib/spectrum/lexer.mll` has now been restored to the intended parser-delegating version from commit `40c1622` (the large hardcoded color-name map was removed again after rebase conflict fallout).
+Post-fix updates:
+
+- `lib/spectrum/lexer.mll` remains on the intended parser-delegating version from commit `40c1622`.
+- `lib/spectrum/spectrum.ml` now selects serializer output by detected terminal capability.
+- `tests/dune` includes `lexer`, `printing`, `capabilities`, and `conversion` suites.
+- `tests/capabilities.ml` now covers recognised CI providers and TERM 16-color patterns.
 
 ## Executive summary
 
-This branch is a substantial WIP toward color downsampling / nearest-match conversion and palette modularization.
+The branch remains a feature-heavy change set, but its day-to-day development state is now much healthier than the previous snapshot: local clean test runs are green, core tests are re-enabled, and capability-driven serializer selection is in place.
 
-High-level delta vs `main`:
+High-level delta vs `main` (historical snapshot):
 
 - Commits ahead of `main`: 14
 - Files changed: 33
 - Net diff: `+7168 / -147`
-
-Key outcomes so far:
-
-1. Repo architecture split into 3 public libraries:
-   - `spectrum` (runtime tagging/printing/parser integration)
-   - `spectrum_palette` (palette loading + PPX codegen from JSON)
-   - `spectrum_tools` (conversion algorithms, query tools)
-2. Parser palette definitions moved from hardcoded forms to generated modules via PPX over JSON palette files.
-3. `lexer.mll` now correctly delegates parsing/validation to `Parser` instead of carrying a giant hardcoded xterm name map.
-4. Multiple RGB->restricted palette conversion strategies implemented, including perceptual (LAB-distance) nearest matching.
-5. Serializer path in `spectrum` now uses quantization for lower capability modes.
 
 ---
 
@@ -40,97 +34,80 @@ Key outcomes so far:
 - New opam package files added:
   - `spectrum_palette.opam`
   - `spectrum_tools.opam`
-- `dune-project` now defines multiple packages (with TODO placeholders in metadata for new packages).
+- `dune-project` defines multiple packages.
 
 ### 2) Palette model/codegen
 
-- Added JSON palette sources:
+- JSON palette sources:
   - `lib/spectrum_palette/16-colors.json`
   - `lib/spectrum_palette/256-colors.json`
-- Added PPX rewriter machinery to generate `Palette.M` modules from JSON config:
+- PPX machinery generates `Palette.M` modules from JSON config:
   - `lib/spectrum_palette/spectrum_palette.ml`
-- Parser now consumes generated modules:
+- Parser consumes generated modules:
   - `module Basic : Palette.M = [%palette "lib/spectrum_palette/16-colors.json"]`
   - `module Xterm256 : Palette.M = [%palette "lib/spectrum_palette/256-colors.json"]`
 
 ### 3) Conversion/downsampling logic
 
-- Added conversion module with three strategies:
-  - `Chalk` (close port of Chalk.js style mapping)
-  - `Improved` (better bucket boundaries and grey detection)
-  - `Perceptual` (candidate set + LAB distance nearest)
-- Core implementation in:
+- Conversion module includes three strategies:
+  - `Chalk`
+  - `Improved`
+  - `Perceptual`
+- Core implementation:
   - `lib/spectrum_tools/convert.ml`
-- The perceptual path currently drives runtime quantization in serializers.
+- Runtime quantization paths are active for lower capability outputs.
 
 ### 4) Runtime integration in spectrum
 
-- `lib/spectrum/spectrum.ml` adds serializer modules:
+- `lib/spectrum/spectrum.ml` exposes serializer modules:
   - `True_color_Serializer`
-  - `Xterm256_Serializer` (RGB quantized to ANSI-256)
-  - `Basic_Serializer` (RGB/256 quantized to ANSI-16)
-- Current default exported module still wires true-color serializer for `Exn` and `Noexn`.
-- Explicit TODO remains for capability-based serializer selection.
+  - `Xterm256_Serializer`
+  - `Basic_Serializer`
+- Runtime serializer dispatch is capability-driven via `select_serializer ()`.
 
-### 6) Terminal color query utilities
+### 5) Tests and tooling state
 
-- Added xterm fg/bg query helper and parsing:
-  - `lib/spectrum_tools/query.ml`
-- Added scripts for experimentation:
-  - `bin/query.py`
-  - `bin/query.sh`
-- Demo CLI updated to exercise `spectrum` and query functionality.
-
-### 7) Tests and tooling state
-
-- Test target in `tests/dune` currently narrowed to capabilities only:
-  - `lexer` and `printing` tests commented out.
-- Additional TODO comments inserted in `tests/capabilities.ml` for broader coverage.
-- VSCode setting change includes `editor.formatOnType`.
+- `tests/dune` currently runs:
+  - `lexer`
+  - `printing`
+  - `capabilities`
+  - `conversion`
+- Capability test coverage was expanded for:
+  - all recognised CI provider env vars in detection logic
+  - TERM 16-color recogniser patterns/prefixes
+- Local validation command used:
+  - `opam exec -- dune clean && opam exec -- dune test --force`
+- Latest observed result: passing.
 
 ---
 
 ## Current branch health snapshot
 
-In the current local switch/environment, build and tests do not pass due to missing dependencies:
+Current local switch/environment status:
 
-- Missing library `re`
+- Build/test path is green in local clean runs.
+- Previous `re` dependency issue is not present in the current environment.
 
-Observed via:
+Interpretation:
 
-- `opam exec -- dune build`
-- `opam exec -- dune test`
-
-So this branch should be treated as **functional WIP**, not yet fully green.
-
----
-
-## Notes on implementation direction
-
-The branch’s chosen approach is coherent:
-
-1. **Data-driven palettes** (JSON + PPX) to avoid hand-maintained giant match statements.
-2. **Runtime quantization for arbitrary RGB** with a perceptual nearest-match strategy.
-
-This matches your remembered goal: utilities for normalizing arbitrary colors into restricted palettes, with groundwork for broader/custom palette support.
+- This branch is no longer “broken by default” locally.
+- Remaining work is primarily around cleanup/polish decisions (palette source-of-truth de-duplication, policy clarity, docs/release notes), rather than immediate build stability.
 
 ---
 
 ## Main open risks / known rough edges
 
-1. Build reproducibility in current switch (deps missing locally).
-2. Duplicate/parallel sources of palette truth (not fully centralized yet).
-3. Custom palette support still partly xterm-assumption-based in conversion code.
-4. Test suite reduced while feature work progressed.
-5. Capability-driven serializer selection still TODO in runtime wiring.
+1. Duplicate/parallel palette truth still exists in places and should be reduced.
+2. Custom palette support policy is not yet explicitly decided/documented.
+3. README/CHANGES still need a focused update to describe quantization behavior and package split.
 
 ---
 
 ## Suggested reading order to re-orient quickly
 
-1. `lib/spectrum/spectrum.ml` (integration + serializer selection TODO)
+1. `lib/spectrum/spectrum.ml` (serializer selection + integration)
 2. `lib/spectrum/parser.ml` (generated palette usage)
-3. `lib/spectrum/lexer.mll` (now parser-delegating after fix)
-4. `lib/spectrum_tools/convert.ml` (actual quantization logic)
+3. `lib/spectrum/lexer.mll` (parser delegation)
+4. `lib/spectrum_tools/convert.ml` (downsampling logic)
 5. `lib/spectrum_palette/spectrum_palette.ml` (PPX generation model)
-7. `tests/dune` and `tests/capabilities.ml` (test status)
+6. `tests/dune`, `tests/capabilities.ml`, `tests/conversion.ml` (current test coverage)
