@@ -184,26 +184,26 @@ type color_level =
 
 - `Unsupported`: probably best not to use colors or styling
 - `Basic`: **NOTE not currently supported by Spectrum, we always output the 8-bit style ANSI codes** supports 16 colors, i.e. the 8 basic colors plus "bright" version of each. They are equivalent to the first eight colours of the xterm 256-color set, with bright version accessed by setting the style to **bold**. So the available colour name tags are:
-  - ![#000000](https://via.placeholder.com/15/000000/000000?text=+) `black` (with `bold` will display as: `grey`)
-  - ![#800000](https://via.placeholder.com/15/800000/000000?text=+) `maroon` (with `bold` will display as: `red`)
-  - ![#008000](https://via.placeholder.com/15/008000/000000?text=+) `green` (with `bold` will display as: `lime`)
-  - ![#808000](https://via.placeholder.com/15/808000/000000?text=+) `olive` (with `bold` will display as: `yellow`)
-  - ![#000080](https://via.placeholder.com/15/000080/000000?text=+) `navy` (with `bold` will display as: `blue`)
-  - ![#800080](https://via.placeholder.com/15/800080/000000?text=+) `purple` (with `bold` will display as: `fuchsia`)
-  - ![#008080](https://via.placeholder.com/15/008080/000000?text=+) `teal` (with `bold` will display as: `aqua`)
-  - ![#c0c0c0](https://via.placeholder.com/15/c0c0c0/000000?text=+) `silver` (with `bold` will display as: `white`)
-  - ![#808080](https://via.placeholder.com/15/808080/000000?text=+) `grey`
-  - ![#ff0000](https://via.placeholder.com/15/ff0000/000000?text=+) `red`
-  - ![#00ff00](https://via.placeholder.com/15/00ff00/000000?text=+) `lime`
-  - ![#ffff00](https://via.placeholder.com/15/ffff00/000000?text=+) `yellow`
-  - ![#0000ff](https://via.placeholder.com/15/0000ff/000000?text=+) `blue`
-  - ![#ff00ff](https://via.placeholder.com/15/ff00ff/000000?text=+) `fuchsia`
-  - ![#00ffff](https://via.placeholder.com/15/00ffff/000000?text=+) `aqua`
-  - ![#ffffff](https://via.placeholder.com/15/ffffff/000000?text=+) `white`
+  - <img src="_readme/black.png" alt="black" width="16" height="16" border="1" /> `black` (with `bold` will display as: `grey`)
+  - <img src="_readme/maroon.png" alt="maroon" width="16" height="16" border="1" /> `maroon` (with `bold` will display as: `red`)
+  - <img src="_readme/green.png" alt="green" width="16" height="16" border="1" /> `green` (with `bold` will display as: `lime`)
+  - <img src="_readme/olive.png" alt="olive" width="16" height="16" border="1" /> `olive` (with `bold` will display as: `yellow`)
+  - <img src="_readme/navy.png" alt="navy" width="16" height="16" border="1" /> `navy` (with `bold` will display as: `blue`)
+  - <img src="_readme/purple.png" alt="purple" width="16" height="16" border="1" /> `purple` (with `bold` will display as: `fuchsia`)
+  - <img src="_readme/teal.png" alt="teal" width="16" height="16" border="1" /> `teal` (with `bold` will display as: `aqua`)
+  - <img src="_readme/silver.png" alt="silver" width="16" height="16" border="1" /> `silver` (with `bold` will display as: `white`)
+  - <img src="_readme/grey.png" alt="grey" width="16" height="16" border="1" /> `grey`
+  - <img src="_readme/red.png" alt="red" width="16" height="16" border="1" /> `red`
+  - <img src="_readme/lime.png" alt="lime" width="16" height="16" border="1" /> `lime`
+  - <img src="_readme/yellow.png" alt="yellow" width="16" height="16" border="1" /> `yellow`
+  - <img src="_readme/blue.png" alt="blue" width="16" height="16" border="1" /> `blue`
+  - <img src="_readme/fuchsia.png" alt="fuchsia" width="16" height="16" border="1" /> `fuchsia`
+  - <img src="_readme/aqua.png" alt="aqua" width="16" height="16" border="1" /> `aqua`
+  - <img src="_readme/white.png" alt="white" width="16" height="16" border="1" /> `white`
 - `Eight_bit`: supports the [xterm 256-color palette][1]. Named colours beyond the first 16 above should keep their hue when bolded. CSS 24-bit colours likely won't work.
   - NOTE: colour names from that list have been normalised by hyphenating, and where names are repeated they are made unique with an alphabetical suffix, e.g. `SpringGreen3` is present in Spectrum as:
-    - ![#00af5f](https://via.placeholder.com/15/00af5f/000000?text=+) `spring-green-3a`
-    - ![#00d75f](https://via.placeholder.com/15/00d75f/000000?text=+) `spring-green-3b`
+    - <img src="_readme/spring-green-3a.png" alt="spring-green-3a" width="16" height="16" border="1" /> `spring-green-3a`
+    - <img src="_readme/spring-green-3b.png" alt="spring-green-3b" width="16" height="16" border="1" /> `spring-green-3b`
   - See the defs at https://github.com/anentropic/ocaml-spectrum/blob/main/lib/lexer.mll#L24
 - `True_color`: should support everything
 
