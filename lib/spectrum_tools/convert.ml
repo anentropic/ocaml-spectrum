@@ -1,4 +1,5 @@
 open Utils
+open Spectrum_palette
 
 (*
   What we call "ansi256" here are the xterm 256 color palette
@@ -391,53 +392,36 @@ module Perceptual : Converter = struct
     List.map (fun (l) -> ANSI256Grey (Color.of_rgb l l l)) l'
 
   (*
-    TODO: these values are configurable in most terminals, for defaults see
-    see https://en.wikipedia.org/wiki/ANSI_escape_code#3-bit_and_4-bit
-    ...according to that these are actually the Windows basic palette
-    (which also corresponds to 1-16 of the Xterm-256 palette, but not the
-    default Xterm basic palette according to above)
-    ...we should allow specifying different palettes?
+    ANSI-16 colors and codes derived from the canonical palette definition.
+    This ensures a single source of truth with the main library.
 
-    TODO: these are also defined in parser.ml & spectrum_palette/16-colors.json
-    we should derive these function from the 
+    The palette provides colors in order corresponding to ANSI codes:
+    - First 8 colors:  codes 30-37 (basic colors)
+    - Next 8 colors:   codes 90-97 (bright variants)
+
+    See: https://en.wikipedia.org/wiki/ANSI_escape_code#3-bit_and_4-bit
   *)
-  let ansi16_colors = [
-    ANSI16 (Color.of_rgb   0   0   0);
-    ANSI16 (Color.of_rgb 128   0   0);
-    ANSI16 (Color.of_rgb   0 128   0);
-    ANSI16 (Color.of_rgb 128 128   0);
-    ANSI16 (Color.of_rgb   0   0 128);
-    ANSI16 (Color.of_rgb 128   0 128);
-    ANSI16 (Color.of_rgb   0 128 128);
-    ANSI16 (Color.of_rgb 192 192 192);
-    ANSI16 (Color.of_rgb 128 128 128);
-    ANSI16 (Color.of_rgb 255   0   0);
-    ANSI16 (Color.of_rgb   0 255   0);
-    ANSI16 (Color.of_rgb 255 255   0);
-    ANSI16 (Color.of_rgb   0   0 255);
-    ANSI16 (Color.of_rgb 255   0 255);
-    ANSI16 (Color.of_rgb   0 255 255);
-    ANSI16 (Color.of_rgb 255 255 255);
-  ]
+  module Ansi16_palette = struct
+    [@@@ocaml.warning "-32"]  (* Suppress unused value warnings *)
+    include [%palette "lib/spectrum_palette/16-colors.json"]
+  end
 
-  let rgb_to_ansi16_code = function
-    |   0,   0,   0 -> 30
-    | 128,   0,   0 -> 31
-    |   0, 128,   0 -> 32
-    | 128, 128,   0 -> 33
-    |   0,   0, 128 -> 34
-    | 128,   0, 128 -> 35
-    |   0, 128, 128 -> 36
-    | 192, 192, 192 -> 37
-    | 128, 128, 128 -> 90
-    | 255,   0,   0 -> 91
-    |   0, 255,   0 -> 92
-    | 255, 255,   0 -> 93
-    |   0,   0, 255 -> 94
-    | 255,   0, 255 -> 95
-    |   0, 255, 255 -> 96
-    | 255, 255, 255 -> 97
-    | _ -> invalid_arg "Not in ANSI 16-color palette"
+  let ansi16_colors =
+    List.map (fun c -> ANSI16 c) Ansi16_palette.color_list
+
+  let rgb_to_ansi16_code (r, g, b) =
+    (* Find the matching color in the palette and return its code *)
+    let target = Color.of_rgb r g b in
+    let rec find_index i = function
+      | [] -> invalid_arg "Not in ANSI 16-color palette"
+      | c :: rest ->
+        if c = target then
+          (* First 8 colors are codes 30-37, next 8 are codes 90-97 *)
+          if i < 8 then 30 + i else 90 + (i - 8)
+        else
+          find_index (i + 1) rest
+    in
+    find_index 0 Ansi16_palette.color_list
 
 
   (*
