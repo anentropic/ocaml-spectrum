@@ -184,26 +184,26 @@ type color_level =
 
 - `Unsupported`: colors will be quantized to basic 16-color ANSI codes (same as `Basic`)
 - `Basic`: supports 16 colors, i.e. the 8 basic colors plus "bright" version of each. RGB and HSL colors will be automatically quantized to the nearest matching ANSI-16 color using perceptually accurate LAB color space distance. The available colour name tags are:
-  - <img src="_readme/black.png" alt="black" width="16" height="16" border="1" /> `black` (with `bold` will display as: `grey`)
-  - <img src="_readme/maroon.png" alt="maroon" width="16" height="16" border="1" /> `maroon` (with `bold` will display as: `red`)
-  - <img src="_readme/green.png" alt="green" width="16" height="16" border="1" /> `green` (with `bold` will display as: `lime`)
-  - <img src="_readme/olive.png" alt="olive" width="16" height="16" border="1" /> `olive` (with `bold` will display as: `yellow`)
-  - <img src="_readme/navy.png" alt="navy" width="16" height="16" border="1" /> `navy` (with `bold` will display as: `blue`)
-  - <img src="_readme/purple.png" alt="purple" width="16" height="16" border="1" /> `purple` (with `bold` will display as: `fuchsia`)
-  - <img src="_readme/teal.png" alt="teal" width="16" height="16" border="1" /> `teal` (with `bold` will display as: `aqua`)
-  - <img src="_readme/silver.png" alt="silver" width="16" height="16" border="1" /> `silver` (with `bold` will display as: `white`)
-  - <img src="_readme/grey.png" alt="grey" width="16" height="16" border="1" /> `grey`
-  - <img src="_readme/red.png" alt="red" width="16" height="16" border="1" /> `red`
-  - <img src="_readme/lime.png" alt="lime" width="16" height="16" border="1" /> `lime`
-  - <img src="_readme/yellow.png" alt="yellow" width="16" height="16" border="1" /> `yellow`
-  - <img src="_readme/blue.png" alt="blue" width="16" height="16" border="1" /> `blue`
-  - <img src="_readme/fuchsia.png" alt="fuchsia" width="16" height="16" border="1" /> `fuchsia`
-  - <img src="_readme/aqua.png" alt="aqua" width="16" height="16" border="1" /> `aqua`
-  - <img src="_readme/white.png" alt="white" width="16" height="16" border="1" /> `white`
+  - <img src="_readme_assets/black.png" alt="black" width="16" height="16" border="1" /> `black` (with `bold` will display as: `grey`)
+  - <img src="_readme_assets/maroon.png" alt="maroon" width="16" height="16" border="1" /> `maroon` (with `bold` will display as: `red`)
+  - <img src="_readme_assets/green.png" alt="green" width="16" height="16" border="1" /> `green` (with `bold` will display as: `lime`)
+  - <img src="_readme_assets/olive.png" alt="olive" width="16" height="16" border="1" /> `olive` (with `bold` will display as: `yellow`)
+  - <img src="_readme_assets/navy.png" alt="navy" width="16" height="16" border="1" /> `navy` (with `bold` will display as: `blue`)
+  - <img src="_readme_assets/purple.png" alt="purple" width="16" height="16" border="1" /> `purple` (with `bold` will display as: `fuchsia`)
+  - <img src="_readme_assets/teal.png" alt="teal" width="16" height="16" border="1" /> `teal` (with `bold` will display as: `aqua`)
+  - <img src="_readme_assets/silver.png" alt="silver" width="16" height="16" border="1" /> `silver` (with `bold` will display as: `white`)
+  - <img src="_readme_assets/grey.png" alt="grey" width="16" height="16" border="1" /> `grey`
+  - <img src="_readme_assets/red.png" alt="red" width="16" height="16" border="1" /> `red`
+  - <img src="_readme_assets/lime.png" alt="lime" width="16" height="16" border="1" /> `lime`
+  - <img src="_readme_assets/yellow.png" alt="yellow" width="16" height="16" border="1" /> `yellow`
+  - <img src="_readme_assets/blue.png" alt="blue" width="16" height="16" border="1" /> `blue`
+  - <img src="_readme_assets/fuchsia.png" alt="fuchsia" width="16" height="16" border="1" /> `fuchsia`
+  - <img src="_readme_assets/aqua.png" alt="aqua" width="16" height="16" border="1" /> `aqua`
+  - <img src="_readme_assets/white.png" alt="white" width="16" height="16" border="1" /> `white`
 - `Eight_bit`: supports the [xterm 256-color palette][1]. Named colours beyond the first 16 above will work. RGB and HSL colors will be automatically quantized to the nearest matching ANSI-256 color using perceptually accurate LAB color space distance.
   - NOTE: colour names from that list have been normalised by hyphenating, and where names are repeated they are made unique with an alphabetical suffix, e.g. `SpringGreen3` is present in Spectrum as:
-    - <img src="_readme/spring-green-3a.png" alt="spring-green-3a" width="16" height="16" border="1" /> `spring-green-3a`
-    - <img src="_readme/spring-green-3b.png" alt="spring-green-3b" width="16" height="16" border="1" /> `spring-green-3b`
+    - <img src="_readme_assets/spring-green-3a.png" alt="spring-green-3a" width="16" height="16" border="1" /> `spring-green-3a`
+    - <img src="_readme_assets/spring-green-3b.png" alt="spring-green-3b" width="16" height="16" border="1" /> `spring-green-3b`
   - See the defs at https://github.com/anentropic/ocaml-spectrum/blob/main/lib/lexer.mll#L24
 - `True_color`: supports everything—24-bit RGB and HSL colors are preserved without quantization
 
