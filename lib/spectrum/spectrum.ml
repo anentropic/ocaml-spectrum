@@ -188,12 +188,26 @@ let make_printer raise_errors to_code =
   (module M : Printer)
 
 (*
-  TODO:
-  substitute appropriate serializer based on capabilities detection
+  Select the appropriate serializer based on terminal capability detection.
+
+  For Unsupported, we still emit Basic ANSI codes rather than stripping all
+  formatting - this allows colors to work in terminals that support them even
+  if not detected, while degrading gracefully in truly unsupported environments.
+  To fully disable colors, users should avoid calling Spectrum in the first place
+  or check Capabilities.supported_color_levels themselves.
 *)
+let select_serializer () =
+  let open Capabilities in
+  let levels = supported_color_levels () in
+  (* Use stdout capability for selecting serializer *)
+  match levels.stdout with
+  | True_color -> True_color_Serializer.to_code
+  | Eight_bit -> Xterm256_Serializer.to_code
+  | Basic -> Basic_Serializer.to_code
+  | Unsupported -> Basic_Serializer.to_code
 
-module Exn = (val (make_printer true True_color_Serializer.to_code) : Printer)
+module Exn = (val (make_printer true (select_serializer ())) : Printer)
 
-module Noexn = (val (make_printer false True_color_Serializer.to_code) : Printer)
+module Noexn = (val (make_printer false (select_serializer ())) : Printer)
 
 include Noexn

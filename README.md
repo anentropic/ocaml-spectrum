@@ -182,8 +182,8 @@ type color_level =
   | True_color  (* FORCE_COLOR=3 *)
 ```
 
-- `Unsupported`: probably best not to use colors or styling
-- `Basic`: **NOTE not currently supported by Spectrum, we always output the 8-bit style ANSI codes** supports 16 colors, i.e. the 8 basic colors plus "bright" version of each. They are equivalent to the first eight colours of the xterm 256-color set, with bright version accessed by setting the style to **bold**. So the available colour name tags are:
+- `Unsupported`: colors will be quantized to basic 16-color ANSI codes (same as `Basic`)
+- `Basic`: supports 16 colors, i.e. the 8 basic colors plus "bright" version of each. RGB and HSL colors will be automatically quantized to the nearest matching ANSI-16 color using perceptually accurate LAB color space distance. The available colour name tags are:
   - <img src="_readme/black.png" alt="black" width="16" height="16" border="1" /> `black` (with `bold` will display as: `grey`)
   - <img src="_readme/maroon.png" alt="maroon" width="16" height="16" border="1" /> `maroon` (with `bold` will display as: `red`)
   - <img src="_readme/green.png" alt="green" width="16" height="16" border="1" /> `green` (with `bold` will display as: `lime`)
@@ -200,14 +200,36 @@ type color_level =
   - <img src="_readme/fuchsia.png" alt="fuchsia" width="16" height="16" border="1" /> `fuchsia`
   - <img src="_readme/aqua.png" alt="aqua" width="16" height="16" border="1" /> `aqua`
   - <img src="_readme/white.png" alt="white" width="16" height="16" border="1" /> `white`
-- `Eight_bit`: supports the [xterm 256-color palette][1]. Named colours beyond the first 16 above should keep their hue when bolded. CSS 24-bit colours likely won't work.
+- `Eight_bit`: supports the [xterm 256-color palette][1]. Named colours beyond the first 16 above will work. RGB and HSL colors will be automatically quantized to the nearest matching ANSI-256 color using perceptually accurate LAB color space distance.
   - NOTE: colour names from that list have been normalised by hyphenating, and where names are repeated they are made unique with an alphabetical suffix, e.g. `SpringGreen3` is present in Spectrum as:
     - <img src="_readme/spring-green-3a.png" alt="spring-green-3a" width="16" height="16" border="1" /> `spring-green-3a`
     - <img src="_readme/spring-green-3b.png" alt="spring-green-3b" width="16" height="16" border="1" /> `spring-green-3b`
   - See the defs at https://github.com/anentropic/ocaml-spectrum/blob/main/lib/lexer.mll#L24
-- `True_color`: should support everything
+- `True_color`: supports everything—24-bit RGB and HSL colors are preserved without quantization
+
+### Automatic color quantization
+
+Spectrum automatically detects terminal capabilities and quantizes colors accordingly. If you specify an RGB color like `#FF5733` or `rgb(255 87 51)`, Spectrum will:
+
+- On `True_color` terminals: output the exact RGB values using 24-bit ANSI codes
+- On `Eight_bit` terminals: quantize to the nearest xterm-256 color using perceptually accurate LAB color space distance
+- On `Basic` terminals: quantize to the nearest ANSI-16 color
+
+This means you can use high-fidelity colors throughout your code and they'll automatically degrade gracefully on terminals with limited color support.
+
+You can override the detected capability level by setting the `FORCE_COLOR` environment variable:
+- `FORCE_COLOR=0` or `FORCE_COLOR=false`: Basic 16-color mode  
+- `FORCE_COLOR=1` or `FORCE_COLOR=true`: Basic 16-color mode
+- `FORCE_COLOR=2`: 256-color mode
+- `FORCE_COLOR=3`: True color (24-bit RGB) mode
 
 ## Changelog
+
+#### 0.7.0
+- **automatic color quantization**: RGB and HSL colors are now automatically downsampled to ANSI-256 or ANSI-16 based on detected terminal capabilities
+- use perceptually accurate LAB color space distance for nearest-color matching
+- split into three opam packages: `spectrum` (main), `spectrum_palette` (palette codegen PPX), `spectrum_tools` (color conversion utilities)
+- improved test coverage with comprehensive color conversion tests
 
 #### 0.6.0
 - finally understood what the interface should be 😅
@@ -233,12 +255,10 @@ type color_level =
 
 ## TODOs
 
-- auto coercion to nearest supported colour, for high res colours on unsupported terminals, as per `chalk`
-  - don't output any codes if level is `Unsupported`
-  - output basic codes when level is `Basic` 
-- tests for all methods (`sprintf` and the lexer are tested currently), property-based tests
+- tests for all methods (sprintf, lexer, and printer are tested currently), property-based tests
 - publish the printer and capabilities-detection as separate opam modules?
 - expose variant types for use with explicit `mark_open_stag` and close calls?
+- consider custom palette support (currently only xterm 256-color palette is supported)
 
 
 [1]: https://www.ditig.com/256-colors-cheat-sheet

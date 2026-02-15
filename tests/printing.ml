@@ -53,7 +53,7 @@ module Make (P : Spectrum.Printer) (M : Meta) = struct
       Printf.sprintf "%s: Single style" M.prefix, [
         test_case "Bold" `Quick (test_sprintf "@{<bold>hello@}" "\027[0;1mhello\027[0m");
         test_case "Bold (case-insensitive)" `Quick (test_sprintf "@{<BolD>hello@}" "\027[0;1mhello\027[0m");
-        test_case "Rapid blink" `Quick (test_sprintf "@{<rapid-blink>hello@}" "\027[0;5mhello\027[0m");
+        test_case "Rapid blink" `Quick (test_sprintf "@{<rapid-blink>hello@}" "\027[0;6mhello\027[0m");
       ];
       Printf.sprintf "%s: Single colour" M.prefix, [
         test_case "Named (foreground): red" `Quick (test_sprintf "@{<red>hello@}" "\027[0;38;5;9mhello\027[0m");
@@ -95,17 +95,17 @@ let test_sprintf_raises fmt exc () =
 
 let get_invalid_tag_tests_exn =
   let open Alcotest in
-  let open Spectrum.Lexer in
+  let open Spectrum_palette.Palette in
   [
     "Exn: Invalid tags", [
       test_case "Invalid color name (fg implicit)" `Quick (test_sprintf_raises "@{<xxx>hello@}" (InvalidColorName "xxx"));
       test_case "Invalid color name (fg)" `Quick (test_sprintf_raises "@{<fg:xxx>hello@}" (InvalidColorName "xxx"));
       test_case "Invalid color name (bg)" `Quick (test_sprintf_raises "@{<bg:xxx>hello@}" (InvalidColorName "xxx"));
       test_case "Invalid color name" `Quick (test_sprintf_raises "@{<xxx>hello@}" (InvalidColorName "xxx"));
-      test_case "Invalid tag (not matched as hex)" `Quick (test_sprintf_raises "@{<#ab>hello@}" (InvalidTag "Unexpected char: #"));
+      test_case "Invalid tag (not matched as hex)" `Quick (test_sprintf_raises "@{<#ab>hello@}" (Spectrum.Parser.InvalidTag "Unexpected char: #"));
       test_case "Invalid color name (not matched as hex)" `Quick (test_sprintf_raises "@{<fg:#ab>hello@}" (InvalidColorName "fg"));
       (* note that the valid segment of compound tag is not preserved, the tag returns an error *)
-      test_case "Invalid tag (not matched as hex, in compound tag)" `Quick (test_sprintf_raises "@{<bold,#ab> hello@}" (InvalidTag "Unexpected char: #"));
+      test_case "Invalid tag (not matched as hex, in compound tag)" `Quick (test_sprintf_raises "@{<bold,#ab> hello@}" (Spectrum.Parser.InvalidTag "Unexpected char: #"));
       test_case "Invalid color name (in compound tag)" `Quick (test_sprintf_raises "@{<bold,xxx>hello@}" (InvalidColorName "xxx"));
     ];
   ]

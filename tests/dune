@@ -1,4 +1,8 @@
+(env
+ (_
+  (env-vars
+   (FORCE_COLOR 3))))
+
 (tests
- (names capabilities)
- ; (names lexer printing capabilities)
- (libraries alcotest junit_alcotest spectrum))
+ (names lexer printing capabilities conversion)
+ (libraries alcotest junit_alcotest spectrum spectrum_tools color))
