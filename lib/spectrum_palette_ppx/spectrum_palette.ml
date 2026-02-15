@@ -163,6 +163,7 @@ let expand ~ctxt filepath =
     [%stri let to_code = [%e to_code_f_of_defs ~loc defs]];
     [%stri let to_color = [%e to_color_f_of_defs ~loc defs]];
     color_list_of_defs ~loc defs;
+    [%stri let nearest = Palette.nearest_of_list color_list];
   ] in
   Ast.pmod_structure ~loc mod_struct
 
