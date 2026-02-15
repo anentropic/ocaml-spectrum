@@ -184,26 +184,26 @@ type color_level =
 
 - `Unsupported`: probably best not to use colors or styling
 - `Basic`: **NOTE not currently supported by Spectrum, we always output the 8-bit style ANSI codes** supports 16 colors, i.e. the 8 basic colors plus "bright" version of each. They are equivalent to the first eight colours of the xterm 256-color set, with bright version accessed by setting the style to **bold**. So the available colour name tags are:
-  - ![black](data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjE1IiBoZWlnaHQ9IjE1IiBmaWxsPSIjMDAwMDAwIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjEiLz48L3N2Zz4=) `black` (with `bold` will display as: `grey`)
-  - ![maroon](data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjE1IiBoZWlnaHQ9IjE1IiBmaWxsPSIjODAwMDAwIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjEiLz48L3N2Zz4=) `maroon` (with `bold` will display as: `red`)
-  - <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjE1IiBoZWlnaHQ9IjE1IiBmaWxsPSIjMDA4MDAwIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjEiLz48L3N2Zz4=" alt="green" /> `green` (with `bold` will display as: `lime`)
-  - <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjE1IiBoZWlnaHQ9IjE1IiBmaWxsPSIjODA4MDAwIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjEiLz48L3N2Zz4=" alt="olive" /> `olive` (with `bold` will display as: `yellow`)
-  - <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjE1IiBoZWlnaHQ9IjE1IiBmaWxsPSIjMDAwMDgwIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjEiLz48L3N2Zz4=" alt="navy" /> `navy` (with `bold` will display as: `blue`)
-  - <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjE1IiBoZWlnaHQ9IjE1IiBmaWxsPSIjODAwMDgwIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjEiLz48L3N2Zz4=" alt="purple" /> `purple` (with `bold` will display as: `fuchsia`)
-  - <svg width="16" height="16" xmlns="http://www.w3.org/2000/svg"><rect width="15" height="15" fill="#008080" stroke="black" stroke-width="1"/></svg> `teal` (with `bold` will display as: `aqua`)
-  - <svg width="16" height="16" xmlns="http://www.w3.org/2000/svg"><rect width="15" height="15" fill="#c0c0c0" stroke="black" stroke-width="1"/></svg> `silver` (with `bold` will display as: `white`)
-  - <svg width="16" height="16" xmlns="http://www.w3.org/2000/svg"><rect width="15" height="15" fill="#808080" stroke="black" stroke-width="1"/></svg> `grey`
-  - <svg width="16" height="16" xmlns="http://www.w3.org/2000/svg"><rect width="15" height="15" fill="#ff0000" stroke="black" stroke-width="1"/></svg> `red`
-  - <svg width="16" height="16" xmlns="http://www.w3.org/2000/svg"><rect width="15" height="15" fill="#00ff00" stroke="black" stroke-width="1"/></svg> `lime`
-  - <svg width="16" height="16" xmlns="http://www.w3.org/2000/svg"><rect width="15" height="15" fill="#ffff00" stroke="black" stroke-width="1"/></svg> `yellow`
-  - <svg width="16" height="16" xmlns="http://www.w3.org/2000/svg"><rect width="15" height="15" fill="#0000ff" stroke="black" stroke-width="1"/></svg> `blue`
-  - <svg width="16" height="16" xmlns="http://www.w3.org/2000/svg"><rect width="15" height="15" fill="#ff00ff" stroke="black" stroke-width="1"/></svg> `fuchsia`
-  - <svg width="16" height="16" xmlns="http://www.w3.org/2000/svg"><rect width="15" height="15" fill="#00ffff" stroke="black" stroke-width="1"/></svg> `aqua`
-  - <svg width="16" height="16" xmlns="http://www.w3.org/2000/svg"><rect width="15" height="15" fill="#ffffff" stroke="black" stroke-width="1"/></svg> `white`
+  - <img src="_readme/black.png" alt="black" width="16" height="16" border="1" /> `black` (with `bold` will display as: `grey`)
+  - <img src="_readme/maroon.png" alt="maroon" width="16" height="16" border="1" /> `maroon` (with `bold` will display as: `red`)
+  - <img src="_readme/green.png" alt="green" width="16" height="16" border="1" /> `green` (with `bold` will display as: `lime`)
+  - <img src="_readme/olive.png" alt="olive" width="16" height="16" border="1" /> `olive` (with `bold` will display as: `yellow`)
+  - <img src="_readme/navy.png" alt="navy" width="16" height="16" border="1" /> `navy` (with `bold` will display as: `blue`)
+  - <img src="_readme/purple.png" alt="purple" width="16" height="16" border="1" /> `purple` (with `bold` will display as: `fuchsia`)
+  - <img src="_readme/teal.png" alt="teal" width="16" height="16" border="1" /> `teal` (with `bold` will display as: `aqua`)
+  - <img src="_readme/silver.png" alt="silver" width="16" height="16" border="1" /> `silver` (with `bold` will display as: `white`)
+  - <img src="_readme/grey.png" alt="grey" width="16" height="16" border="1" /> `grey`
+  - <img src="_readme/red.png" alt="red" width="16" height="16" border="1" /> `red`
+  - <img src="_readme/lime.png" alt="lime" width="16" height="16" border="1" /> `lime`
+  - <img src="_readme/yellow.png" alt="yellow" width="16" height="16" border="1" /> `yellow`
+  - <img src="_readme/blue.png" alt="blue" width="16" height="16" border="1" /> `blue`
+  - <img src="_readme/fuchsia.png" alt="fuchsia" width="16" height="16" border="1" /> `fuchsia`
+  - <img src="_readme/aqua.png" alt="aqua" width="16" height="16" border="1" /> `aqua`
+  - <img src="_readme/white.png" alt="white" width="16" height="16" border="1" /> `white`
 - `Eight_bit`: supports the [xterm 256-color palette][1]. Named colours beyond the first 16 above should keep their hue when bolded. CSS 24-bit colours likely won't work.
   - NOTE: colour names from that list have been normalised by hyphenating, and where names are repeated they are made unique with an alphabetical suffix, e.g. `SpringGreen3` is present in Spectrum as:
-    - <svg width="16" height="16" xmlns="http://www.w3.org/2000/svg"><rect width="15" height="15" fill="#00af5f" stroke="black" stroke-width="1"/></svg> `spring-green-3a`
-    - <svg width="16" height="16" xmlns="http://www.w3.org/2000/svg"><rect width="15" height="15" fill="#00d75f" stroke="black" stroke-width="1"/></svg> `spring-green-3b`
+    - <img src="_readme/spring-green-3a.png" alt="spring-green-3a" width="16" height="16" border="1" /> `spring-green-3a`
+    - <img src="_readme/spring-green-3b.png" alt="spring-green-3b" width="16" height="16" border="1" /> `spring-green-3b`
   - See the defs at https://github.com/anentropic/ocaml-spectrum/blob/main/lib/lexer.mll#L24
 - `True_color`: should support everything
 
