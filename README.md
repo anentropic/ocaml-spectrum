@@ -182,28 +182,38 @@ type color_level =
   | True_color  (* FORCE_COLOR=3 *)
 ```
 
+<style>
+.color-swatch {
+  display: inline-block;
+  width: 15px;
+  height: 15px;
+  border: 1px solid black;
+  vertical-align: middle;
+}
+</style>
+
 - `Unsupported`: probably best not to use colors or styling
 - `Basic`: **NOTE not currently supported by Spectrum, we always output the 8-bit style ANSI codes** supports 16 colors, i.e. the 8 basic colors plus "bright" version of each. They are equivalent to the first eight colours of the xterm 256-color set, with bright version accessed by setting the style to **bold**. So the available colour name tags are:
-  - ![#000000](https://via.placeholder.com/15/000000/000000?text=+) `black` (with `bold` will display as: `grey`)
-  - ![#800000](https://via.placeholder.com/15/800000/000000?text=+) `maroon` (with `bold` will display as: `red`)
-  - ![#008000](https://via.placeholder.com/15/008000/000000?text=+) `green` (with `bold` will display as: `lime`)
-  - ![#808000](https://via.placeholder.com/15/808000/000000?text=+) `olive` (with `bold` will display as: `yellow`)
-  - ![#000080](https://via.placeholder.com/15/000080/000000?text=+) `navy` (with `bold` will display as: `blue`)
-  - ![#800080](https://via.placeholder.com/15/800080/000000?text=+) `purple` (with `bold` will display as: `fuchsia`)
-  - ![#008080](https://via.placeholder.com/15/008080/000000?text=+) `teal` (with `bold` will display as: `aqua`)
-  - ![#c0c0c0](https://via.placeholder.com/15/c0c0c0/000000?text=+) `silver` (with `bold` will display as: `white`)
-  - ![#808080](https://via.placeholder.com/15/808080/000000?text=+) `grey`
-  - ![#ff0000](https://via.placeholder.com/15/ff0000/000000?text=+) `red`
-  - ![#00ff00](https://via.placeholder.com/15/00ff00/000000?text=+) `lime`
-  - ![#ffff00](https://via.placeholder.com/15/ffff00/000000?text=+) `yellow`
-  - ![#0000ff](https://via.placeholder.com/15/0000ff/000000?text=+) `blue`
-  - ![#ff00ff](https://via.placeholder.com/15/ff00ff/000000?text=+) `fuchsia`
-  - ![#00ffff](https://via.placeholder.com/15/00ffff/000000?text=+) `aqua`
-  - ![#ffffff](https://via.placeholder.com/15/ffffff/000000?text=+) `white`
+  - <span class="color-swatch" style="background-color: #000000;"></span> `black` (with `bold` will display as: `grey`)
+  - <span class="color-swatch" style="background-color: #800000;"></span> `maroon` (with `bold` will display as: `red`)
+  - <span class="color-swatch" style="background-color: #008000;"></span> `green` (with `bold` will display as: `lime`)
+  - <span class="color-swatch" style="background-color: #808000;"></span> `olive` (with `bold` will display as: `yellow`)
+  - <span class="color-swatch" style="background-color: #000080;"></span> `navy` (with `bold` will display as: `blue`)
+  - <span class="color-swatch" style="background-color: #800080;"></span> `purple` (with `bold` will display as: `fuchsia`)
+  - <span class="color-swatch" style="background-color: #008080;"></span> `teal` (with `bold` will display as: `aqua`)
+  - <span class="color-swatch" style="background-color: #c0c0c0;"></span> `silver` (with `bold` will display as: `white`)
+  - <span class="color-swatch" style="background-color: #808080;"></span> `grey`
+  - <span class="color-swatch" style="background-color: #ff0000;"></span> `red`
+  - <span class="color-swatch" style="background-color: #00ff00;"></span> `lime`
+  - <span class="color-swatch" style="background-color: #ffff00;"></span> `yellow`
+  - <span class="color-swatch" style="background-color: #0000ff;"></span> `blue`
+  - <span class="color-swatch" style="background-color: #ff00ff;"></span> `fuchsia`
+  - <span class="color-swatch" style="background-color: #00ffff;"></span> `aqua`
+  - <span class="color-swatch" style="background-color: #ffffff;"></span> `white`
 - `Eight_bit`: supports the [xterm 256-color palette][1]. Named colours beyond the first 16 above should keep their hue when bolded. CSS 24-bit colours likely won't work.
   - NOTE: colour names from that list have been normalised by hyphenating, and where names are repeated they are made unique with an alphabetical suffix, e.g. `SpringGreen3` is present in Spectrum as:
-    - ![#00af5f](https://via.placeholder.com/15/00af5f/000000?text=+) `spring-green-3a`
-    - ![#00d75f](https://via.placeholder.com/15/00d75f/000000?text=+) `spring-green-3b`
+    - <span class="color-swatch" style="background-color: #00af5f;"></span> `spring-green-3a`
+    - <span class="color-swatch" style="background-color: #00d75f;"></span> `spring-green-3b`
   - See the defs at https://github.com/anentropic/ocaml-spectrum/blob/main/lib/lexer.mll#L24
 - `True_color`: should support everything
 
