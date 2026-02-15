@@ -1,8 +1,8 @@
 exception InvalidStyleName of string
 exception InvalidColorName of string
 
-module Basic = Palettes.Basic
-module Xterm256 = Palettes.Xterm256
+module Basic = Spectrum_palettes.Terminal.Basic
+module Xterm256 = Spectrum_palettes.Terminal.Xterm256
 
 module Style = struct
   type t =
@@ -88,7 +88,7 @@ exception Eof
 *)
 let from_name name =
   try Named256Color (Xterm256.of_string name)
-  with Palettes.InvalidColorName _ -> NamedBasicColor (Basic.of_string name)
+  with Spectrum_palettes.Terminal.InvalidColorName _ -> NamedBasicColor (Basic.of_string name)
 
 let from_hex hex =
   match Color.of_hexstring hex with

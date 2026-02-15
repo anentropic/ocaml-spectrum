@@ -3,7 +3,7 @@ opam-version: "2.0"
 version: "0.7.0"
 synopsis: "Library for colour and formatting in the terminal"
 description:
-  "Using OCaml Format module's 'semantic tags' with named colours and CSS-style hex colours."
+  "Using OCaml Format module semantic tags with named colours and CSS-style hex colours."
 maintainer: ["ego@anentropic.com"]
 authors: ["Anentropic"]
 license: "MIT"
@@ -16,8 +16,8 @@ depends: [
   "re" {>= "1.11.0"}
   "opam-state" {>= "2.5.0"}
   "ppx_deriving" {>= "5.2"}
+  "spectrum_palettes" {= version}
   "spectrum_tools" {= version}
-  "spectrum_palette" {= version}
   "alcotest" {with-test & >= "1.4"}
   "junit_alcotest" {with-test & >= "2.0"}
   "ocamlformat" {with-dev-setup}

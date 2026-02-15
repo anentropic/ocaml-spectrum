@@ -2,5 +2,5 @@
  (name spectrum_tools)
  (public_name spectrum_tools)
  (preprocess
-  (pps ppx_deriving.show spectrum_palette.ppx))
- (libraries color gg re spectrum_palette.ppx))
+  (pps ppx_deriving.show))
+ (libraries color gg re spectrum_palette_ppx spectrum_palettes))

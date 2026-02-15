@@ -12,15 +12,15 @@
 (package
  (name spectrum)
  (synopsis "Library for colour and formatting in the terminal")
- (description "Using OCaml Format module's 'semantic tags' with named colours and CSS-style hex colours.")
+ (description "Using OCaml Format module semantic tags with named colours and CSS-style hex colours.")
  (depends
   (ocaml (>= 4.14))
   (color (>= 0.3.0))
   (re (>= 1.11.0))
   (opam-state (>= 2.5.0))
   (ppx_deriving (>= 5.2))
+  (spectrum_palettes (= :version))
   (spectrum_tools (= :version))
-  (spectrum_palette (= :version))
 
   ; test deps
   (alcotest (and :with-test (>= 1.4)))
@@ -48,14 +48,21 @@
   (gg (>= 1.0.0))
   (re (>= 1.11.0))
   (ppx_deriving (>= 5.2))
-  (spectrum_palette (= :version))
-  ; test deps
-  (alcotest (and :with-test (>= 1.4)))
-  (junit_alcotest (and :with-test (>= 2.0)))
+  (spectrum_palettes (= :version))
+  (spectrum_palette_ppx (= :version))
  ))
 
 (package
- (name spectrum_palette)
+ (name spectrum_palettes)
+ (synopsis "Canonical ANSI palette modules for Spectrum")
+ (description "Shared Basic and Xterm256 palette modules generated from JSON definitions for use across Spectrum libraries.")
+ (depends
+  (ocaml (>= 4.14))
+  (spectrum_palette_ppx (= :version))
+ ))
+
+(package
+ (name spectrum_palette_ppx)
  (synopsis "PPX rewriter for generating color palette modules from JSON")
  (description "Provides the [%palette] PPX extension used to generate strongly-typed OCaml palette modules from JSON color definitions.")
  (depends
@@ -63,5 +70,6 @@
   (color (>= 0.3.0))
   (re (>= 1.11.0))
   (ppxlib (>= 0.22.0))
+  (oktree (>= 0.2.2))
   (yojson (>= 1.7))
  ))

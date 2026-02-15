@@ -1,5 +1,5 @@
 (*
-  Canonical palette definitions for Spectrum.
+  Canonical terminal palette definitions for Spectrum.
 
   These modules are generated from JSON using the `[%palette ...]` extension
   provided by the `spectrum_palette.ppx` rewriter.
