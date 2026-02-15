@@ -114,21 +114,21 @@ let () =
       ];
       (* Some of these are a bit unintuitive due to the way they get parsed *)
       "Invalid tags", [
-        test_case "Invalid color name (fg implicit)" `Quick (test_tag_to_code "xxx" (Error (Spectrum_palette.Palette.InvalidColorName "xxx")));
-        test_case "Invalid color name (fg)" `Quick (test_tag_to_code "fg:xxx" (Error (Spectrum_palette.Palette.InvalidColorName "xxx")));
-        test_case "Invalid color name (bg)" `Quick (test_tag_to_code "bg:xxx" (Error (Spectrum_palette.Palette.InvalidColorName "xxx")));
-        test_case "Invalid color name" `Quick (test_tag_to_code "xxx" (Error (Spectrum_palette.Palette.InvalidColorName "xxx")));
+        test_case "Invalid color name (fg implicit)" `Quick (test_tag_to_code "xxx" (Error (Spectrum_palette_ppx.Palette.InvalidColorName "xxx")));
+        test_case "Invalid color name (fg)" `Quick (test_tag_to_code "fg:xxx" (Error (Spectrum_palette_ppx.Palette.InvalidColorName "xxx")));
+        test_case "Invalid color name (bg)" `Quick (test_tag_to_code "bg:xxx" (Error (Spectrum_palette_ppx.Palette.InvalidColorName "xxx")));
+        test_case "Invalid color name" `Quick (test_tag_to_code "xxx" (Error (Spectrum_palette_ppx.Palette.InvalidColorName "xxx")));
         test_case "Invalid tag (not matched as hex)" `Quick (test_tag_to_code "#ab" (Error (Spectrum.Parser.InvalidTag "Unexpected char: #")));
-        test_case "Invalid color name (not matched as hex)" `Quick (test_tag_to_code "fg:#ab" (Error (Spectrum_palette.Palette.InvalidColorName "fg")));
+        test_case "Invalid color name (not matched as hex)" `Quick (test_tag_to_code "fg:#ab" (Error (Spectrum_palette_ppx.Palette.InvalidColorName "fg")));
         test_case "Invalid rgb color (out of range)" `Quick (test_tag_to_code "fg:rgb(0 128 256)" (Error (Spectrum.Parser.InvalidRgbColor "256")));
-        test_case "Invalid color name (not matched as rgb: missing value)" `Quick (test_tag_to_code "rgb(0 128)" (Error (Spectrum_palette.Palette.InvalidColorName "rgb")));
-        test_case "Invalid color name (not matched as rgb: extra value)" `Quick (test_tag_to_code "rgb(0 128 255 33)" (Error (Spectrum_palette.Palette.InvalidColorName "rgb")));
+        test_case "Invalid color name (not matched as rgb: missing value)" `Quick (test_tag_to_code "rgb(0 128)" (Error (Spectrum_palette_ppx.Palette.InvalidColorName "rgb")));
+        test_case "Invalid color name (not matched as rgb: extra value)" `Quick (test_tag_to_code "rgb(0 128 255 33)" (Error (Spectrum_palette_ppx.Palette.InvalidColorName "rgb")));
         test_case "Invalid hsl color (out of range)" `Quick (test_tag_to_code "fg:hsl(0 50 101)" (Error (Spectrum.Parser.InvalidPercentage "101")));
-        test_case "Invalid color name (not matched as hsl: missing value)" `Quick (test_tag_to_code "hsl(0 50)" (Error (Spectrum_palette.Palette.InvalidColorName "hsl")));
-        test_case "Invalid color name (not matched as hsl: extra value)" `Quick (test_tag_to_code "hsl(0 50 75 33)" (Error (Spectrum_palette.Palette.InvalidColorName "hsl")));
+        test_case "Invalid color name (not matched as hsl: missing value)" `Quick (test_tag_to_code "hsl(0 50)" (Error (Spectrum_palette_ppx.Palette.InvalidColorName "hsl")));
+        test_case "Invalid color name (not matched as hsl: extra value)" `Quick (test_tag_to_code "hsl(0 50 75 33)" (Error (Spectrum_palette_ppx.Palette.InvalidColorName "hsl")));
         (* note that the valid segment of compound tag is not preserved, the tag returns an error *)
         test_case "Invalid tag (not matched as hex, in compound tag)" `Quick (test_tag_to_code "bold,#ab" (Error (Spectrum.Parser.InvalidTag "Unexpected char: #")));
-        test_case "Invalid color name (in compound tag)" `Quick (test_tag_to_code "bold,xxx" (Error (Spectrum_palette.Palette.InvalidColorName "xxx")));
+        test_case "Invalid color name (in compound tag)" `Quick (test_tag_to_code "bold,xxx" (Error (Spectrum_palette_ppx.Palette.InvalidColorName "xxx")));
       ];
     ]
   in

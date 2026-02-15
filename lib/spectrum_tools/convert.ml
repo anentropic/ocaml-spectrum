@@ -1,5 +1,6 @@
 open Utils
-open Spectrum_palette
+
+module Palette = Spectrum_palette_ppx.Palette
 
 (*
   What we call "ansi256" here are the xterm 256 color palette
@@ -401,10 +402,8 @@ module Perceptual : Converter = struct
 
     See: https://en.wikipedia.org/wiki/ANSI_escape_code#3-bit_and_4-bit
   *)
-  module Ansi16_palette = struct
-    [@@@ocaml.warning "-32"]  (* Suppress unused value warnings *)
-    include [%palette "lib/spectrum_palette/16-colors.json"]
-  end
+  module Ansi16_palette : Spectrum_palette_ppx.Palette.M =
+    [%palette "lib/spectrum/16-colors.json"]
 
   let ansi16_colors =
     List.map (fun c -> ANSI16 c) Ansi16_palette.color_list

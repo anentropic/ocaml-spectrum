@@ -228,7 +228,8 @@ You can override the detected capability level by setting the `FORCE_COLOR` envi
 #### 0.7.0
 - **automatic color quantization**: RGB and HSL colors are now automatically downsampled to ANSI-256 or ANSI-16 based on detected terminal capabilities
 - use perceptually accurate LAB color space distance for nearest-color matching
-- split into three opam packages: `spectrum` (main), `spectrum_palette` (palette codegen PPX), `spectrum_tools` (color conversion utilities)
+- split architecture into `spectrum` (main runtime), `spectrum_palette.ppx` (palette codegen PPX), and `spectrum_tools` (color conversion utilities)
+- palette JSON definitions now live in `lib/spectrum/*.json`, with generated palette modules centralized in `lib/spectrum/palettes.ml`
 - improved test coverage with comprehensive color conversion tests
 
 #### 0.6.0

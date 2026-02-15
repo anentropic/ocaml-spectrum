@@ -95,7 +95,7 @@ let test_sprintf_raises fmt exc () =
 
 let get_invalid_tag_tests_exn =
   let open Alcotest in
-  let open Spectrum_palette.Palette in
+  let open Spectrum_palette_ppx.Palette in
   [
     "Exn: Invalid tags", [
       test_case "Invalid color name (fg implicit)" `Quick (test_sprintf_raises "@{<xxx>hello@}" (InvalidColorName "xxx"));
