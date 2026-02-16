@@ -1,8 +1,16 @@
 # downsample-nearest-color — Branch Status
 
-Date: 2026-02-15
+Date: 2026-02-16 (Updated)
 Compared against: `main`
-Current branch: `downsample-nearest-color`
+Current branch: `downsample-nearest-color--completion`
+
+**Latest update (2026-02-16):**
+
+Comprehensive test implementation and implementation fixes completed:
+- All 6 stub test modules now have full test coverage (103 new tests written)
+- 3 implementation issues fixed (case-insensitive parsing, safe min/max_fold, proper Result handling)
+- Total: **364 tests passing** (0 failures)
+- Test reorganization complete: all tests moved to library-specific `test/` subdirectories
 
 Post-fix updates:
 
@@ -67,17 +75,31 @@ High-level delta vs `main` (historical snapshot):
 
 ### 5) Tests and tooling state
 
-- `tests/dune` currently runs:
-  - `lexer`
-  - `printing`
-  - `capabilities`
-  - `conversion`
-- Capability test coverage was expanded for:
-  - all recognised CI provider env vars in detection logic
-  - TERM 16-color recogniser patterns/prefixes
-- Local validation command used:
-  - `opam exec -- dune clean && opam exec -- dune test --force`
-- Latest observed result: passing.
+**Test reorganization complete (2026-02-16):**
+- All tests moved from centralized `/tests` to library-specific `test/` subdirectories
+- 4 libraries with comprehensive test coverage:
+  - `lib/spectrum/test/` - 111 tests (lexer, parser, capabilities)
+  - `lib/spectrum_tools/test/` - 22 tests (convert, utils, query)
+  - `lib/spectrum_palettes/test/` - 15 tests (terminal palettes)
+  - `lib/spectrum_palette_ppx/test/` - 27 tests (loader, palette)
+- Test framework: Alcotest with Junit_alcotest for CI reporting
+- JUnit XML reports generated for each test suite
+
+**Recent test implementation (2026-02-16):**
+- Implemented comprehensive tests for 6 previously stub modules:
+  - Parser module: 26 tests (style parsing, color parsing, token aggregation)
+  - Utils module: 19 tests (math utilities, color conversions, list operations)
+  - Terminal palette: 15 tests (both Basic and Xterm256 modules)
+  - Loader module: 15 tests (JSON parsing and error handling)
+  - Palette module: 12 tests (LAB conversion, nearest-color algorithms)
+  - Query module: 17 tests (hex conversion, terminal I/O)
+
+**Implementation fixes (2026-02-16):**
+- Parser: Made `Style.of_string` case-insensitive
+- Utils: Made `min_fold`/`max_fold` return `option` (safe on empty lists)
+- Query: Fixed `parse_colour` to return `Error` instead of raising exceptions
+
+- Latest observed result: **364 tests passing** (0 failures)
 
 ---
 

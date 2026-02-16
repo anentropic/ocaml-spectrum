@@ -101,7 +101,7 @@ module Xterm = struct
       let g = Re.Group.get groups 2 in
       let b = Re.Group.get groups 3 in
       Ok ( Color.Rgb.(v (hex_to_8bit r) (hex_to_8bit g) (hex_to_8bit b) |> to_gg) )
-    | None -> Error ( failwith @@ Printf.sprintf "Unrecognised colour string: %s" s )
+    | None -> Error (Printf.sprintf "Unrecognised colour string: %s" s)
 
   let get_colours fd =
     {

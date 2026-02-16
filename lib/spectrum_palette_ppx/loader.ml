@@ -37,9 +37,16 @@ let ansi_color_of_yojson = function
   | _ -> raise e_invalid
 
 (*
-  loader for "256-colors.json"
-  (from https://www.ditig.com/256-colors-cheat-sheet)
-  ...which contains defs of the xterm 256-color palette
+  Loader for JSON palertte data.
+
+  Two files are provided:
+  - "256-colors.json" 
+    (from https://www.ditig.com/256-colors-cheat-sheet)
+    ...which contains defs of the xterm 256-color palette
+  - "16-colors.json"
+    (from https://en.wikipedia.org/wiki/ANSI_escape_code#3-bit_and_4-bit)
+    ...which contains defs of the basic 16 ANSI colors, with "basic-" prefix
+    to disambiguate from xterm-256 colors of the same name
 
   Expects a list of items like:
 

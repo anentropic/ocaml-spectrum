@@ -104,38 +104,62 @@ let test_parse_colour_mixed_widths () =
     Alcotest.fail "Expected Ok, got Error"
 
 let test_parse_colour_uppercase () =
-  (* Uppercase hex chars raise exception (regex only matches lowercase) *)
-  Alcotest.check_raises "uppercase hex raises"
-    (Failure "Unrecognised colour string: rgb:FFFF/0000/0000")
-    (fun () -> ignore (Xterm.parse_colour "rgb:FFFF/0000/0000"))
+  (* Uppercase hex chars return Error (regex only matches lowercase) *)
+  let result = Xterm.parse_colour "rgb:FFFF/0000/0000" in
+  match result with
+  | Error msg ->
+    Alcotest.(check string) "uppercase hex error message"
+      "Unrecognised colour string: rgb:FFFF/0000/0000" msg
+  | Ok _ ->
+    Alcotest.fail "Expected Error, got Ok"
 
 let test_parse_colour_invalid_format () =
   (* Invalid format - missing 'rgb:' prefix *)
-  Alcotest.check_raises "missing rgb: prefix"
-    (Failure "Unrecognised colour string: FFFF/0000/0000")
-    (fun () -> ignore (Xterm.parse_colour "FFFF/0000/0000"))
+  let result = Xterm.parse_colour "FFFF/0000/0000" in
+  match result with
+  | Error msg ->
+    Alcotest.(check string) "missing prefix error message"
+      "Unrecognised colour string: FFFF/0000/0000" msg
+  | Ok _ ->
+    Alcotest.fail "Expected Error, got Ok"
 
 let test_parse_colour_invalid_separators () =
   (* Invalid separators *)
-  Alcotest.check_raises "colon separator"
-    (Failure "Unrecognised colour string: rgb:ffff:0000:0000")
-    (fun () -> ignore (Xterm.parse_colour "rgb:ffff:0000:0000"));
+  let result1 = Xterm.parse_colour "rgb:ffff:0000:0000" in
+  (match result1 with
+   | Error msg ->
+     Alcotest.(check string) "colon separator error"
+       "Unrecognised colour string: rgb:ffff:0000:0000" msg
+   | Ok _ ->
+     Alcotest.fail "Expected Error for colon separator");
 
-  Alcotest.check_raises "comma separator"
-    (Failure "Unrecognised colour string: rgb:ffff,0000,0000")
-    (fun () -> ignore (Xterm.parse_colour "rgb:ffff,0000,0000"))
+  let result2 = Xterm.parse_colour "rgb:ffff,0000,0000" in
+  (match result2 with
+   | Error msg ->
+     Alcotest.(check string) "comma separator error"
+       "Unrecognised colour string: rgb:ffff,0000,0000" msg
+   | Ok _ ->
+     Alcotest.fail "Expected Error for comma separator")
 
 let test_parse_colour_invalid_hex () =
   (* Non-hex characters *)
-  Alcotest.check_raises "non-hex char"
-    (Failure "Unrecognised colour string: rgb:gggg/0000/0000")
-    (fun () -> ignore (Xterm.parse_colour "rgb:gggg/0000/0000"))
+  let result = Xterm.parse_colour "rgb:gggg/0000/0000" in
+  match result with
+  | Error msg ->
+    Alcotest.(check string) "non-hex char error"
+      "Unrecognised colour string: rgb:gggg/0000/0000" msg
+  | Ok _ ->
+    Alcotest.fail "Expected Error, got Ok"
 
 let test_parse_colour_too_many_chars () =
   (* More than 4 hex chars per component *)
-  Alcotest.check_raises "5 hex chars"
-    (Failure "Unrecognised colour string: rgb:fffff/0000/0000")
-    (fun () -> ignore (Xterm.parse_colour "rgb:fffff/0000/0000"))
+  let result = Xterm.parse_colour "rgb:fffff/0000/0000" in
+  match result with
+  | Error msg ->
+    Alcotest.(check string) "5 hex chars error"
+      "Unrecognised colour string: rgb:fffff/0000/0000" msg
+  | Ok _ ->
+    Alcotest.fail "Expected Error, got Ok"
 
 (* ===== Terminal I/O Tests (Conditional) ===== *)
 

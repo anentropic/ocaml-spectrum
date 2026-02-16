@@ -96,12 +96,24 @@ let test_nearest_sqrt () =
   Alcotest.(check int) "nearest_sqrt' 20 = 4" 4 (nearest_sqrt' 20);
   Alcotest.(check int) "nearest_sqrt' 21 = 5" 5 (nearest_sqrt' 21)
 
-(* TODO: min_fold and max_fold should be fixed.
-   Current implementation crashes on empty lists due to List.hd:
-   - min_fold: 'a list -> 'a option (or raise Invalid_argument with good message)
-   - max_fold: 'a list -> 'a option (or raise Invalid_argument with good message)
-     Current: List.fold_left min (List.hd l) (List.tl l)
-     These are UNSAFE and should not be tested until fixed. *)
+let test_min_max_fold () =
+  (* Test with non-empty lists *)
+  Alcotest.(check Alcotest.(option int)) "min_fold [3;1;4;1;5] = Some 1"
+    (Some 1) (min_fold [3; 1; 4; 1; 5]);
+  Alcotest.(check Alcotest.(option int)) "max_fold [3;1;4;1;5] = Some 5"
+    (Some 5) (max_fold [3; 1; 4; 1; 5]);
+
+  (* Test with single element *)
+  Alcotest.(check Alcotest.(option int)) "min_fold [42] = Some 42"
+    (Some 42) (min_fold [42]);
+  Alcotest.(check Alcotest.(option int)) "max_fold [42] = Some 42"
+    (Some 42) (max_fold [42]);
+
+  (* Test with empty list - now returns None instead of crashing *)
+  Alcotest.(check Alcotest.(option int)) "min_fold [] = None"
+    None (min_fold []);
+  Alcotest.(check Alcotest.(option int)) "max_fold [] = None"
+    None (max_fold [])
 
 (* ===== Color Conversion Tests ===== *)
 
@@ -343,6 +355,7 @@ let () =
       "Math - Clamping and min/max", [
         test_case "clamp to range" `Quick test_clamp;
         test_case "min3/max3" `Quick test_min3_max3;
+        test_case "min_fold/max_fold (option-based)" `Quick test_min_max_fold;
       ];
       "Math - Square root approximation", [
         test_case "nearest_sqrt and nearest_sqrt'" `Quick test_nearest_sqrt;

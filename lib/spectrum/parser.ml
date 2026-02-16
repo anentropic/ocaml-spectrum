@@ -19,7 +19,8 @@ module Style = struct
   (*
     see: https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_(Select_Graphic_Rendition)_parameters
   *)
-  let of_string = function
+  let of_string s =
+    match String.lowercase_ascii s with
     | "bold" -> Bold
     | "dim" -> Dim
     | "italic" -> Italic

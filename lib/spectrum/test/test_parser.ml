@@ -27,15 +27,17 @@ let test_style_invalid_names () =
     (InvalidStyleName "")
     (fun () -> ignore (Style.of_string ""))
 
-let test_style_case_sensitive () =
-  (* TODO: Should be case-insensitive - convert to lowercase before matching *)
-  Alcotest.check_raises "Bold (uppercase)"
-    (InvalidStyleName "Bold")
-    (fun () -> ignore (Style.of_string "Bold"));
+let test_style_case_insensitive () =
+  (* Style names are case-insensitive *)
+  let is_bold = function Ok Style.Bold -> true | _ -> false in
+  Alcotest.(check bool) "Bold (title case) -> Bold" true
+    (is_bold (try Ok (Style.of_string "Bold") with e -> Error e));
 
-  Alcotest.check_raises "BOLD (all caps)"
-    (InvalidStyleName "BOLD")
-    (fun () -> ignore (Style.of_string "BOLD"))
+  Alcotest.(check bool) "BOLD (all caps) -> Bold" true
+    (is_bold (try Ok (Style.of_string "BOLD") with e -> Error e));
+
+  Alcotest.(check bool) "UnDeRlInE (mixed) -> Underline" true
+    (try Style.of_string "UnDeRlInE" = Style.Underline with _ -> false)
 
 let test_style_to_code () =
   Alcotest.(check int) "Bold -> 1" 1 (Style.to_code Bold);
@@ -255,7 +257,7 @@ let () =
       ];
       "Style - Invalid names", [
         test_case "unknown and empty names" `Quick test_style_invalid_names;
-        test_case "case sensitivity (TODO: should be case-insensitive)" `Quick test_style_case_sensitive;
+        test_case "case insensitivity" `Quick test_style_case_insensitive;
       ];
       "Style - Code mapping", [
         test_case "all styles to codes 1-9" `Quick test_style_to_code;

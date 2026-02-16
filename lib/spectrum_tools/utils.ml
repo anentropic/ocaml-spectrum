@@ -52,8 +52,13 @@ let product3 l l' l'' =
 let min3 a b c = min a (min b c)
 let max3 a b c = max a (max b c)
 
-let min_fold l = List.fold_left min (List.hd l) (List.tl l)
-let max_fold l = List.fold_left max (List.hd l) (List.tl l)
+let min_fold = function
+  | [] -> None
+  | hd :: tl -> Some (List.fold_left min hd tl)
+
+let max_fold = function
+  | [] -> None
+  | hd :: tl -> Some (List.fold_left max hd tl)
 
 (*
   Find nearest y, where x=2^y
