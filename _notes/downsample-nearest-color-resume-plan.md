@@ -3,130 +3,90 @@
 Date: 2026-02-16 (Updated)
 Goal: get branch back to a mergeable, test-backed, documented state.
 
-Status refresh (2026-02-16):
+**STATUS: ALL WORK COMPLETE — READY TO MERGE**
 
-**MAJOR MILESTONE COMPLETED:**
-- Test reorganization: All tests moved to library-specific `test/` subdirectories
-- Comprehensive test coverage: 364 tests passing across all 4 libraries
-- Implementation quality improvements: 3 bugs fixed (case-insensitive parsing, safe min/max_fold, proper Result handling)
-- All 6 stub test modules now fully implemented with proper coverage
+Build and tests confirmed green (364 tests, 0 failures) on 2026-02-16.
 
-Previous status (2026-02-15):
-- `tests/dune` now runs `lexer`, `printing`, `capabilities`, and `conversion`.
-- Capability-based serializer selection is wired in `lib/spectrum/spectrum.ml`.
-- `tests/capabilities.ml` TODO coverage gaps were filled (recognised CI names + TERM patterns).
-- Local validation currently passes with `opam exec -- dune clean && opam exec -- dune test --force`.
+## Completed work summary
 
-## Priority checklist
-
-## P-1 — Rebase conflict fallout (completed)
+### P-1 — Rebase conflict fallout
 
 - [x] Confirmed by git history that hardcoded xterm color-name map in `lexer.mll` had been intentionally removed in favor of parser/palette flow.
 - [x] Restored `lib/spectrum/lexer.mll` to the intended post-conflict content from commit `40c1622`.
 
-Definition of done (P-1): lexer no longer carries duplicated hardcoded xterm name map.
+### P0 — Make branch build/test green again
+
+- [x] Ensure opam switch has required libraries for new split packages.
+- [x] Run clean build and tests — all passing.
+
+### P1 — Re-enable and stabilize core tests
+
+- [x] Test reorganization: all tests moved to library-specific `test/` subdirectories
+- [x] Comprehensive test implementation: 6 stub modules filled with 103+ new tests
+- [x] Implementation fixes: 3 bugs found and fixed during test writing
+- [x] **364 tests passing** across all 4 libraries
+
+### P2 — Finish runtime integration decisions
+
+- [x] Capability-based serializer selection implemented in `spectrum.ml`
+- [x] Confirmed mapping policy: true-color -> keep RGB, 256-color -> quantize to ANSI-256, basic -> quantize to ANSI-16
+- [x] Serializer-level integration coverage added
+
+### P3 — Remove duplicate palette truth
+
+- [x] Removed Chalk and ImprovedChalk legacy converters (~187 lines)
+- [x] Adopted single Perceptual converter using JSON palette sources
+- [x] Custom palette support architecture in place
+
+### P4 — Documentation and polish
+
+- [x] README updated with changelog, package structure, color quantization docs
+- [x] Odoc documentation added for all 4 packages (doc/ directory)
+- [x] `.mli` interface files added for all public modules
+- [x] PPX module renamed for consistency
+- [x] Version bumped to 0.8.0
+
+### P5 — CI and compatibility fixes
+
+- [x] Fixed ppxlib API compatibility issue
+- [x] Fixed docs build errors
+- [x] Fixed CI test result publishing
+
+### P6 — Indexing follow-up
+
+- [x] Octree-based nearest-neighbor indexing integrated via external `oktree` (`Okt`) package
+  - Used in `lib/spectrum_palette_ppx/palette.ml` for LAB-space spatial lookup
+  - Tested in `lib/spectrum_palette_ppx/test/test_palette.ml`
 
 ---
 
-## P0 — Make branch build/test green again
+## Merge readiness criteria
 
-- [x] Ensure opam switch has required libraries for new split packages (`re`, etc.).
-- [x] Run clean build and tests:
-  - `opam exec -- dune clean`
-  - `opam exec -- dune build`
-  - `opam exec -- dune test`
-- [x] Capture exact failures (if any) and decide if they are:
-  - real regressions,
-  - environment/setup issues,
-  - expected WIP behavior.
+- [x] Build green in clean switch
+- [x] Full tests re-enabled and passing (364 tests)
+- [x] Capability-based serializer selection implemented and tested
+- [x] Palette source-of-truth duplication eliminated
+- [x] README updated
+- [x] Odoc documentation added
+- [x] `.mli` interfaces added
+- [x] Version bumped to 0.8.0
+- [x] CI fixes applied
 
-Definition of done (P0): local `dune build` + `dune test` succeed in project switch.
-
----
-
-## P1 — Re-enable and stabilize core tests (COMPLETED 2026-02-16)
-
-- [x] Re-enable currently commented test targets in `tests/dune` (`lexer`, `printing`).
-- [x] Fix any failing tests introduced by parser/library split.
-- [x] Add targeted tests for conversion behavior:
-  - RGB -> ANSI-256 nearest mapping (including edge greys)
-  - RGB -> ANSI-16 nearest mapping
-  - serializer behavior under capability-constrained output
-- [x] **Test reorganization:** Move all tests to library-specific `test/` subdirectories
-- [x] **Comprehensive test implementation:** Fill out all 6 stub test modules
-  - Parser: 26 tests (style parsing, colors, tokens, RGBA conversion)
-  - Utils: 19 tests (math, color conversions, lists, memoization)
-  - Terminal: 15 tests (Basic & Xterm256 palette validation)
-  - Loader: 15 tests (JSON parsing, error handling)
-  - Palette: 12 tests (LAB conversion, nearest-color algorithms)
-  - Query: 17 tests (hex conversion, terminal I/O)
-- [x] **Implementation fixes:** Fix 3 bugs found during test implementation
-  - Parser: case-insensitive style names
-  - Utils: safe min_fold/max_fold (return option)
-  - Query: proper Result handling in parse_colour
-
-Definition of done (P1): ✅ **COMPLETE** - 364 tests passing, comprehensive coverage, quality improvements made.
+**Current state: READY TO MERGE**
 
 ---
 
-## P2 — Finish runtime integration decisions
+## Branch stats
 
-- [x] Implement capability-based serializer selection in `spectrum.ml`.
-- [x] Confirm expected mapping policy by capability:
-  - true-color terminal -> keep RGB
-  - 256-color terminal -> quantize RGB to nearest ANSI-256
-  - basic terminal -> quantize RGB to nearest ANSI-16
-- [x] Add serializer-level integration coverage for capability-constrained output.
-
-Definition of done (P2): runtime chooses serializer deterministically and is tested.
+- Commits ahead of `main`: 41
+- Files changed: 89
+- Net diff: `+11283 / -620`
 
 ---
 
-## P3 — Remove duplicate palette truth and xterm-only assumptions (COMPLETED 2026-02-16)
+## Optional future work (post-merge)
 
-- [x] **Removed Chalk and ImprovedChalk legacy converters** (~187 lines removed)
-  - Eliminated all hardcoded palette logic (RGB values 0,95,135,175,215,255)
-  - Eliminated hardcoded color cube and grey-scale conversion algorithms
-  - Removed HSV-based ANSI-16 mapping with hardcoded thresholds
-- [x] **Adopted palette-derivation approach**
-  - Perceptual converter now the sole implementation
-  - Uses JSON palette sources (16-colors.json, 256-colors.json) as single source of truth
-  - LAB color space with octree-based nearest-neighbor search
-- [x] **Custom palette support policy decided**
-  - Architecture now supports arbitrary palettes through palette-based nearest search
-  - JSON palettes can be customized and PPX will generate appropriate modules
-
-Definition of done (P3): ✅ **COMPLETE** - conversion no longer relies on scattered duplicated constants. Single palette-based converter using JSON sources.
-
----
-
-## P4 — Optional indexing follow-up
-
-- [ ] If nearest-neighbor indexing is needed later, integrate the external `oktree` package.
-
-Definition of done (P4): indexing strategy is explicit and externalized.
-
----
-
-## Suggested next session
-
-**✅ ALL WORK COMPLETE - Branch is ready to merge!**
-
-**Completed in this session (2026-02-16):**
-1. ✅ Removed Chalk and ImprovedChalk legacy converters (~187 lines)
-2. ✅ Updated documentation (README changelog, installation, color quantization sections)
-3. ✅ All tests passing (364 tests)
-
-**Ready for merge:**
-- Build green in clean switch
-- Comprehensive test coverage (364 tests)
-- Implementation quality improvements (3 bugs fixed)
-- Single source of truth for palette data
-- Clean architecture with unified Perceptual converter
-- Complete documentation
-
-**Optional future work (post-merge):**
-- Evaluate optional indexing follow-up (`P4`) for performance optimization if needed
+- Consider squashing commits before merge (41 commits is verbose)
 
 ---
 
@@ -144,27 +104,7 @@ opam install . --deps-only --with-test
 opam exec -- dune clean
 opam exec -- dune build
 opam exec -- dune test
+
+# build docs
+opam exec -- dune build @doc
 ```
-
----
-
-## Open questions to resolve early
-
-1. ~~Should nearest-match target strict xterm palette behavior, or support arbitrary palettes as first-class?~~ ✅ **RESOLVED** - Architecture supports arbitrary palettes via JSON sources
-2. ~~Is perceptual LAB nearest the desired default, or should compatibility with Chalk be prioritized?~~ ✅ **RESOLVED** - Perceptual LAB is now the sole converter
-3. ~~Do you want to keep three converters (Chalk/Improved/Perceptual) publicly exposed, or keep one canonical and move others to internal/bench modules?~~ ✅ **RESOLVED** - Removed Chalk/ImprovedChalk, kept only Perceptual
-4. ~~What is acceptable performance target for RGB->palette mapping in hot paths?~~ **DEFERRED** - Can be addressed later with optional indexing (P4) if needed
-
----
-
-## Merge readiness criteria
-
-- [x] Build green in clean switch
-- [x] Full tests re-enabled and passing
-- [x] **Comprehensive test coverage implemented (364 tests)**
-- [x] **Implementation quality improvements made (3 bugs fixed)**
-- [x] Capability-based serializer selection implemented and tested
-- [x] **Palette source-of-truth duplication eliminated** (Chalk/ImprovedChalk removed)
-- [x] **README updated** to describe new quantization behavior and package split
-
-**Current state:** ✅ **READY TO MERGE** - All work complete! Branch has excellent test coverage, high code quality, single source of truth for palette data, clean architecture, and comprehensive documentation.

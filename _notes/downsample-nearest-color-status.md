@@ -6,39 +6,32 @@ Current branch: `downsample-nearest-color--completion`
 
 **Latest update (2026-02-16):**
 
-Documentation complete - Branch ready to merge:
+Post-completion polish done — branch ready to merge:
+- Version bumped to 0.8.0
+- Odoc documentation added for all 4 packages (`doc/` directory with `.mld` pages)
+- `.mli` interface files added for all public modules
+- PPX module renamed for consistency
+- Fixed ppxlib API compatibility issue
+- Fixed docs build errors
+- Fixed CI test result publishing
+
+Previous work (same session):
 - README updated with comprehensive changelog, package structure, and color quantization documentation
-- Custom palette support documented with usage instructions
-- TODOs section updated to reflect completed custom palette support
-
-Palette de-duplication complete - Chalk and ImprovedChalk converters removed:
-- Removed ~187 lines of legacy hardcoded conversion logic
+- Palette de-duplication complete: Chalk/ImprovedChalk converters removed (~187 lines)
 - Adopted single palette-based converter (Perceptual) using JSON sources
-- Eliminated duplicate palette data and hardcoded color cube/grey-scale algorithms
-- Architecture now supports custom palettes through palette-based nearest search
-- All tests still passing: **364 tests** (0 failures)
-
-Previous updates (2026-02-16):
-- All 6 stub test modules now have full test coverage (103 new tests written)
+- All 6 stub test modules filled with comprehensive tests (103 new tests)
 - 3 implementation issues fixed (case-insensitive parsing, safe min/max_fold, proper Result handling)
 - Test reorganization complete: all tests moved to library-specific `test/` subdirectories
 
-Post-fix updates:
-
-- `lib/spectrum/lexer.mll` remains on the intended parser-delegating version from commit `40c1622`.
-- `lib/spectrum/spectrum.ml` now selects serializer output by detected terminal capability.
-- `tests/dune` includes `lexer`, `printing`, `capabilities`, and `conversion` suites.
-- `tests/capabilities.ml` now covers recognised CI providers and TERM 16-color patterns.
-
 ## Executive summary
 
-The branch remains a feature-heavy change set, but its day-to-day development state is now much healthier than the previous snapshot: local clean test runs are green, core tests are re-enabled, and capability-driven serializer selection is in place.
+Branch is feature-complete, documented, and polished. Build and tests are green. All known issues resolved.
 
-High-level delta vs `main` (historical snapshot):
+High-level delta vs `main`:
 
-- Commits ahead of `main`: 14
-- Files changed: 33
-- Net diff: `+7168 / -147`
+- Commits ahead of `main`: 41
+- Files changed: 89
+- Net diff: `+11283 / -620`
 
 ---
 
@@ -47,94 +40,81 @@ High-level delta vs `main` (historical snapshot):
 ### 1) Project structure and packaging
 
 - Old top-level library layout replaced with sub-libraries under `lib/`:
-  - `lib/spectrum/`
-  - `lib/spectrum_palette/`
-  - `lib/spectrum_tools/`
+  - `lib/spectrum/` — core library
+  - `lib/spectrum_palette_ppx/` — PPX for generating palette modules from JSON
+  - `lib/spectrum_palettes/` — pre-built terminal palette modules
+  - `lib/spectrum_tools/` — color conversion, querying, utilities
 - New opam package files added:
-  - `spectrum_palette.opam`
+  - `spectrum_palette_ppx.opam`
+  - `spectrum_palettes.opam`
   - `spectrum_tools.opam`
-- `dune-project` defines multiple packages.
+- `dune-project` defines multiple packages
+- Version bumped to 0.8.0
 
-### 2) Palette model/codegen
+### 2) Documentation
+
+- Odoc documentation pages added in `doc/`:
+  - `index.mld` — package index
+  - `spectrum.mld` — core library docs
+  - `spectrum_palette_ppx.mld` — PPX usage and examples
+  - `spectrum_palettes.mld` — terminal palette reference
+  - `spectrum_tools.mld` — tools library docs
+- `.mli` interface files added for all public modules
+- README updated with changelog, installation, color quantization sections
+
+### 3) Palette model/codegen
 
 - JSON palette sources:
-  - `lib/spectrum_palette/16-colors.json`
-  - `lib/spectrum_palette/256-colors.json`
+  - `lib/spectrum/16-colors.json`
+  - `lib/spectrum/256-colors.json`
 - PPX machinery generates `Palette.M` modules from JSON config:
-  - `lib/spectrum_palette/spectrum_palette.ml`
-- Parser consumes generated modules:
-  - `module Basic : Palette.M = [%palette "lib/spectrum_palette/16-colors.json"]`
-  - `module Xterm256 : Palette.M = [%palette "lib/spectrum_palette/256-colors.json"]`
+  - `lib/spectrum_palette_ppx/expander.ml`, `loader.ml`, `palette.ml`
+- Palettes consumed via PPX extension points
 
-### 3) Conversion/downsampling logic
+### 4) Conversion/downsampling logic
 
-- Conversion module includes three strategies:
-  - `Chalk`
-  - `Improved`
-  - `Perceptual`
-- Core implementation:
-  - `lib/spectrum_tools/convert.ml`
-- Runtime quantization paths are active for lower capability outputs.
+- Single converter strategy: `Perceptual` (Chalk/ImprovedChalk removed)
+- LAB color space with octree-based nearest-neighbor search
+- Core implementation: `lib/spectrum_tools/convert.ml`
+- Runtime quantization paths active for lower capability outputs
 
-### 4) Runtime integration in spectrum
+### 5) Runtime integration in spectrum
 
 - `lib/spectrum/spectrum.ml` exposes serializer modules:
   - `True_color_Serializer`
   - `Xterm256_Serializer`
   - `Basic_Serializer`
-- Runtime serializer dispatch is capability-driven via `select_serializer ()`.
+- Runtime serializer dispatch is capability-driven via `select_serializer ()`
 
-### 5) Tests and tooling state
+### 6) Tests
 
-**Test reorganization complete (2026-02-16):**
-- All tests moved from centralized `/tests` to library-specific `test/` subdirectories
+- All tests in library-specific `test/` subdirectories
 - 4 libraries with comprehensive test coverage:
-  - `lib/spectrum/test/` - 111 tests (lexer, parser, capabilities)
-  - `lib/spectrum_tools/test/` - 22 tests (convert, utils, query)
-  - `lib/spectrum_palettes/test/` - 15 tests (terminal palettes)
-  - `lib/spectrum_palette_ppx/test/` - 27 tests (loader, palette)
+  - `lib/spectrum/test/` — lexer, parser, capabilities, printer, serializers
+  - `lib/spectrum_tools/test/` — convert, utils, query
+  - `lib/spectrum_palettes/test/` — terminal palettes
+  - `lib/spectrum_palette_ppx/test/` — loader, palette
 - Test framework: Alcotest with Junit_alcotest for CI reporting
-- JUnit XML reports generated for each test suite
-
-**Recent test implementation (2026-02-16):**
-- Implemented comprehensive tests for 6 previously stub modules:
-  - Parser module: 26 tests (style parsing, color parsing, token aggregation)
-  - Utils module: 19 tests (math utilities, color conversions, list operations)
-  - Terminal palette: 15 tests (both Basic and Xterm256 modules)
-  - Loader module: 15 tests (JSON parsing and error handling)
-  - Palette module: 12 tests (LAB conversion, nearest-color algorithms)
-  - Query module: 17 tests (hex conversion, terminal I/O)
-
-**Implementation fixes (2026-02-16):**
-- Parser: Made `Style.of_string` case-insensitive
-- Utils: Made `min_fold`/`max_fold` return `option` (safe on empty lists)
-- Query: Fixed `parse_colour` to return `Error` instead of raising exceptions
-
-- Latest observed result: **364 tests passing** (0 failures)
+- **364 tests passing** (0 failures) — confirmed 2026-02-16
 
 ---
 
 ## Current branch health snapshot
 
-Current local switch/environment status:
-
-- Build/test path is green in local clean runs.
-- Previous `re` dependency issue is not present in the current environment.
-
-Interpretation:
-
-- This branch is no longer “broken by default” locally.
-- Remaining work is primarily around cleanup/polish decisions (palette source-of-truth de-duplication, policy clarity, docs/release notes), rather than immediate build stability.
+- Build green: `dune build` succeeds
+- Tests green: `dune test` passes (364 tests, 0 failures)
+- Docs build: `dune build @doc` succeeds
+- CI: test result publishing fixed
 
 ---
 
 ## Main open risks / known rough edges
 
-1. ~~Duplicate/parallel palette truth still exists in places and should be reduced.~~ ✅ **RESOLVED** - Chalk/ImprovedChalk removed, single palette-based converter remains.
-2. ~~Custom palette support policy is not yet explicitly decided/documented.~~ ✅ **RESOLVED** - Architecture now supports custom palettes through JSON sources.
-3. ~~README/CHANGES still need a focused update to describe quantization behavior and package split.~~ ✅ **RESOLVED** - README comprehensively updated.
+1. ~~Duplicate/parallel palette truth still exists in places and should be reduced.~~ RESOLVED — Chalk/ImprovedChalk removed, single palette-based converter remains.
+2. ~~Custom palette support policy is not yet explicitly decided/documented.~~ RESOLVED — Architecture supports custom palettes through JSON sources.
+3. ~~README/CHANGES still need a focused update to describe quantization behavior and package split.~~ RESOLVED — README comprehensively updated.
 
-**No remaining blockers - branch is ready to merge!**
+**No remaining blockers — branch is ready to merge!**
 
 ---
 
@@ -144,5 +124,5 @@ Interpretation:
 2. `lib/spectrum/parser.ml` (generated palette usage)
 3. `lib/spectrum/lexer.mll` (parser delegation)
 4. `lib/spectrum_tools/convert.ml` (downsampling logic)
-5. `lib/spectrum_palette/spectrum_palette.ml` (PPX generation model)
-6. `tests/dune`, `tests/capabilities.ml`, `tests/conversion.ml` (current test coverage)
+5. `lib/spectrum_palette_ppx/palette.ml` (PPX generation model)
+6. `doc/spectrum.mld` (library documentation)
