@@ -3,7 +3,7 @@ open Alcotest
 open Spectrum.Parser
 
 (* Test helpers *)
-let error = testable Fmt.exn ( = )
+let _error = testable Fmt.exn ( = )
 
 (* ===== Style Module Tests ===== *)
 

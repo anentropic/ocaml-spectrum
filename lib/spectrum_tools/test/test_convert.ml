@@ -8,7 +8,7 @@
 open Alcotest
 open Spectrum_tools.Convert
 
-let v4_testable = testable (fun ppf v ->
+let _v4_testable = testable (fun ppf v ->
     let open Spectrum_tools.Private.Utils in
     let c = to_rgba v in
     Format.fprintf ppf "RGB(%d,%d,%d)" c.r c.g c.b

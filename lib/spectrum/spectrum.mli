@@ -97,4 +97,9 @@ module Private : sig
 
   (** ANSI-16 basic color serializer - quantizes to 16-color palette. *)
   module Basic_Serializer : Serializer
+
+  (** Create a printer with a specific serializer, bypassing environment detection.
+      [make_printer raise_errors to_code] creates a printer that uses [to_code]
+      for serialization. If [raise_errors] is true, invalid tags raise exceptions. *)
+  val make_printer : bool -> (Parser.token list -> string) -> (module Printer)
 end

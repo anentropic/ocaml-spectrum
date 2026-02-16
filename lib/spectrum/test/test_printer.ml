@@ -80,10 +80,18 @@ module Make (P : Spectrum.Printer) (M : Meta) = struct
     ]
 end
 
-module Exn_simple = Make (Spectrum) (val meta "Exn Simple" true)
-module Exn_format = Make (Spectrum) (val meta "Exn Format" false)
-module Noexn_simple = Make (Spectrum.Noexn) (val meta "Noexn Simple" true)
-module Noexn_format = Make (Spectrum.Noexn) (val meta "Noexn Format" true)
+(* Create printers with explicit True_color serializer to isolate tests
+   from the runtime environment (e.g. CI where GITHUB_ACTIONS is set
+   would otherwise cause Basic serializer to be selected) *)
+module Tc_exn : Spectrum.Printer =
+  (val Spectrum.Private.make_printer true Spectrum.Private.True_color_Serializer.to_code)
+module Tc_noexn : Spectrum.Printer =
+  (val Spectrum.Private.make_printer false Spectrum.Private.True_color_Serializer.to_code)
+
+module Exn_simple = Make (Tc_exn) (val meta "Exn Simple" true)
+module Exn_format = Make (Tc_exn) (val meta "Exn Format" false)
+module Noexn_simple = Make (Tc_noexn) (val meta "Noexn Simple" true)
+module Noexn_format = Make (Tc_noexn) (val meta "Noexn Format" false)
 
 let test_sprintf_raises fmt exc () =
   let open Spectrum.Exn in

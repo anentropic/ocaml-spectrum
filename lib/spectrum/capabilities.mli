@@ -96,7 +96,7 @@ module type CapabilitiesProvider = sig
 end
 
 (** Create capabilities module with custom providers. *)
-module Make : functor (Env : EnvProvider) (OsInfo : OsInfoProvider) -> CapabilitiesProvider
+module Make : functor (_ : EnvProvider) (_ : OsInfoProvider) -> CapabilitiesProvider
 
 (** Create an environment provider from a string map (for testing).
 

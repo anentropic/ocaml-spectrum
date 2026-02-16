@@ -12,7 +12,7 @@ let v4_testable = testable (fun ppf v ->
     Format.fprintf ppf "RGB(%d,%d,%d)" r g b
   ) ( = )
 
-let v3_testable = testable Gg.V3.pp Gg.V3.equal
+let _v3_testable = testable Gg.V3.pp Gg.V3.equal
 
 let rgb r g b = Color.Rgb.(v r g b |> to_gg)
 

@@ -199,9 +199,10 @@ module Noexn = (val (make_printer false (select_serializer ())) : Printer)
 
 include Noexn
 
-(** Expose serializers for testing purposes under Private module *)
+(** Expose serializers and printer constructor for testing purposes under Private module *)
 module Private = struct
   module True_color_Serializer = True_color_Serializer
   module Xterm256_Serializer = Xterm256_Serializer
   module Basic_Serializer = Basic_Serializer
+  let make_printer = make_printer
 end
