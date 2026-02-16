@@ -83,7 +83,7 @@ let nearest_color = MyPalette.nearest orange
 
 {1 Generated Module Signature}
 
-The [\[%palette\]] extension generates modules implementing {!Palette.M}:
+The [\[%palette\]] extension generates modules implementing {!Spectrum_palette_ppx.Palette.M}:
 
 {[
 module type M = sig

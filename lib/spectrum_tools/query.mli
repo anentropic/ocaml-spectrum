@@ -18,7 +18,7 @@ module Xterm : sig
       terminal query responses.
 
       {b Warning:} This modifies terminal settings. Always restore original
-      settings using {!Unix.tcsetattr} or use the {!query} function which
+      settings using [Unix.tcsetattr] or use the {!query} function which
       handles this automatically.
 
       @param set_when When to apply the settings (default: TCSAFLUSH)
@@ -174,19 +174,24 @@ module Xterm : sig
         (* Query terminal colors *)
         let colours = Spectrum_tools.Query.Xterm.get_colours Unix.stdin in
 
-        match colours.fg with
-        | Ok fg_color ->
-          let rgba = Spectrum_tools.Convert.Color.to_rgba fg_color in
-          Printf.printf "Foreground: RGB(%d, %d, %d)\n" rgba.r rgba.g rgba.b
-        | Error msg ->
-          Printf.printf "Failed to detect foreground: %s\n" msg;
+        let () =
+          match colours.fg with
+          | Ok fg_color ->
+            let rgba = Spectrum_tools.Convert.Color.to_rgba fg_color in
+            Printf.printf "Foreground: RGB(%d, %d, %d)\n" rgba.r rgba.g rgba.b
+          | Error msg ->
+            Printf.printf "Failed to detect foreground: %s\n" msg
+        in
 
+        let () =
           match colours.bg with
           | Ok bg_color ->
             let rgba = Spectrum_tools.Convert.Color.to_rgba bg_color in
             Printf.printf "Background: RGB(%d, %d, %d)\n" rgba.r rgba.g rgba.b
           | Error msg ->
             Printf.printf "Failed to detect background: %s\n" msg
+        in
+        ()
       ]}
 
       {[

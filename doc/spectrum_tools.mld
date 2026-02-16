@@ -57,19 +57,24 @@ The {!Spectrum_tools.Query} module provides functions to query xterm-compatible 
 (* Query both foreground and background *)
 let colours = Spectrum_tools.Query.Xterm.get_colours Unix.stdin in
 
-match colours.fg with
-| Ok fg_color ->
+let () =
+  match colours.fg with
+  | Ok fg_color ->
     let rgba = Spectrum_tools.Convert.Color.to_rgba fg_color in
     Printf.printf "Foreground: RGB(%d, %d, %d)\n" rgba.r rgba.g rgba.b
-| Error msg ->
-    Printf.printf "Failed to detect foreground: %s\n" msg;
+  | Error msg ->
+    Printf.printf "Failed to detect foreground: %s\n" msg
+in
 
-match colours.bg with
-| Ok bg_color ->
+let () =
+  match colours.bg with
+  | Ok bg_color ->
     let rgba = Spectrum_tools.Convert.Color.to_rgba bg_color in
     Printf.printf "Background: RGB(%d, %d, %d)\n" rgba.r rgba.g rgba.b
-| Error msg ->
-    Printf.printf "Background to detect foreground: %s\n" msg
+  | Error msg ->
+    Printf.printf "Failed to detect background: %s\n" msg
+in
+()
 ]}
 
 {2 Terminal Control Protocol}

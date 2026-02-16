@@ -51,6 +51,9 @@ Supported tags:
 
 {1 See Also}
 
-- {{:https://github.com/anentropic/ocaml-spectrum} GitHub repository}
 - {{:https://github.com/Chris00/ANSITerminal/} ANSITerminal} - Alternative OCaml terminal library
 - {{:https://erratique.ch/software/fmt/doc/Fmt/} Fmt} - Format module combinators
+
+{1 Project}
+
+- {{:https://github.com/anentropic/ocaml-spectrum} GitHub repository}

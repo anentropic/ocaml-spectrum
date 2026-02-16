@@ -1,7 +1,57 @@
-(** OCaml library for colorful terminal output with format tags.
+(** Colour and formatting for terminal output.
 
-    Spectrum provides ANSI color/style formatting integrated with OCaml's Format module,
-    allowing styled output using semantic tags like [@{<bold;red>text@}]. *)
+    Spectrum integrates ANSI color and style formatting with OCaml's
+    {{:https://ocaml.org/api/Format.html#tags}Format semantic tags}.
+    String tags are defined for ANSI styles (bold, underline, etc.) and
+    named colours from the xterm 256-color palette, plus 24-bit colours
+    via CSS-style hex codes and RGB or HSL values.
+
+    Terminal capabilities are detected automatically and colours are
+    quantized to match what the terminal supports, using perceptually
+    accurate LAB color space distance calculations.
+
+    {1 Basic Usage}
+
+    {[
+      (* Prepare a formatter to handle color tags *)
+      let reset = Spectrum.prepare_ppf Format.std_formatter in
+      let () = Format.printf "@{<green>Hello@} @{<bold>world@}@." in
+      reset ()
+
+      (* Or use the Simple API for one-off printing *)
+      let () = Spectrum.Simple.printf "@{<green>Hello@} @{<bold>world@}@."
+    ]}
+
+    Tag syntax: [@{<TAG>content@}]
+
+    - Named colors: [@{<green>text@}], [@{<dark-orange>text@}]
+    - Hex colors: [@{<#ff5733>text@}], [@{<#f00>text@}]
+    - RGB: [@{<rgb(255 87 51)>text@}]
+    - HSL: [@{<hsl(60 100 50)>text@}]
+    - Styles: [@{<bold>text@}], [@{<underline>text@}], [@{<italic>text@}]
+    - Qualifiers: [@{<bg:red>text@}], [@{<fg:blue>text@}]
+    - Compound: [@{<bold,bg:red,yellow>text@}]
+
+    {2 Interface}
+
+    Spectrum provides two module variants:
+
+    - {!Exn} raises exceptions on invalid color/style tags
+    - {!Noexn} silently ignores invalid tags (default)
+
+    The default top-level interface (just [Spectrum.xyz]) is equivalent
+    to {!Noexn}. Both expose {!Printer}, which includes [prepare_ppf]
+    and the {!Printer.Simple} convenience module.
+
+    Note: [Format.sprintf] uses its own buffer, so you must use
+    [Spectrum.Simple.sprintf] for styled sprintf, or create your own
+    buffer with [Format.fprintf].
+
+    {2 See Also}
+
+    - {{:https://github.com/anentropic/ocaml-spectrum} GitHub repository}
+    - {!Spectrum_tools} for color conversion utilities
+    - {!Spectrum_palettes} for pre-generated palette modules *)
 
 (** Terminal capability detection for color support. *)
 module Capabilities : module type of Capabilities
@@ -14,12 +64,12 @@ module Parser : module type of Parser
 
 (** Printer module type - provides formatted printing with ANSI color codes.
 
-    See {!Spectrum_intf.Printer} for the full signature. *)
+    See {!Printer} for the full signature. *)
 module type Printer = Spectrum_intf.Printer
 
 (** Serializer module type - converts parsed tokens to ANSI escape codes.
 
-    See {!Spectrum_intf.Serializer} for the full signature. *)
+    See {!Serializer} for the full signature. *)
 module type Serializer = Spectrum_intf.Serializer
 
 (** Printer that raises exceptions on invalid color/style tags. *)

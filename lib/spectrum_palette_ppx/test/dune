@@ -5,8 +5,10 @@
 
 (test
  (name test_loader)
+ (modules test_loader)
  (libraries alcotest junit_alcotest spectrum_palette_ppx yojson color))
 
 (test
  (name test_palette)
+ (modules test_palette)
  (libraries alcotest junit_alcotest spectrum_palette_ppx color))

@@ -180,3 +180,7 @@ Spectrum.Parser
 - {{:https://github.com/Chris00/ANSITerminal/} ANSITerminal} - Alternative terminal library with basic colors
 - {{:https://erratique.ch/software/fmt/doc/Fmt/} Fmt} - Format module combinators
 - {{:https://ocaml.org/api/Format.html} OCaml Format module} - Standard library formatter
+
+{1 Project}
+
+- {{:https://github.com/anentropic/ocaml-spectrum} GitHub repository}
