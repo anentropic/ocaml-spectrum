@@ -5,6 +5,13 @@ module Utils = Utils
 open Ppxlib
 module Ast = Ast_builder.Default
 
+(* ppxlib 0.33+ changed pexp_function to take function_param list instead of
+   case list. Use pexp_fun + pexp_match for cross-version compatibility. *)
+let function_of_cases ~loc cases =
+  Ast.pexp_fun ~loc Nolabel None
+    (Ast.ppat_var ~loc {txt = "__x"; loc})
+    (Ast.pexp_match ~loc (Ast.pexp_ident ~loc {txt = Lident "__x"; loc}) cases)
+
 (*
 Example palette module:
 
@@ -64,7 +71,7 @@ let of_string_f_of_defs ~loc defs =
       ~rhs: [%expr raise @@ Palette.InvalidColorName name]
   in
   let cases = List.map (fun (_, def) -> def_to_case def) defs in
-  Ast.pexp_function ~loc (cases @ [default_case])
+  function_of_cases ~loc (cases @ [default_case])
 
 let const_integer_of_int i =
   Pconst_integer (Int.to_string i, None)
@@ -78,7 +85,7 @@ let to_code_f_of_defs ~loc defs =
       ~rhs: (Ast.pexp_constant ~loc (const_integer_of_int def.code))
   in
   let cases = List.map (fun (_, def) -> def_to_case def) defs in
-  Ast.pexp_function ~loc cases
+  function_of_cases ~loc cases
 
 let apply_color_of_def ~loc (def : Loader.t) =
   Ast.pexp_apply ~loc
@@ -101,7 +108,7 @@ let to_color_f_of_defs ~loc defs =
       ~rhs: (apply_color_of_def ~loc def)
   in
   let cases = List.map (fun (_, def) -> def_to_case def) defs in
-  Ast.pexp_function ~loc cases
+  function_of_cases ~loc cases
 
 (* build AST for the generated color_list *)
 let color_list_of_defs ~loc defs =
