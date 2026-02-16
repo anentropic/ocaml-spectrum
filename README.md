@@ -36,6 +36,16 @@ It's released on opam, so:
 opam install spectrum
 ```
 
+The main `spectrum` package includes everything you need for terminal color formatting. The implementation is split into several internal packages:
+
+- `spectrum` - main runtime and user-facing API
+- `spectrum_palette` - palette JSON definitions
+- `spectrum_palette_ppx` - PPX extension for generating palette modules from JSON
+- `spectrum_palettes` - generated palette modules (Basic and Xterm256)
+- `spectrum_tools` - color conversion utilities and query functions
+
+All of these are installed automatically as dependencies when you install `spectrum`.
+
 ## Usage
 
 To use Spectrum we have to configure a [pretty-print formatter](https://ocaml.org/api/Format.html#1_Formatters) (type: `Format.formatter`, often just called a `ppf`) in order to enable our custom tag handling.
@@ -212,10 +222,14 @@ type color_level =
 Spectrum automatically detects terminal capabilities and quantizes colors accordingly. If you specify an RGB color like `#FF5733` or `rgb(255 87 51)`, Spectrum will:
 
 - On `True_color` terminals: output the exact RGB values using 24-bit ANSI codes
-- On `Eight_bit` terminals: quantize to the nearest xterm-256 color using perceptually accurate LAB color space distance
-- On `Basic` terminals: quantize to the nearest ANSI-16 color
+- On `Eight_bit` terminals: quantize to the nearest xterm-256 color using perceptually accurate LAB color space distance with octree-based nearest-neighbor search
+- On `Basic` terminals: quantize to the nearest ANSI-16 color using the same perceptual matching algorithm
 
 This means you can use high-fidelity colors throughout your code and they'll automatically degrade gracefully on terminals with limited color support.
+
+**Perceptual color matching**: Spectrum uses the LAB color space (CIELAB) for quantization, which provides perceptually uniform color distance measurements. This means colors that look similar to humans will be numerically close in LAB space, resulting in more accurate nearest-color matching compared to simple RGB distance calculations.
+
+**Custom palettes**: The architecture supports arbitrary palettes via JSON sources. To use a custom palette, define your colors in a JSON file following the format in `lib/spectrum_palette/16-colors.json` or `lib/spectrum_palette/256-colors.json`, then use the `%palette` PPX extension to generate the corresponding palette module.
 
 You can override the detected capability level by setting the `FORCE_COLOR` environment variable:
 - `FORCE_COLOR=0` or `FORCE_COLOR=false`: Basic 16-color mode  
@@ -226,11 +240,14 @@ You can override the detected capability level by setting the `FORCE_COLOR` envi
 ## Changelog
 
 #### 0.7.0
+Major enhancements!
 - **automatic color quantization**: RGB and HSL colors are now automatically downsampled to ANSI-256 or ANSI-16 based on detected terminal capabilities
-- use perceptually accurate LAB color space distance for nearest-color matching
-- split architecture into `spectrum` (main runtime), `spectrum_palette_ppx` (palette codegen PPX), and `spectrum_tools` (color conversion utilities)
-- palette JSON definitions now live in `lib/spectrum/*.json`, with generated shared palette modules in `lib/spectrum_palettes/terminal.ml`
-- improved test coverage with comprehensive color conversion tests
+- **perceptual color matching**: use LAB color space with octree-based nearest-neighbor search for accurate color quantization
+- **unified converter architecture**: removed legacy `Chalk` and `ImprovedChalk` converters in favor of the `Perceptual` converter
+- **custom palette support**: architecture now supports arbitrary palettes via JSON sources
+- **package split**: `spectrum` (main runtime), `spectrum_palette` (palette definitions), `spectrum_palette_ppx` (palette codegen PPX), `spectrum_tools` (color conversion utilities), and `spectrum_palettes` (generated palette modules)
+- palette JSON definitions live in `lib/spectrum_palette/*.json`, with PPX-generated modules in `lib/spectrum_palettes/terminal.ml`
+- **comprehensive test coverage**: all modules now tested
 
 #### 0.6.0
 - finally understood what the interface should be 😅
@@ -259,7 +276,7 @@ You can override the detected capability level by setting the `FORCE_COLOR` envi
 - broaden automated coverage with property-based tests and additional tie/threshold regression cases
 - publish the printer and capabilities-detection as separate opam modules?
 - expose variant types for use with explicit `mark_open_stag` and close calls?
-- consider custom palette support (currently only xterm 256-color palette is supported)
+- ~~consider custom palette support (currently only xterm 256-color palette is supported)~~ ✅ **DONE** - architecture now supports arbitrary palettes via JSON sources
 
 
 [1]: https://www.ditig.com/256-colors-cheat-sheet

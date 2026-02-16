@@ -6,10 +6,21 @@ Current branch: `downsample-nearest-color--completion`
 
 **Latest update (2026-02-16):**
 
-Comprehensive test implementation and implementation fixes completed:
+Documentation complete - Branch ready to merge:
+- README updated with comprehensive changelog, package structure, and color quantization documentation
+- Custom palette support documented with usage instructions
+- TODOs section updated to reflect completed custom palette support
+
+Palette de-duplication complete - Chalk and ImprovedChalk converters removed:
+- Removed ~187 lines of legacy hardcoded conversion logic
+- Adopted single palette-based converter (Perceptual) using JSON sources
+- Eliminated duplicate palette data and hardcoded color cube/grey-scale algorithms
+- Architecture now supports custom palettes through palette-based nearest search
+- All tests still passing: **364 tests** (0 failures)
+
+Previous updates (2026-02-16):
 - All 6 stub test modules now have full test coverage (103 new tests written)
 - 3 implementation issues fixed (case-insensitive parsing, safe min/max_fold, proper Result handling)
-- Total: **364 tests passing** (0 failures)
 - Test reorganization complete: all tests moved to library-specific `test/` subdirectories
 
 Post-fix updates:
@@ -119,9 +130,11 @@ Interpretation:
 
 ## Main open risks / known rough edges
 
-1. Duplicate/parallel palette truth still exists in places and should be reduced.
-2. Custom palette support policy is not yet explicitly decided/documented.
-3. README/CHANGES still need a focused update to describe quantization behavior and package split.
+1. ~~Duplicate/parallel palette truth still exists in places and should be reduced.~~ ✅ **RESOLVED** - Chalk/ImprovedChalk removed, single palette-based converter remains.
+2. ~~Custom palette support policy is not yet explicitly decided/documented.~~ ✅ **RESOLVED** - Architecture now supports custom palettes through JSON sources.
+3. ~~README/CHANGES still need a focused update to describe quantization behavior and package split.~~ ✅ **RESOLVED** - README comprehensively updated.
+
+**No remaining blockers - branch is ready to merge!**
 
 ---
 

@@ -62,8 +62,6 @@ let max_fold = function
 
 (*
   Find nearest y, where x=2^y
-  could be used to determine the Int.shift_right from a grey_threshold in
-  the Chalk rgb_to_ansi256 algorithm
 
   the general solution is: y = log x / log 2 (for 2^y)
   let nearest_sqrt x = log (float_of_int x) /. log 2. |> int_of_float

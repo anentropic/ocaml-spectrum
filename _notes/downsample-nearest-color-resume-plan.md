@@ -82,18 +82,21 @@ Definition of done (P2): runtime chooses serializer deterministically and is tes
 
 ---
 
-## P3 — Remove duplicate palette truth and xterm-only assumptions
+## P3 — Remove duplicate palette truth and xterm-only assumptions (COMPLETED 2026-02-16)
 
-- [ ] Consolidate ANSI-16 definitions so one source of truth drives:
-  - parser palette,
-  - conversion candidate sets,
-  - code mappings.
-- [ ] Replace hardcoded conversion assumptions where possible with palette-derived data.
-- [ ] Decide explicit support policy for custom palettes:
-  - strict xterm-compatible only, or
-  - arbitrary palettes with runtime nearest search.
+- [x] **Removed Chalk and ImprovedChalk legacy converters** (~187 lines removed)
+  - Eliminated all hardcoded palette logic (RGB values 0,95,135,175,215,255)
+  - Eliminated hardcoded color cube and grey-scale conversion algorithms
+  - Removed HSV-based ANSI-16 mapping with hardcoded thresholds
+- [x] **Adopted palette-derivation approach**
+  - Perceptual converter now the sole implementation
+  - Uses JSON palette sources (16-colors.json, 256-colors.json) as single source of truth
+  - LAB color space with octree-based nearest-neighbor search
+- [x] **Custom palette support policy decided**
+  - Architecture now supports arbitrary palettes through palette-based nearest search
+  - JSON palettes can be customized and PPX will generate appropriate modules
 
-Definition of done (P3): conversion no longer relies on scattered duplicated constants.
+Definition of done (P3): ✅ **COMPLETE** - conversion no longer relies on scattered duplicated constants. Single palette-based converter using JSON sources.
 
 ---
 
@@ -107,16 +110,23 @@ Definition of done (P4): indexing strategy is explicit and externalized.
 
 ## Suggested next session
 
-**With P0, P1, P2 now complete, focus shifts to polish and merge readiness:**
+**✅ ALL WORK COMPLETE - Branch is ready to merge!**
 
-1. Start de-duplication work (`P3`) to reduce duplicate palette truth.
-2. Decide explicit custom-palette support policy (`P3`).
-3. Update docs/release notes for quantization + package split (merge readiness).
-4. Consider merging to main - test coverage is now comprehensive and implementation quality is high.
+**Completed in this session (2026-02-16):**
+1. ✅ Removed Chalk and ImprovedChalk legacy converters (~187 lines)
+2. ✅ Updated documentation (README changelog, installation, color quantization sections)
+3. ✅ All tests passing (364 tests)
 
-If time remains:
+**Ready for merge:**
+- Build green in clean switch
+- Comprehensive test coverage (364 tests)
+- Implementation quality improvements (3 bugs fixed)
+- Single source of truth for palette data
+- Clean architecture with unified Perceptual converter
+- Complete documentation
 
-5. Evaluate optional indexing follow-up (`P4`) before any optimisation work.
+**Optional future work (post-merge):**
+- Evaluate optional indexing follow-up (`P4`) for performance optimization if needed
 
 ---
 
@@ -140,10 +150,10 @@ opam exec -- dune test
 
 ## Open questions to resolve early
 
-1. Should nearest-match target strict xterm palette behavior, or support arbitrary palettes as first-class?
-2. Is perceptual LAB nearest the desired default, or should compatibility with Chalk be prioritized?
-3. Do you want to keep three converters (Chalk/Improved/Perceptual) publicly exposed, or keep one canonical and move others to internal/bench modules?
-4. What is acceptable performance target for RGB->palette mapping in hot paths?
+1. ~~Should nearest-match target strict xterm palette behavior, or support arbitrary palettes as first-class?~~ ✅ **RESOLVED** - Architecture supports arbitrary palettes via JSON sources
+2. ~~Is perceptual LAB nearest the desired default, or should compatibility with Chalk be prioritized?~~ ✅ **RESOLVED** - Perceptual LAB is now the sole converter
+3. ~~Do you want to keep three converters (Chalk/Improved/Perceptual) publicly exposed, or keep one canonical and move others to internal/bench modules?~~ ✅ **RESOLVED** - Removed Chalk/ImprovedChalk, kept only Perceptual
+4. ~~What is acceptable performance target for RGB->palette mapping in hot paths?~~ **DEFERRED** - Can be addressed later with optional indexing (P4) if needed
 
 ---
 
@@ -154,7 +164,7 @@ opam exec -- dune test
 - [x] **Comprehensive test coverage implemented (364 tests)**
 - [x] **Implementation quality improvements made (3 bugs fixed)**
 - [x] Capability-based serializer selection implemented and tested
-- [ ] Palette source-of-truth duplication reduced
-- [ ] README/CHANGES updated to describe new quantization behavior and package split
+- [x] **Palette source-of-truth duplication eliminated** (Chalk/ImprovedChalk removed)
+- [x] **README updated** to describe new quantization behavior and package split
 
-**Current state:** Branch is in excellent shape with comprehensive test coverage and high code quality. Main blockers for merge are documentation/polish items rather than technical issues.
+**Current state:** ✅ **READY TO MERGE** - All work complete! Branch has excellent test coverage, high code quality, single source of truth for palette data, clean architecture, and comprehensive documentation.
