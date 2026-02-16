@@ -100,6 +100,7 @@ module Xterm = struct
         C3C3 -> C3C3/FFFF * FF = 195
       see: https://stackoverflow.com/q/70962440/202168 *)
   let hex_to_8bit s =
+    if String.length s = 0 then invalid_arg "hex_to_8bit: empty string";
     let scale = (16. ** float_of_int (String.length s)) -. 1. in
     let value = int_of_string @@ Printf.sprintf "0x%s" s in
     float_of_int value /. scale *. 255.

@@ -66,12 +66,18 @@ let of_string_f_of_defs ~loc defs =
   in
   let default_case =
     Ast.case
-      ~lhs: [%pat? name]
+      ~lhs: [%pat? _]
       ~guard: None
-      ~rhs: [%expr raise @@ Palette.InvalidColorName name]
+      ~rhs: [%expr raise @@ Palette.InvalidColorName __x]
   in
   let cases = List.map (fun (_, def) -> def_to_case def) defs in
-  function_of_cases ~loc (cases @ [default_case])
+  (* Match on String.lowercase_ascii of the input for case-insensitive lookup,
+     but use the original input (__x) in the error message *)
+  Ast.pexp_fun ~loc Nolabel None
+    (Ast.ppat_var ~loc {txt = "__x"; loc})
+    (Ast.pexp_match ~loc
+       [%expr String.lowercase_ascii __x]
+       (cases @ [default_case]))
 
 let const_integer_of_int i =
   Pconst_integer (Int.to_string i, None)

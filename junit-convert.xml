@@ -1,0 +1,8 @@
+<testsuites><testsuite package="Convert" id="0" name="Convert" timestamp="2026-02-16T20:20:30" hostname="localhost" tests="4" failures="0" errors="1" skipped="0" time="0"><properties></properties><testcase name="rgb_to_ansi256 basic colors" classname="Convert.RGB to ANSI-256" time="0"></testcase><testcase name="color cube boundaries" classname="Convert.RGB to ANSI-256" time="0"></testcase><testcase name="rgb_to_ansi16 basic colors" classname="Convert.RGB to ANSI-16" time="0"></testcase><testcase name="basic conversions" classname="Convert.Color.to_hsva" time="0"><error message="test crashed" type="exception raised">Alcotest assertion failure
+&#27;[1mFile &quot;lib/spectrum_tools/test/test_convert.ml&quot;, line 89, character 2:
+&#27;[0m&#27;[31mFAIL&#27;[0m red hue ≈ 0
+
+   Expected: `&#27;[32mtrue&#27;[0m'
+   Received: `&#27;[31mfalse&#27;[0m'
+
+</error></testcase></testsuite></testsuites>

@@ -97,7 +97,19 @@ let test_from_rgb_invalid () =
 
   Alcotest.check_raises "out of range: 300"
     (InvalidRgbColor "300")
-    (fun () -> ignore (from_rgb "0" "300" "0"))
+    (fun () -> ignore (from_rgb "0" "300" "0"));
+
+  Alcotest.check_raises "negative: -1"
+    (InvalidRgbColor "-1")
+    (fun () -> ignore (from_rgb "-1" "0" "0"));
+
+  Alcotest.check_raises "negative: -50 (green)"
+    (InvalidRgbColor "-50")
+    (fun () -> ignore (from_rgb "0" "-50" "0"));
+
+  Alcotest.check_raises "negative: -255 (blue)"
+    (InvalidRgbColor "-255")
+    (fun () -> ignore (from_rgb "0" "0" "-255"))
 
 let test_from_hsl_valid () =
   let is_rgb = function RgbColor _ -> true | _ -> false in
@@ -105,6 +117,8 @@ let test_from_hsl_valid () =
   Alcotest.(check bool) "red HSL (0,100,50)" true (is_rgb (from_hsl "0" "100" "50"));
   (* Hue wraparound (> 360) *)
   Alcotest.(check bool) "hue wraparound (435 = 75)" true (is_rgb (from_hsl "435" "100" "50"));
+  (* Negative hue (-285 = 75) *)
+  Alcotest.(check bool) "negative hue (-285 = 75)" true (is_rgb (from_hsl "-285" "100" "50"));
   (* Boundary saturation/lightness *)
   Alcotest.(check bool) "black HSL (0,0,0)" true (is_rgb (from_hsl "0" "0" "0"));
   Alcotest.(check bool) "white HSL (0,0,100)" true (is_rgb (from_hsl "0" "0" "100"))
@@ -116,7 +130,15 @@ let test_from_hsl_invalid () =
 
   Alcotest.check_raises "lightness > 100"
     (InvalidPercentage "150")
-    (fun () -> ignore (from_hsl "0" "50" "150"))
+    (fun () -> ignore (from_hsl "0" "50" "150"));
+
+  Alcotest.check_raises "negative saturation"
+    (InvalidPercentage "-1")
+    (fun () -> ignore (from_hsl "0" "-1" "50"));
+
+  Alcotest.check_raises "negative lightness"
+    (InvalidPercentage "-10")
+    (fun () -> ignore (from_hsl "0" "50" "-10"))
 
 (* ===== Qualified Color Tests ===== *)
 

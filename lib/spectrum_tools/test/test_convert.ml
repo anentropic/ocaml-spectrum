@@ -80,6 +80,30 @@ let test_color_cube_boundaries () =
   let between_code = Perceptual.rgb_to_ansi256 between in
   Alcotest.(check bool) "in-between color quantized to valid code" true (between_code >= 16 && between_code <= 231)
 
+(* Test Color.to_hsva *)
+let test_to_hsva () =
+  let open Color.Hsva in
+  (* Black -> diff=0 path: h=0, s=0, v=0 *)
+  let black = Color.of_rgb 0 0 0 in
+  let hsva = Color.to_hsva black in
+  Alcotest.(check bool) "black hue = 0" true (Float.abs hsva.h < 0.01);
+  Alcotest.(check bool) "black saturation = 0" true (Float.abs hsva.s < 0.01);
+  Alcotest.(check bool) "black value = 0" true (Float.abs hsva.v < 0.01);
+
+  (* White -> diff=0 path: h=0, s=0, v=100 *)
+  let white = Color.of_rgb 255 255 255 in
+  let hsva = Color.to_hsva white in
+  Alcotest.(check bool) "white hue = 0" true (Float.abs hsva.h < 0.01);
+  Alcotest.(check bool) "white saturation = 0" true (Float.abs hsva.s < 0.01);
+  Alcotest.(check bool) "white value ≈ 100" true (Float.abs (hsva.v -. 100.) < 1.);
+
+  (* Saturated color: verify s and v are in valid range *)
+  let red = Color.of_rgb 255 0 0 in
+  let hsva = Color.to_hsva red in
+  Alcotest.(check bool) "red saturation ≈ 100" true (Float.abs (hsva.s -. 100.) < 1.);
+  Alcotest.(check bool) "red value ≈ 100" true (Float.abs (hsva.v -. 100.) < 1.);
+  Alcotest.(check bool) "red hue in range" true (hsva.h >= 0. && hsva.h <= 360.)
+
 let () =
   let (testsuite, exit) = Junit_alcotest.run_and_report "Convert" [
       "RGB to ANSI-256", [
@@ -88,6 +112,9 @@ let () =
       ];
       "RGB to ANSI-16", [
         test_case "rgb_to_ansi16 basic colors" `Quick test_rgb_to_ansi16;
+      ];
+      "Color.to_hsva", [
+        test_case "basic conversions" `Quick test_to_hsva;
       ];
     ] in
   let report = Junit.make [testsuite;] in

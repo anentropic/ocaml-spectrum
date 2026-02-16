@@ -47,6 +47,12 @@ let test_hex_to_8bit_four_chars () =
   Alcotest.(check int) "C3C3 -> 195" 195 (Xterm.hex_to_8bit "C3C3");
   Alcotest.(check int) "8000 -> 128" 128 (Xterm.hex_to_8bit "8000")
 
+let test_hex_to_8bit_empty_string () =
+  (* Empty string should raise, not crash with division by zero *)
+  Alcotest.check_raises "empty string"
+    (Invalid_argument "hex_to_8bit: empty string")
+    (fun () -> ignore (Xterm.hex_to_8bit ""))
+
 let test_hex_to_8bit_scaling_consistency () =
   (* Verify that scaling is consistent across widths *)
   (* C, CC, CCC, CCCC should all give approximately the same value *)
@@ -219,6 +225,9 @@ let () =
       ];
       "hex_to_8bit - Four chars", [
         test_case "0000-FFFF scaling" `Quick test_hex_to_8bit_four_chars;
+      ];
+      "hex_to_8bit - Edge cases", [
+        test_case "empty string raises" `Quick test_hex_to_8bit_empty_string;
       ];
       "hex_to_8bit - Scaling consistency", [
         test_case "same value different widths" `Quick test_hex_to_8bit_scaling_consistency;

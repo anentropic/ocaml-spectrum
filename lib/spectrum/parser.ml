@@ -98,7 +98,7 @@ let from_hex hex =
 
 let parse_int_256 s =
   match int_of_string s with
-  | i when i < 256 -> i
+  | i when i >= 0 && i < 256 -> i
   | _ -> raise @@ InvalidRgbColor s
 
 let from_rgb r g b =
@@ -110,7 +110,7 @@ let from_rgb r g b =
 
 let parse_float_percent s =
   match float_of_string s with
-  | i when i <= 100. -> i
+  | i when i >= 0. && i <= 100. -> i
   | _ -> raise @@ InvalidPercentage s
 
 let from_hsl h s l =

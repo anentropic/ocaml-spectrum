@@ -36,6 +36,16 @@ let test_basic_of_string_valid () =
   Alcotest.(check bool) "bright-red valid" true (is_valid "bright-red");
   Alcotest.(check bool) "bright-white valid" true (is_valid "bright-white")
 
+let test_basic_of_string_case_insensitive () =
+  (* PPX-generated of_string should be case-insensitive *)
+  let is_valid name =
+    try ignore (Basic.of_string name); true
+    with InvalidColorName _ -> false
+  in
+  Alcotest.(check bool) "Basic-Black (mixed case)" true (is_valid "Basic-Black");
+  Alcotest.(check bool) "BASIC-RED (all caps)" true (is_valid "BASIC-RED");
+  Alcotest.(check bool) "Bright-White (title case)" true (is_valid "Bright-White")
+
 let test_basic_of_string_invalid () =
   Alcotest.check_raises "invalid color name"
     (InvalidColorName "notacolor")
@@ -132,6 +142,16 @@ let test_xterm256_of_string_valid () =
   (* Test a complex disambiguated name *)
   Alcotest.(check bool) "dark-olive-green-1a valid" true
     (is_valid "dark-olive-green-1a")
+
+let test_xterm256_of_string_case_insensitive () =
+  (* PPX-generated of_string should be case-insensitive *)
+  let is_valid name =
+    try ignore (Xterm256.of_string name); true
+    with InvalidColorName _ -> false
+  in
+  Alcotest.(check bool) "Red (title case)" true (is_valid "Red");
+  Alcotest.(check bool) "BLACK (all caps)" true (is_valid "BLACK");
+  Alcotest.(check bool) "Dark-Olive-Green-1a (mixed case)" true (is_valid "Dark-Olive-Green-1a")
 
 let test_xterm256_of_string_invalid () =
   Alcotest.check_raises "invalid color name"
@@ -232,6 +252,7 @@ let () =
   let (testsuite, exit) = Junit_alcotest.run_and_report "Terminal" [
       "Basic - String conversion", [
         test_case "valid color names" `Quick test_basic_of_string_valid;
+        test_case "case-insensitive lookup" `Quick test_basic_of_string_case_insensitive;
         test_case "invalid color names" `Quick test_basic_of_string_invalid;
       ];
       "Basic - Code mapping", [
@@ -249,6 +270,7 @@ let () =
       ];
       "Xterm256 - String conversion", [
         test_case "valid color names" `Quick test_xterm256_of_string_valid;
+        test_case "case-insensitive lookup" `Quick test_xterm256_of_string_case_insensitive;
         test_case "invalid color names" `Quick test_xterm256_of_string_invalid;
       ];
       "Xterm256 - Code mapping", [
