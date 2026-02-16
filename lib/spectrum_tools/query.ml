@@ -1,6 +1,12 @@
+(** Terminal color querying utilities.
+
+    Provides functions to query xterm-compatible terminals for their current
+    foreground and background colors. *)
+
+(** Terminal foreground and background colors. *)
 type terminal_colours = {
-  fg: (Gg.v4, string) result;
-  bg: (Gg.v4, string) result;
+  fg : (Gg.v4, string) result;  (** Foreground color or error message *)
+  bg : (Gg.v4, string) result;  (** Background color or error message *)
 }
 
 (*
@@ -10,11 +16,14 @@ type terminal_colours = {
   for more heuristics which may work on other terminals see:
   https://github.com/egberts/shell-term-background/blob/master/term-background.bash
 *)
+
+(** Xterm-compatible terminal query functions. *)
 module Xterm = struct
-  (*
-    Translation of Python's `tty.setraw`
-    https://github.com/python/cpython/blob/main/Lib/tty.py#L18
-  *)
+  (** Set terminal to raw mode for direct input/output.
+      @param set_when When to apply the settings (default: TCSAFLUSH)
+
+      Translation of Python's `tty.setraw`
+      https://github.com/python/cpython/blob/main/Lib/tty.py#L18 *)
   let set_raw ?(set_when=Unix.TCSAFLUSH) fd =
     let mode : Unix.terminal_io = {
       (Unix.tcgetattr fd) with
@@ -36,10 +45,9 @@ module Xterm = struct
     } in
     Unix.tcsetattr fd set_when mode
 
-  (*
-    Based on a Python version here:
-    https://stackoverflow.com/a/45467190/202168
-  *)
+  (** Query terminal using xterm control codes (internal implementation).
+      Based on a Python version here:
+      https://stackoverflow.com/a/45467190/202168 *)
   let query fd code =
     let fdname =
       if fd == Unix.stdin then "stdin"
@@ -70,29 +78,38 @@ module Xterm = struct
     else
       invalid_arg @@ Printf.sprintf "[%s] is not a tty" fdname
 
+  (** Query terminal using xterm control codes.
+      @param fd File descriptor to query (must be a TTY)
+      @param code Control code to query (e.g., "10" for foreground, "11" for background)
+      @return Result with terminal response string or error message *)
   let query fd code =
     try Ok ( query fd code )
     with Failure e | Invalid_argument e -> Error e
 
-  (*
-    Translates a hexadecimal string, of any width, to an 8-bit int.
-    The value will be 'scaled' according to number of hex chars,
-    where each char is worth 4-bits.
-    e.g.
-      C -> C/F * FF = 204
-      CCCC -> CCCC/FFFF * FF = 204
-      C3 -> C3/FF * FF = 195
-      C3B -> C3B/FFF * FF = 195
-      C3C3 -> C3C3/FFFF * FF = 195
-    see: https://stackoverflow.com/q/70962440/202168
-  *)
+  (** Convert hexadecimal string to 8-bit integer (0-255) with scaling.
+      Used for parsing xterm color responses.
+
+      Translates a hexadecimal string, of any width, to an 8-bit int.
+      The value will be 'scaled' according to number of hex chars,
+      where each char is worth 4-bits.
+      e.g.
+        C -> C/F * FF = 204
+        CCCC -> CCCC/FFFF * FF = 204
+        C3 -> C3/FF * FF = 195
+        C3B -> C3B/FFF * FF = 195
+        C3C3 -> C3C3/FFFF * FF = 195
+      see: https://stackoverflow.com/q/70962440/202168 *)
   let hex_to_8bit s =
     let scale = (16. ** float_of_int (String.length s)) -. 1. in
     let value = int_of_string @@ Printf.sprintf "0x%s" s in
     float_of_int value /. scale *. 255.
     |> Utils.int_round
 
-  (* xterm returns colours in a 48-bit hex format *)
+  (** Parse xterm RGB color string (format: "rgb:RRRR/GGGG/BBBB").
+      @param s Color string from terminal query response
+      @return Result with parsed color or error message
+
+      xterm returns colours in a 48-bit hex format *)
   let parse_colour s =
     let rex = Re.Pcre.re {|rgb:([0-9a-f]{1,4})/([0-9a-f]{1,4})/([0-9a-f]{1,4})|} |> Re.compile in
     match Re.exec_opt rex s with
@@ -103,6 +120,9 @@ module Xterm = struct
       Ok ( Color.Rgb.(v (hex_to_8bit r) (hex_to_8bit g) (hex_to_8bit b) |> to_gg) )
     | None -> Error (Printf.sprintf "Unrecognised colour string: %s" s)
 
+  (** Get current terminal foreground and background colors.
+      @param fd File descriptor to query (typically Unix.stdin)
+      @return Record with fg and bg colors (or errors) *)
   let get_colours fd =
     {
       fg = query fd "10" |> Result.map parse_colour |> Result.join;

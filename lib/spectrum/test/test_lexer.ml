@@ -6,7 +6,7 @@ let error = testable Fmt.exn ( = )
 (* Helper to convert tag to ANSI code string like the tests expect *)
 let tag_to_code tag =
   match tag_to_compound_style tag with
-  | Ok tokens -> Ok (Spectrum.True_color_Serializer.to_code tokens)
+  | Ok tokens -> Ok (Spectrum.Private.True_color_Serializer.to_code tokens)
   | Error e -> Error e
 
 (* https://dotkay.github.io/2017/09/21/permutations-of-a-list/ *)

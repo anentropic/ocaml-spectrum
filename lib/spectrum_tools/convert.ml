@@ -1,5 +1,11 @@
+(** Color conversion utilities for terminal output.
+
+    Provides functions to convert RGB colors to ANSI color codes using
+    different quantization strategies. *)
+
 open Utils
 
+(** Reference to the Palette module from spectrum_palette_ppx. *)
 module Palette = Spectrum_palette_ppx.Palette
 
 (*
@@ -36,20 +42,24 @@ module Palette = Spectrum_palette_ppx.Palette
   https://en.wikipedia.org/wiki/ANSI_escape_code#3-bit_and_4-bit
 *)
 
-(* extend Color *)
+(** Extended Color module with additional types and conversion functions. *)
 module Color = struct
   include Color
 
+  (** RGBA color type with integer components (0-255) and float alpha (0.0-1.0). *)
   module Rgba = struct
     type t = { r : int; g : int; b : int; a : float }
   end
 
+  (** RGBA color type with float components (0.0-1.0). *)
   module Rgba' = struct
     type t = { r : float; g : float; b : float; a : float }
   end
 
+  (** Create a color from RGB integer values (0-255). *)
   let of_rgb r g b = Rgb.(v r g b |> to_gg)
 
+  (** Convert a color to RGBA with integer components. *)
   let to_rgba color =
     let c = Gg.Color.to_srgb color in
     {
@@ -59,6 +69,7 @@ module Color = struct
       a = Gg.Color.a c;
     }
 
+  (** Convert a color to RGBA with float components. *)
   let to_rgba' color =
     let c = Gg.Color.to_srgb color in
     {
@@ -68,15 +79,16 @@ module Color = struct
       a = Gg.Color.a c;
     }
 
+  (** Create a color from HSL values. *)
   let of_hsl h s l = Hsl.(v h s l |> to_gg)
 
+  (** HSVA color type (Hue, Saturation, Value, Alpha). *)
   module Hsva = struct
     type t = {h: float; s: float; v: float; a: float}
   end
 
-  (*
-    https://github.com/Qix-/color-convert/blob/master/conversions.js#L94
-  *)
+  (** Convert a color to HSVA representation.
+      https://github.com/Qix-/color-convert/blob/master/conversions.js#L94 *)
   let to_hsva color_v4 : Hsva.t =
     let c = to_rgba' color_v4 in
     let v = max3 c.r c.g c.b in
@@ -116,27 +128,35 @@ module Color = struct
     }
 end
 
+(** Converter module type for RGB to ANSI color code conversion. *)
 module type Converter = sig
+  (** Convert RGB color to ANSI-256 color code (0-255).
+      @param grey_threshold Optional threshold for grey detection (currently unused). *)
   val rgb_to_ansi256 : ?grey_threshold:int -> Gg.v4 -> int
+
+  (** Convert RGB color to ANSI-16 color code (30-37, 90-97). *)
   val rgb_to_ansi16 : Gg.v4 -> int
 end
 
 
-(*
-  For perceptual matching we delegate nearest-colour search to the shared
-  `spectrum_palettes` modules, which expose [nearest] backed by an octree
-  built in LAB space (see spectrum_palette_ppx/palette.ml).
+(** Perceptual color converter using LAB color space for nearest-neighbor matching.
 
-  For ANSI-16 we search the full 16-colour palette.
-  For ANSI-256 we preserve historical behaviour by searching only xterm
-  codes 16..255 (colour cube + greys), excluding basic codes 0..15.
+    This converter uses the CIE LAB color space to find the nearest terminal color,
+    which provides better perceptual accuracy than Euclidean RGB distance.
 
-  Idea:
-  Possibly the 'OKLab' colourspace is even better for perceptual matching
-  See: https://meat.io/oksolar
-  https://bottosson.github.io/posts/oklab/
-  ...but for now it's convenient that Gg already provides LAB conversion
-*)
+    For perceptual matching we delegate nearest-colour search to the shared
+    `spectrum_palettes` modules, which expose [nearest] backed by an octree
+    built in LAB space (see spectrum_palette_ppx/palette.ml).
+
+    For ANSI-16 we search the full 16-colour palette.
+    For ANSI-256 we preserve historical behaviour by searching only xterm
+    codes 16..255 (colour cube + greys), excluding basic codes 0..15.
+
+    Idea:
+    Possibly the 'OKLab' colourspace is even better for perceptual matching
+    See: https://meat.io/oksolar
+    https://bottosson.github.io/posts/oklab/
+    ...but for now it's convenient that Gg already provides LAB conversion *)
 module Perceptual : Converter = struct
   module Ansi16_palette = Spectrum_palettes.Terminal.Basic
 

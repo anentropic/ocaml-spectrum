@@ -1,6 +1,6 @@
 (* Comprehensive tests for Loader module *)
 open Alcotest
-open Spectrum_palette_ppx.Loader
+open Spectrum_palette_ppx.Private.Loader
 
 (* Test helpers *)
 

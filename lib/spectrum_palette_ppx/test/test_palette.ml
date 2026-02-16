@@ -31,7 +31,7 @@ let test_palette = [
 let test_lab3_of_color () =
   (* Test that lab3_of_color returns Gg.V3 with valid LAB coordinates *)
   let red = rgb 255 0 0 in
-  let lab_red = lab3_of_color red in
+  let lab_red = Spectrum_palette_ppx.Palette.lab3_of_color red in
 
   (* LAB coordinates should be in expected ranges *)
   (* L (lightness): 0-100, a and b: typically -128 to 128 but can exceed for extreme colors *)
@@ -48,8 +48,8 @@ let test_lab3_black_vs_white () =
   (* Black should have L close to 0, white close to 100 *)
   let black = rgb 0 0 0 in
   let white = rgb 255 255 255 in
-  let lab_black = lab3_of_color black in
-  let lab_white = lab3_of_color white in
+  let lab_black = Spectrum_palette_ppx.Palette.lab3_of_color black in
+  let lab_white = Spectrum_palette_ppx.Palette.lab3_of_color white in
 
   let l_black = Gg.V3.x lab_black in
   let l_white = Gg.V3.x lab_white in
@@ -60,7 +60,7 @@ let test_lab3_black_vs_white () =
 let test_lab3_gray_neutral () =
   (* Gray should have a and b close to 0 (neutral) *)
   let gray = rgb 128 128 128 in
-  let lab_gray = lab3_of_color gray in
+  let lab_gray = Spectrum_palette_ppx.Palette.lab3_of_color gray in
 
   let a = Gg.V3.y lab_gray in
   let b = Gg.V3.z lab_gray in
@@ -75,9 +75,10 @@ let test_nearest_index_of_color_list () =
   (* Build index from test palette *)
   let index = nearest_index_of_color_list test_palette in
 
-  (* Check that index contains all colors *)
-  let hashtbl_size = Hashtbl.length index.by_lab in
-  Alcotest.(check int) "index has 6 colors" 6 hashtbl_size
+  (* Verify index works by testing nearest-color lookup *)
+  let red = rgb 255 0 0 in
+  let nearest = nearest_with_index index red in
+  Alcotest.(check v4_testable) "nearest to red is red" red nearest
 
 let test_nearest_with_index_exact () =
   (* Exact matches should return same color *)

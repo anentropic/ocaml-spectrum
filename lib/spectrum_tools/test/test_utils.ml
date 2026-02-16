@@ -1,6 +1,6 @@
 (* Comprehensive tests for Utils module *)
 open Alcotest
-open Spectrum_tools.Utils
+open Spectrum_tools.Private.Utils
 
 (* Test helpers *)
 

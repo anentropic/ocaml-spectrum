@@ -2,20 +2,7 @@ module Capabilities = Capabilities
 module Lexer = Lexer
 module Parser = Parser
 
-module type Printer = sig
-  val prepare_ppf : Format.formatter -> unit -> unit
-
-  module Simple : sig
-    (** equivalent to [Format.printf] *)
-    val printf : ('a, Format.formatter, unit, unit) format4 -> 'a
-
-    (** equivalent to [Format.eprintf] *)
-    val eprintf : ('a, Format.formatter, unit, unit) format4 -> 'a
-
-    (** equivalent to [Format.sprintf] *)
-    val sprintf : ('a, Format.formatter, unit, string) format4 -> 'a
-  end
-end
+module type Printer = Spectrum_intf.Printer
 
 let stack_to_esc stack =
   "\027["
@@ -211,3 +198,10 @@ module Exn = (val (make_printer true (select_serializer ())) : Printer)
 module Noexn = (val (make_printer false (select_serializer ())) : Printer)
 
 include Noexn
+
+(** Expose serializers for testing purposes under Private module *)
+module Private = struct
+  module True_color_Serializer = True_color_Serializer
+  module Xterm256_Serializer = Xterm256_Serializer
+  module Basic_Serializer = Basic_Serializer
+end
