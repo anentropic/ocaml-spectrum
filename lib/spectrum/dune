@@ -6,3 +6,6 @@
  (libraries color opam-state re spectrum_palettes spectrum_tools))
 
 (ocamllex lexer)
+
+(documentation
+ (package spectrum))

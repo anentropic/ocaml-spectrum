@@ -1,0 +1,56 @@
+{0 Spectrum}
+
+An OCaml library for colour and formatting in the terminal.
+
+{1 Overview}
+
+Spectrum provides ANSI color and style formatting integrated with OCaml's Format module via {{:https://ocaml.org/api/Format.html#tags} semantic tags}. String tags are defined for ANSI styles (bold, underline, etc.) and named colours from the xterm 256-color palette, plus 24-bit colours via CSS-style hex codes and RGB or HSL values.
+
+{2 Features}
+
+- Simple formatting with multiple styles on the same line
+- Full colour range: named colors, hex codes, RGB, HSL
+- Automatic color quantization based on terminal capabilities
+- Perceptually accurate color matching using LAB color space
+
+{2 Installation}
+
+{v
+opam install spectrum
+v}
+
+{1 Quick Start}
+
+{[
+(* Prepare a formatter to handle color tags *)
+let reset = Spectrum.prepare_ppf Format.std_formatter in
+Format.printf "@{<green>Hello@} @{<bold>world@}@.";
+reset ()
+
+(* Or use the Simple API for one-off printing *)
+Spectrum.Simple.printf "@{<green>Hello@} @{<bold>world@}@."
+]}
+
+Tag syntax: [@{<TAG>content@}]
+
+Supported tags:
+- Named colors: [@{<green>text@}]
+- Hex colors: [@{<#ff5733>text@}]
+- RGB: [@{<rgb(255 87 51)>text@}]
+- HSL: [@{<hsl(60 100 50)>text@}]
+- Styles: [@{<bold>text@}], [@{<underline>text@}], [@{<italic>text@}]
+- Qualifiers: [@{<bg:red>text@}], [@{<fg:blue>text@}]
+- Compound: [@{<bold,bg:red,yellow>text@}]
+
+{1 Libraries}
+
+- {!Spectrum} - Main library with formatting functions and capability detection
+- {!Spectrum_tools} - Color conversion utilities and terminal queries
+- {!Spectrum_palettes} - Pre-generated palette modules (Basic, Xterm256)
+- {!Spectrum_palette_ppx} - PPX extension for custom palette generation
+
+{1 See Also}
+
+- {{:https://github.com/anentropic/ocaml-spectrum} GitHub repository}
+- {{:https://github.com/Chris00/ANSITerminal/} ANSITerminal} - Alternative OCaml terminal library
+- {{:https://erratique.ch/software/fmt/doc/Fmt/} Fmt} - Format module combinators

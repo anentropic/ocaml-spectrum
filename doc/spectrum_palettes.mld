@@ -1,0 +1,88 @@
+{0 Spectrum Palettes - Terminal Color Definitions}
+
+{1 Overview}
+
+Spectrum Palettes provides pre-generated palette modules for standard terminal colors:
+- {!Spectrum_palettes.Terminal.Basic} - ANSI-16 basic color palette
+- {!Spectrum_palettes.Terminal.Xterm256} - ANSI-256 extended color palette
+
+These modules are generated from JSON definitions using the [\[%palette\]] PPX extension. See {!Spectrum_palette_ppx} for details on custom palette generation.
+
+{1 Using Palettes}
+
+{2 Color Lookup}
+
+Convert color names to palette values and ANSI codes:
+
+{[
+(* Look up a color by name *)
+let red = Spectrum_palettes.Terminal.Xterm256.of_string "red" in
+
+(* Get the ANSI code *)
+let code = Spectrum_palettes.Terminal.Xterm256.to_code red in
+Printf.printf "Red is ANSI code: %d\n" code;
+
+(* Get the RGB color value *)
+let color = Spectrum_palettes.Terminal.Xterm256.to_color red
+]}
+
+{2 Nearest Color Search}
+
+Find the closest palette color to an arbitrary RGB value using perceptually accurate LAB color space distance:
+
+{[
+(* Create an arbitrary color *)
+let orange = Gg.Color.v_srgb 0.9 0.4 0.3 in
+
+(* Find nearest xterm-256 color *)
+let nearest = Spectrum_palettes.Terminal.Xterm256.nearest orange in
+
+(* Or find nearest basic 16-color *)
+let nearest_basic = Spectrum_palettes.Terminal.Basic.nearest orange
+]}
+
+The nearest-color search uses an octree spatial index in LAB color space for O(log n) average-case performance.
+
+{1 Palette Structure}
+
+{2 Basic Palette (ANSI-16)}
+
+The Basic palette contains 16 colors with ANSI codes 30-37 (dark) and 90-97 (bright):
+
+{v
+Dark colors (codes 30-37):
+  black, maroon, green, olive, navy, purple, teal, silver
+
+Bright colors (codes 90-97):
+  grey, red, lime, yellow, blue, fuchsia, aqua, white
+v}
+
+Color names are prefixed with "basic-" to avoid collisions with the xterm-256 palette:
+- [basic-red], [basic-bright-red]
+- [basic-green], [basic-bright-green]
+- etc.
+
+{2 Xterm256 Palette (ANSI-256)}
+
+The Xterm256 palette contains 256 colors organized as:
+
+- Codes 0-15: Basic system colors (same as ANSI-16 above)
+- Codes 16-231: 6×6×6 RGB color cube with values [0, 95, 135, 175, 215, 255]
+- Codes 232-255: 24 grayscale shades from dark to light
+
+Color names follow the xterm convention with hyphenation:
+- Single names: [red], [green], [blue]
+- Compound names: [dark-orange], [light-blue], [medium-purple]
+- Duplicates with suffixes: [spring-green-3a], [spring-green-3b]
+
+{1 Generated Code}
+
+These modules are generated at compile time from JSON palette definitions in [lib/spectrum_palette]. The PPX extension creates strongly-typed OCaml modules with efficient nearest-color lookup functions.
+
+Each palette module implements the {!Spectrum_palette_ppx.Palette.M} signature.
+
+{1 API Reference}
+
+{!modules:
+Spectrum_palettes.Terminal
+}

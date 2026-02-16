@@ -4,3 +4,6 @@
  (preprocess
   (pps ppx_deriving.show))
  (libraries color gg re spectrum_palette_ppx spectrum_palettes))
+
+(documentation
+ (package spectrum_tools))

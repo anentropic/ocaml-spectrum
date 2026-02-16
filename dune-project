@@ -54,6 +54,9 @@
   ; test deps
   (alcotest (and :with-test (>= 1.4)))
   (junit_alcotest (and :with-test (>= 2.0)))
+
+  ; docs deps
+  (odoc :with-doc)
  ))
 
 (package
@@ -67,6 +70,9 @@
   ; test deps
   (alcotest (and :with-test (>= 1.4)))
   (junit_alcotest (and :with-test (>= 2.0)))
+
+  ; docs deps
+  (odoc :with-doc)
  ))
 
 (package
@@ -84,4 +90,7 @@
   ; test deps
   (alcotest (and :with-test (>= 1.4)))
   (junit_alcotest (and :with-test (>= 2.0)))
+
+  ; docs deps
+  (odoc :with-doc)
  ))

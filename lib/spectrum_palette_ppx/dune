@@ -5,3 +5,6 @@
  (preprocess
   (pps ppxlib.metaquot))
  (libraries color yojson ppxlib re oktree))
+
+(documentation
+ (package spectrum_palette_ppx))

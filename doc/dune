@@ -1,0 +1,8 @@
+(documentation
+ (package spectrum)
+ (mld_files
+  index
+  spectrum
+  spectrum_tools
+  spectrum_palettes
+  spectrum_palette_ppx))
