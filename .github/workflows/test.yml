@@ -35,4 +35,4 @@ jobs:
         if: always()
         with:
           check_name: Dune unit test results
-          files: _build/default/tests/junit-*.xml
+          files: _build/default/lib/**/junit-*.xml
