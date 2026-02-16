@@ -34,5 +34,23 @@ jobs:
         uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()
         with:
-          check_name: Dune unit test results
+          check_name: Dune unit test results for OCaml ${{ matrix.ocaml-compiler }}
           files: _build/default/lib/**/junit-*.xml
+
+  build-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ocaml/setup-ocaml@v3
+        with:
+          ocaml-compiler: 5.4
+
+      - run: opam install . --deps-only --with-doc
+      - run: opam exec -- dune build @doc
+
+      - name: Upload docs
+        uses: actions/upload-artifact@v4
+        with:
+          name: odoc-html
+          path: _build/default/_doc/_html/
