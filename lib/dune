@@ -1,8 +1,0 @@
-(library
- (name spectrum)
- (public_name spectrum)
- (preprocess
-  (pps ppx_deriving.show ppx_deriving.eq))
- (libraries color opam-state re))
-
-(ocamllex lexer)

@@ -1,0 +1,6 @@
+(library
+ (name spectrum_tools)
+ (public_name spectrum_tools)
+ (preprocess
+  (pps ppx_deriving.show))
+ (libraries color gg re))
