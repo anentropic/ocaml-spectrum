@@ -1,0 +1,12 @@
+(env
+ (_
+  (env-vars
+   (FORCE_COLOR 3))))
+
+(test
+ (name test_loader)
+ (libraries alcotest junit_alcotest spectrum_palette_ppx yojson color))
+
+(test
+ (name test_palette)
+ (libraries alcotest junit_alcotest spectrum_palette_ppx color))

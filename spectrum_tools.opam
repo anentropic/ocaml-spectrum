@@ -18,6 +18,8 @@ depends: [
   "ppx_deriving" {>= "5.2"}
   "spectrum_palettes" {= version}
   "spectrum_palette_ppx" {= version}
+  "alcotest" {with-test & >= "1.4"}
+  "junit_alcotest" {with-test & >= "2.0"}
   "odoc" {with-doc}
 ]
 build: [

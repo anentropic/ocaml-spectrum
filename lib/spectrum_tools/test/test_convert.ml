@@ -1,8 +1,8 @@
 (*
-  Integration tests for color conversion and capability-based downsampling.
+  Tests for RGB to ANSI color conversion algorithms.
 
   Tests verify that RGB colors are correctly quantized to ANSI-256 or ANSI-16
-  when terminal capabilities are limited.
+  using the Perceptual algorithm.
 *)
 
 open Alcotest
@@ -64,23 +64,6 @@ let test_rgb_to_ansi16 () =
   let white = Color.Rgb.(v 255 255 255 |> to_gg) in
   Alcotest.(check int) "white -> ANSI 97" 97 (Perceptual.rgb_to_ansi16 white)
 
-(* Test capability-based serializer selection by checking output codes *)
-let test_capability_based_output () =
-  (* Test that True_color serializer preserves RGB *)
-  let tokens = [Spectrum.Parser.Foreground(Spectrum.Parser.RgbColor(Color.Rgb.(v 123 45 67 |> to_gg)))] in
-  let true_color_output = Spectrum.True_color_Serializer.to_code tokens in
-  Alcotest.(check string) "True_color preserves RGB" "38;2;123;45;67" true_color_output;
-
-  (* Test that Xterm256 serializer quantizes RGB to ANSI-256 *)
-  let xterm256_output = Spectrum.Xterm256_Serializer.to_code tokens in
-  Alcotest.(check bool) "Xterm256 quantizes RGB" true (String.contains xterm256_output ';');
-  Alcotest.(check bool) "Xterm256 uses 38;5 prefix" true (String.starts_with ~prefix:"38;5;" xterm256_output);
-
-  (* Test that Basic serializer quantizes RGB to ANSI-16 *)
-  let basic_output = Spectrum.Basic_Serializer.to_code tokens in
-  let basic_code = int_of_string basic_output in
-  Alcotest.(check bool) "Basic quantizes to 30-97 range" true (basic_code >= 30 && basic_code <= 97)
-
 (* Test edge cases: color cube boundaries *)
 let test_color_cube_boundaries () =
   (* Test colors at the edges of xterm-256 color cube *)
@@ -98,7 +81,7 @@ let test_color_cube_boundaries () =
   Alcotest.(check bool) "in-between color quantized to valid code" true (between_code >= 16 && between_code <= 231)
 
 let () =
-  let (testsuite, exit) = Junit_alcotest.run_and_report "Conversion" [
+  let (testsuite, exit) = Junit_alcotest.run_and_report "Convert" [
       "RGB to ANSI-256", [
         test_case "rgb_to_ansi256 basic colors" `Quick test_rgb_to_ansi256;
         test_case "color cube boundaries" `Quick test_color_cube_boundaries;
@@ -106,10 +89,7 @@ let () =
       "RGB to ANSI-16", [
         test_case "rgb_to_ansi16 basic colors" `Quick test_rgb_to_ansi16;
       ];
-      "Capability-based output", [
-        test_case "serializer outputs" `Quick test_capability_based_output;
-      ];
     ] in
   let report = Junit.make [testsuite;] in
-  Junit.to_file report "junit-conversion.xml";
+  Junit.to_file report "junit-convert.xml";
   exit ()

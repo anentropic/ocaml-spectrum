@@ -50,6 +50,10 @@
   (ppx_deriving (>= 5.2))
   (spectrum_palettes (= :version))
   (spectrum_palette_ppx (= :version))
+
+  ; test deps
+  (alcotest (and :with-test (>= 1.4)))
+  (junit_alcotest (and :with-test (>= 2.0)))
  ))
 
 (package
@@ -59,6 +63,10 @@
  (depends
   (ocaml (>= 4.14))
   (spectrum_palette_ppx (= :version))
+
+  ; test deps
+  (alcotest (and :with-test (>= 1.4)))
+  (junit_alcotest (and :with-test (>= 2.0)))
  ))
 
 (package
@@ -72,4 +80,8 @@
   (ppxlib (>= 0.22.0))
   (oktree (>= 0.2.2))
   (yojson (>= 1.7))
+
+  ; test deps
+  (alcotest (and :with-test (>= 1.4)))
+  (junit_alcotest (and :with-test (>= 2.0)))
  ))

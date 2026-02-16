@@ -17,6 +17,8 @@ depends: [
   "ppxlib" {>= "0.22.0"}
   "oktree" {>= "0.2.2"}
   "yojson" {>= "1.7"}
+  "alcotest" {with-test & >= "1.4"}
+  "junit_alcotest" {with-test & >= "2.0"}
   "odoc" {with-doc}
 ]
 build: [

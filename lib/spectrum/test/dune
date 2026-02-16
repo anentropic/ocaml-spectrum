@@ -1,0 +1,24 @@
+(env
+ (_
+  (env-vars
+   (FORCE_COLOR 3))))
+
+(test
+ (name test_lexer)
+ (libraries alcotest junit_alcotest spectrum color))
+
+(test
+ (name test_parser)
+ (libraries alcotest junit_alcotest spectrum color))
+
+(test
+ (name test_printer)
+ (libraries alcotest junit_alcotest spectrum color))
+
+(test
+ (name test_capabilities)
+ (libraries alcotest junit_alcotest spectrum color))
+
+(test
+ (name test_serializers)
+ (libraries alcotest junit_alcotest spectrum spectrum_tools color))

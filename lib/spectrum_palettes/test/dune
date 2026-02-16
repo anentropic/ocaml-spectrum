@@ -1,0 +1,8 @@
+(env
+ (_
+  (env-vars
+   (FORCE_COLOR 3))))
+
+(test
+ (name test_terminal)
+ (libraries alcotest junit_alcotest spectrum_palettes color))
