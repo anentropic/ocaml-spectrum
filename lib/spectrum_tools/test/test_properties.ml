@@ -105,9 +105,6 @@ let () =
       prop_hsl_to_rgba_valid;
       prop_palette_color_identity_256;
     ] in
-  let (testsuite, exit) = Junit_alcotest.run_and_report "Properties (spectrum_tools)" [
-      "Color conversion properties", qcheck_tests;
-    ] in
-  let report = Junit.make [testsuite;] in
-  Junit.to_file report "junit-properties-tools.xml";
-  exit ()
+  Test_runner.run "Properties (spectrum_tools)" ~junit_filename:"junit-properties-tools.xml" [
+    "Color conversion properties", qcheck_tests;
+  ]

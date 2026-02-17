@@ -300,35 +300,32 @@ let test_load_not_array () =
 (* ===== Test Suite ===== *)
 
 let () =
-  let (testsuite, exit) = Junit_alcotest.run_and_report "Loader" [
-      "Valid JSON - load", [
-        test_case "single color" `Quick test_load_valid_single;
-        test_case "multiple colors" `Quick test_load_valid_multiple;
-      ];
-      "Valid JSON - load_assoc", [
-        test_case "colors indexed by code" `Quick test_load_assoc;
-      ];
-      "Valid JSON - color_of_def", [
-        test_case "color definition conversion" `Quick test_color_of_def;
-      ];
-      "Invalid JSON - missing fields", [
-        test_case "missing colorId" `Quick test_load_missing_colorid;
-        test_case "missing name" `Quick test_load_missing_name;
-        test_case "missing rgb" `Quick test_load_missing_rgb;
-        test_case "missing r in rgb" `Quick test_load_missing_r;
-        test_case "missing g in rgb" `Quick test_load_missing_g;
-        test_case "missing b in rgb" `Quick test_load_missing_b;
-      ];
-      "Invalid JSON - wrong types", [
-        test_case "colorId wrong type" `Quick test_load_invalid_colorid_type;
-        test_case "name wrong type" `Quick test_load_invalid_name_type;
-        test_case "rgb wrong type" `Quick test_load_invalid_rgb_type;
-        test_case "r wrong type" `Quick test_load_invalid_r_type;
-      ];
-      "Invalid JSON - structure", [
-        test_case "not an array" `Quick test_load_not_array;
-      ];
-    ] in
-  let report = Junit.make [testsuite;] in
-  Junit.to_file report "junit-loader.xml";
-  exit ()
+  Test_runner.run "Loader" ~junit_filename:"junit-loader.xml" [
+    "Valid JSON - load", [
+      test_case "single color" `Quick test_load_valid_single;
+      test_case "multiple colors" `Quick test_load_valid_multiple;
+    ];
+    "Valid JSON - load_assoc", [
+      test_case "colors indexed by code" `Quick test_load_assoc;
+    ];
+    "Valid JSON - color_of_def", [
+      test_case "color definition conversion" `Quick test_color_of_def;
+    ];
+    "Invalid JSON - missing fields", [
+      test_case "missing colorId" `Quick test_load_missing_colorid;
+      test_case "missing name" `Quick test_load_missing_name;
+      test_case "missing rgb" `Quick test_load_missing_rgb;
+      test_case "missing r in rgb" `Quick test_load_missing_r;
+      test_case "missing g in rgb" `Quick test_load_missing_g;
+      test_case "missing b in rgb" `Quick test_load_missing_b;
+    ];
+    "Invalid JSON - wrong types", [
+      test_case "colorId wrong type" `Quick test_load_invalid_colorid_type;
+      test_case "name wrong type" `Quick test_load_invalid_name_type;
+      test_case "rgb wrong type" `Quick test_load_invalid_rgb_type;
+      test_case "r wrong type" `Quick test_load_invalid_r_type;
+    ];
+    "Invalid JSON - structure", [
+      test_case "not an array" `Quick test_load_not_array;
+    ];
+  ]

@@ -105,18 +105,15 @@ let test_to_hsva () =
   Alcotest.(check bool) "red hue in range" true (hsva.h >= 0. && hsva.h <= 360.)
 
 let () =
-  let (testsuite, exit) = Junit_alcotest.run_and_report "Convert" [
-      "RGB to ANSI-256", [
-        test_case "rgb_to_ansi256 basic colors" `Quick test_rgb_to_ansi256;
-        test_case "color cube boundaries" `Quick test_color_cube_boundaries;
-      ];
-      "RGB to ANSI-16", [
-        test_case "rgb_to_ansi16 basic colors" `Quick test_rgb_to_ansi16;
-      ];
-      "Color.to_hsva", [
-        test_case "basic conversions" `Quick test_to_hsva;
-      ];
-    ] in
-  let report = Junit.make [testsuite;] in
-  Junit.to_file report "junit-convert.xml";
-  exit ()
+  Test_runner.run "Convert" ~junit_filename:"junit-convert.xml" [
+    "RGB to ANSI-256", [
+      test_case "rgb_to_ansi256 basic colors" `Quick test_rgb_to_ansi256;
+      test_case "color cube boundaries" `Quick test_color_cube_boundaries;
+    ];
+    "RGB to ANSI-16", [
+      test_case "rgb_to_ansi16 basic colors" `Quick test_rgb_to_ansi16;
+    ];
+    "Color.to_hsva", [
+      test_case "basic conversions" `Quick test_to_hsva;
+    ];
+  ]

@@ -158,7 +158,4 @@ let () =
       invalid_tag_tests_exn;
       invalid_tag_tests_noexn;
     ] in
-  let (testsuite, exit) = Junit_alcotest.run_and_report "Printer" (tests) in
-  let report = Junit.make [testsuite;] in
-  Junit.to_file report "junit-printer.xml";
-  exit ()
+  Test_runner.run "Printer" ~junit_filename:"junit-printer.xml" tests

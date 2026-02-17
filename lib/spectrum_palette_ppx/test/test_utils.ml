@@ -15,12 +15,9 @@ let test_camel_to_kebab_numeric_suffix () =
   Alcotest.(check string) "Grey100" "grey-100" (camel_to_kebab "Grey100")
 
 let () =
-  let (testsuite, exit) = Junit_alcotest.run_and_report "PPX Utils" [
-      "camel_to_kebab", [
-        test_case "common conversions" `Quick test_camel_to_kebab;
-        test_case "numeric suffixes" `Quick test_camel_to_kebab_numeric_suffix;
-      ];
-    ] in
-  let report = Junit.make [testsuite;] in
-  Junit.to_file report "junit-ppx-utils.xml";
-  exit ()
+  Test_runner.run "PPX Utils" ~junit_filename:"junit-ppx-utils.xml" [
+    "camel_to_kebab", [
+      test_case "common conversions" `Quick test_camel_to_kebab;
+      test_case "numeric suffixes" `Quick test_camel_to_kebab_numeric_suffix;
+    ];
+  ]

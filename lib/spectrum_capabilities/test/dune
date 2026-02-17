@@ -6,4 +6,4 @@
 (test
  (name test_capabilities)
  (modules test_capabilities)
- (libraries alcotest junit_alcotest spectrum_capabilities))
+ (libraries alcotest junit_alcotest test_runner spectrum_capabilities))

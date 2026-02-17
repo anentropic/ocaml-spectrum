@@ -6,29 +6,47 @@
 (test
  (name test_lexer)
  (modules test_lexer)
- (libraries alcotest junit_alcotest spectrum color))
+ (libraries alcotest junit_alcotest test_runner spectrum color))
 
 (test
  (name test_parser)
  (modules test_parser)
- (libraries alcotest junit_alcotest spectrum color))
+ (libraries alcotest junit_alcotest test_runner spectrum color))
 
 (test
  (name test_printer)
  (modules test_printer)
- (libraries alcotest junit_alcotest spectrum color))
+ (libraries alcotest junit_alcotest test_runner spectrum color))
 
 (test
  (name test_stag)
  (modules test_stag)
- (libraries alcotest junit_alcotest spectrum spectrum_palette_ppx color))
+ (libraries
+  alcotest
+  junit_alcotest
+  test_runner
+  spectrum
+  spectrum_palette_ppx
+  color))
 
 (test
  (name test_properties)
  (modules test_properties)
- (libraries alcotest junit_alcotest qcheck-alcotest spectrum color))
+ (libraries
+  alcotest
+  junit_alcotest
+  test_runner
+  qcheck-alcotest
+  spectrum
+  color))
 
 (test
  (name test_serializers)
  (modules test_serializers)
- (libraries alcotest junit_alcotest spectrum spectrum_tools color))
+ (libraries
+  alcotest
+  junit_alcotest
+  test_runner
+  spectrum
+  spectrum_tools
+  color))

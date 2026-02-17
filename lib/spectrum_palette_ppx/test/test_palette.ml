@@ -224,32 +224,29 @@ let test_perceptual_distance_blue_variants () =
 (* ===== Test Suite ===== *)
 
 let () =
-  let (testsuite, exit) = Junit_alcotest.run_and_report "Palette" [
-      "LAB color space conversion", [
-        test_case "lab3_of_color returns valid V3" `Quick test_lab3_of_color;
-        test_case "black vs white lightness" `Quick test_lab3_black_vs_white;
-        test_case "gray is neutral" `Quick test_lab3_gray_neutral;
-      ];
-      "Nearest-color index building", [
-        test_case "nearest_index_of_color_list creates index" `Quick test_nearest_index_of_color_list;
-      ];
-      "Nearest-color lookup - exact matches", [
-        test_case "exact colors return themselves" `Quick test_nearest_with_index_exact;
-      ];
-      "Nearest-color lookup - approximate", [
-        test_case "approximate colors find closest" `Quick test_nearest_with_index_approximate;
-        test_case "dark colors map to black" `Quick test_nearest_with_index_dark_colors;
-      ];
-      "nearest_of_list convenience wrapper", [
-        test_case "basic functionality" `Quick test_nearest_of_list;
-        test_case "multiple calls work" `Quick test_nearest_of_list_multiple_calls;
-      ];
-      "Perceptual distance in LAB space", [
-        test_case "red variants" `Quick test_perceptual_distance_red_variants;
-        test_case "grayscale distance" `Quick test_perceptual_distance_grayscale;
-        test_case "blue variants" `Quick test_perceptual_distance_blue_variants;
-      ];
-    ] in
-  let report = Junit.make [testsuite;] in
-  Junit.to_file report "junit-palette.xml";
-  exit ()
+  Test_runner.run "Palette" ~junit_filename:"junit-palette.xml" [
+    "LAB color space conversion", [
+      test_case "lab3_of_color returns valid V3" `Quick test_lab3_of_color;
+      test_case "black vs white lightness" `Quick test_lab3_black_vs_white;
+      test_case "gray is neutral" `Quick test_lab3_gray_neutral;
+    ];
+    "Nearest-color index building", [
+      test_case "nearest_index_of_color_list creates index" `Quick test_nearest_index_of_color_list;
+    ];
+    "Nearest-color lookup - exact matches", [
+      test_case "exact colors return themselves" `Quick test_nearest_with_index_exact;
+    ];
+    "Nearest-color lookup - approximate", [
+      test_case "approximate colors find closest" `Quick test_nearest_with_index_approximate;
+      test_case "dark colors map to black" `Quick test_nearest_with_index_dark_colors;
+    ];
+    "nearest_of_list convenience wrapper", [
+      test_case "basic functionality" `Quick test_nearest_of_list;
+      test_case "multiple calls work" `Quick test_nearest_of_list_multiple_calls;
+    ];
+    "Perceptual distance in LAB space", [
+      test_case "red variants" `Quick test_perceptual_distance_red_variants;
+      test_case "grayscale distance" `Quick test_perceptual_distance_grayscale;
+      test_case "blue variants" `Quick test_perceptual_distance_blue_variants;
+    ];
+  ]

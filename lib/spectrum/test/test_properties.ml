@@ -173,9 +173,6 @@ let () =
       prop_non_tty_without_force;
       prop_stag_matches_string_tag;
     ] in
-  let (testsuite, exit) = Junit_alcotest.run_and_report "Properties (spectrum)" [
-      "Parser/Lexer properties", qcheck_tests;
-    ] in
-  let report = Junit.make [testsuite;] in
-  Junit.to_file report "junit-properties-spectrum.xml";
-  exit ()
+  Test_runner.run "Properties (spectrum)" ~junit_filename:"junit-properties-spectrum.xml" [
+    "Parser/Lexer properties", qcheck_tests;
+  ]

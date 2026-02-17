@@ -273,60 +273,57 @@ let test_rgba_of_color () =
 (* ===== Test Suite ===== *)
 
 let () =
-  let (testsuite, exit) = Junit_alcotest.run_and_report "Parser" [
-      "Style - Valid names", [
-        test_case "all valid style names" `Quick test_style_valid_names;
-      ];
-      "Style - Invalid names", [
-        test_case "unknown and empty names" `Quick test_style_invalid_names;
-        test_case "case insensitivity" `Quick test_style_case_insensitive;
-      ];
-      "Style - Code mapping", [
-        test_case "all styles to codes 1-9" `Quick test_style_to_code;
-      ];
-      "Colors - Named", [
-        test_case "valid xterm256 color names" `Quick test_from_name_valid;
-        test_case "invalid color name" `Quick test_from_name_invalid;
-      ];
-      "Colors - Hex", [
-        test_case "valid hex formats" `Quick test_from_hex_valid;
-        test_case "invalid hex formats" `Quick test_from_hex_invalid;
-      ];
-      "Colors - RGB", [
-        test_case "valid RGB values" `Quick test_from_rgb_valid;
-        test_case "out of range RGB values" `Quick test_from_rgb_invalid;
-      ];
-      "Colors - HSL", [
-        test_case "valid HSL values" `Quick test_from_hsl_valid;
-        test_case "out of range HSL values" `Quick test_from_hsl_invalid;
-      ];
-      "Qualified colors", [
-        test_case "None qualifier -> Foreground" `Quick test_qualified_none;
-        test_case "fg qualifier" `Quick test_qualified_fg;
-        test_case "bg qualifier" `Quick test_qualified_bg;
-        test_case "invalid qualifier" `Quick test_qualified_invalid;
-      ];
-      "Token aggregation - Empty/Single", [
-        test_case "empty token list" `Quick test_compound_empty;
-        test_case "single control" `Quick test_compound_single_control;
-      ];
-      "Token aggregation - Controls", [
-        test_case "multiple different controls" `Quick test_compound_multiple_controls;
-        test_case "duplicate controls" `Quick test_compound_duplicate_controls;
-      ];
-      "Token aggregation - Colors", [
-        test_case "foreground color" `Quick test_compound_foreground_color;
-        test_case "background color" `Quick test_compound_background_color;
-        test_case "both colors" `Quick test_compound_both_colors;
-        test_case "multiple fg colors (last wins)" `Quick test_compound_multiple_fg_colors_last_wins;
-      ];
-      "Token aggregation - Mixed", [
-        test_case "mixed controls and colors" `Quick test_compound_mixed_tokens;
-      ];
-      "RGBA conversion", [
-        test_case "color to rgba" `Quick test_rgba_of_color;
-      ];
-    ] in
-  let report = Junit.make [testsuite;] in
-  Junit.to_file report "junit-parser.xml";
-  exit ()
+  Test_runner.run "Parser" ~junit_filename:"junit-parser.xml" [
+    "Style - Valid names", [
+      test_case "all valid style names" `Quick test_style_valid_names;
+    ];
+    "Style - Invalid names", [
+      test_case "unknown and empty names" `Quick test_style_invalid_names;
+      test_case "case insensitivity" `Quick test_style_case_insensitive;
+    ];
+    "Style - Code mapping", [
+      test_case "all styles to codes 1-9" `Quick test_style_to_code;
+    ];
+    "Colors - Named", [
+      test_case "valid xterm256 color names" `Quick test_from_name_valid;
+      test_case "invalid color name" `Quick test_from_name_invalid;
+    ];
+    "Colors - Hex", [
+      test_case "valid hex formats" `Quick test_from_hex_valid;
+      test_case "invalid hex formats" `Quick test_from_hex_invalid;
+    ];
+    "Colors - RGB", [
+      test_case "valid RGB values" `Quick test_from_rgb_valid;
+      test_case "out of range RGB values" `Quick test_from_rgb_invalid;
+    ];
+    "Colors - HSL", [
+      test_case "valid HSL values" `Quick test_from_hsl_valid;
+      test_case "out of range HSL values" `Quick test_from_hsl_invalid;
+    ];
+    "Qualified colors", [
+      test_case "None qualifier -> Foreground" `Quick test_qualified_none;
+      test_case "fg qualifier" `Quick test_qualified_fg;
+      test_case "bg qualifier" `Quick test_qualified_bg;
+      test_case "invalid qualifier" `Quick test_qualified_invalid;
+    ];
+    "Token aggregation - Empty/Single", [
+      test_case "empty token list" `Quick test_compound_empty;
+      test_case "single control" `Quick test_compound_single_control;
+    ];
+    "Token aggregation - Controls", [
+      test_case "multiple different controls" `Quick test_compound_multiple_controls;
+      test_case "duplicate controls" `Quick test_compound_duplicate_controls;
+    ];
+    "Token aggregation - Colors", [
+      test_case "foreground color" `Quick test_compound_foreground_color;
+      test_case "background color" `Quick test_compound_background_color;
+      test_case "both colors" `Quick test_compound_both_colors;
+      test_case "multiple fg colors (last wins)" `Quick test_compound_multiple_fg_colors_last_wins;
+    ];
+    "Token aggregation - Mixed", [
+      test_case "mixed controls and colors" `Quick test_compound_mixed_tokens;
+    ];
+    "RGBA conversion", [
+      test_case "color to rgba" `Quick test_rgba_of_color;
+    ];
+  ]

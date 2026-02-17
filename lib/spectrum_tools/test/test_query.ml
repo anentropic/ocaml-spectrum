@@ -213,44 +213,41 @@ let test_get_colours_non_tty () =
 (* ===== Test Suite ===== *)
 
 let () =
-  let (testsuite, exit) = Junit_alcotest.run_and_report "Query" [
-      "hex_to_8bit - Single char", [
-        test_case "0-F scaling" `Quick test_hex_to_8bit_single_char;
-      ];
-      "hex_to_8bit - Two chars", [
-        test_case "00-FF standard" `Quick test_hex_to_8bit_two_chars;
-      ];
-      "hex_to_8bit - Three chars", [
-        test_case "000-FFF scaling" `Quick test_hex_to_8bit_three_chars;
-      ];
-      "hex_to_8bit - Four chars", [
-        test_case "0000-FFFF scaling" `Quick test_hex_to_8bit_four_chars;
-      ];
-      "hex_to_8bit - Edge cases", [
-        test_case "empty string raises" `Quick test_hex_to_8bit_empty_string;
-      ];
-      "hex_to_8bit - Scaling consistency", [
-        test_case "same value different widths" `Quick test_hex_to_8bit_scaling_consistency;
-      ];
-      "parse_colour - Valid formats", [
-        test_case "red" `Quick test_parse_colour_valid;
-        test_case "green" `Quick test_parse_colour_valid_green;
-        test_case "blue" `Quick test_parse_colour_valid_blue;
-        test_case "mixed widths" `Quick test_parse_colour_mixed_widths;
-        test_case "uppercase hex rejected" `Quick test_parse_colour_uppercase;
-      ];
-      "parse_colour - Invalid formats", [
-        test_case "missing prefix" `Quick test_parse_colour_invalid_format;
-        test_case "wrong separators" `Quick test_parse_colour_invalid_separators;
-        test_case "non-hex chars" `Quick test_parse_colour_invalid_hex;
-        test_case "too many chars" `Quick test_parse_colour_too_many_chars;
-      ];
-      "Terminal I/O - Error handling", [
-        test_case "query on non-TTY" `Quick test_query_non_tty;
-        test_case "set_raw on non-TTY" `Quick test_set_raw_non_tty;
-        test_case "get_colours on non-TTY" `Quick test_get_colours_non_tty;
-      ];
-    ] in
-  let report = Junit.make [testsuite;] in
-  Junit.to_file report "junit-query.xml";
-  exit ()
+  Test_runner.run "Query" ~junit_filename:"junit-query.xml" [
+    "hex_to_8bit - Single char", [
+      test_case "0-F scaling" `Quick test_hex_to_8bit_single_char;
+    ];
+    "hex_to_8bit - Two chars", [
+      test_case "00-FF standard" `Quick test_hex_to_8bit_two_chars;
+    ];
+    "hex_to_8bit - Three chars", [
+      test_case "000-FFF scaling" `Quick test_hex_to_8bit_three_chars;
+    ];
+    "hex_to_8bit - Four chars", [
+      test_case "0000-FFFF scaling" `Quick test_hex_to_8bit_four_chars;
+    ];
+    "hex_to_8bit - Edge cases", [
+      test_case "empty string raises" `Quick test_hex_to_8bit_empty_string;
+    ];
+    "hex_to_8bit - Scaling consistency", [
+      test_case "same value different widths" `Quick test_hex_to_8bit_scaling_consistency;
+    ];
+    "parse_colour - Valid formats", [
+      test_case "red" `Quick test_parse_colour_valid;
+      test_case "green" `Quick test_parse_colour_valid_green;
+      test_case "blue" `Quick test_parse_colour_valid_blue;
+      test_case "mixed widths" `Quick test_parse_colour_mixed_widths;
+      test_case "uppercase hex rejected" `Quick test_parse_colour_uppercase;
+    ];
+    "parse_colour - Invalid formats", [
+      test_case "missing prefix" `Quick test_parse_colour_invalid_format;
+      test_case "wrong separators" `Quick test_parse_colour_invalid_separators;
+      test_case "non-hex chars" `Quick test_parse_colour_invalid_hex;
+      test_case "too many chars" `Quick test_parse_colour_too_many_chars;
+    ];
+    "Terminal I/O - Error handling", [
+      test_case "query on non-TTY" `Quick test_query_non_tty;
+      test_case "set_raw on non-TTY" `Quick test_set_raw_non_tty;
+      test_case "get_colours on non-TTY" `Quick test_get_colours_non_tty;
+    ];
+  ]

@@ -345,53 +345,50 @@ let test_memoise () =
 (* ===== Test Suite ===== *)
 
 let () =
-  let (testsuite, exit) = Junit_alcotest.run_and_report "Utils" [
-      "Math - Float division", [
-        test_case "integer float division (//)" `Quick test_float_div;
-      ];
-      "Math - Rounding", [
-        test_case "int_round (banker's rounding)" `Quick test_int_round;
-      ];
-      "Math - Clamping and min/max", [
-        test_case "clamp to range" `Quick test_clamp;
-        test_case "min3/max3" `Quick test_min3_max3;
-        test_case "min_fold/max_fold (option-based)" `Quick test_min_max_fold;
-      ];
-      "Math - Square root approximation", [
-        test_case "nearest_sqrt and nearest_sqrt'" `Quick test_nearest_sqrt;
-      ];
-      "Color - to_rgba (Gg -> int RGBA)", [
-        test_case "primary colors and grayscale" `Quick test_to_rgba;
-      ];
-      "Color - to_rgba' (Gg -> float RGBA)", [
-        test_case "primary colors to float" `Quick test_to_rgba';
-      ];
-      "Color - of_rgb (int RGB -> Gg)", [
-        test_case "construct from RGB values" `Quick test_of_rgb;
-      ];
-      "Color - Roundtrip conversions", [
-        test_case "RGB -> Gg -> RGBA preserves values" `Quick test_of_rgb_to_rgba_roundtrip;
-      ];
-      "Color - Component mapping", [
-        test_case "map_color on int RGBA" `Quick test_map_color;
-        test_case "map_color' on float RGBA" `Quick test_map_color';
-        test_case "map3 on triples" `Quick test_map3;
-      ];
-      "List - Cartesian product", [
-        test_case "product3 of three lists" `Quick test_product3;
-      ];
-      "List - Range sequences", [
-        test_case "range with various parameters" `Quick test_range;
-        test_case "range with invalid step=0" `Quick test_range_invalid_step;
-      ];
-      "AdjacencySet - Finding neighbors", [
-        test_case "adjacent_values returns neighbors or value" `Quick test_adjacent_values;
-        test_case "adjacent_values_exn raises on out-of-bounds" `Quick test_adjacent_values_exn;
-      ];
-      "Memoization", [
-        test_case "memoise caches function results" `Quick test_memoise;
-      ];
-    ] in
-  let report = Junit.make [testsuite;] in
-  Junit.to_file report "junit-utils.xml";
-  exit ()
+  Test_runner.run "Utils" ~junit_filename:"junit-utils.xml" [
+    "Math - Float division", [
+      test_case "integer float division (//)" `Quick test_float_div;
+    ];
+    "Math - Rounding", [
+      test_case "int_round (banker's rounding)" `Quick test_int_round;
+    ];
+    "Math - Clamping and min/max", [
+      test_case "clamp to range" `Quick test_clamp;
+      test_case "min3/max3" `Quick test_min3_max3;
+      test_case "min_fold/max_fold (option-based)" `Quick test_min_max_fold;
+    ];
+    "Math - Square root approximation", [
+      test_case "nearest_sqrt and nearest_sqrt'" `Quick test_nearest_sqrt;
+    ];
+    "Color - to_rgba (Gg -> int RGBA)", [
+      test_case "primary colors and grayscale" `Quick test_to_rgba;
+    ];
+    "Color - to_rgba' (Gg -> float RGBA)", [
+      test_case "primary colors to float" `Quick test_to_rgba';
+    ];
+    "Color - of_rgb (int RGB -> Gg)", [
+      test_case "construct from RGB values" `Quick test_of_rgb;
+    ];
+    "Color - Roundtrip conversions", [
+      test_case "RGB -> Gg -> RGBA preserves values" `Quick test_of_rgb_to_rgba_roundtrip;
+    ];
+    "Color - Component mapping", [
+      test_case "map_color on int RGBA" `Quick test_map_color;
+      test_case "map_color' on float RGBA" `Quick test_map_color';
+      test_case "map3 on triples" `Quick test_map3;
+    ];
+    "List - Cartesian product", [
+      test_case "product3 of three lists" `Quick test_product3;
+    ];
+    "List - Range sequences", [
+      test_case "range with various parameters" `Quick test_range;
+      test_case "range with invalid step=0" `Quick test_range_invalid_step;
+    ];
+    "AdjacencySet - Finding neighbors", [
+      test_case "adjacent_values returns neighbors or value" `Quick test_adjacent_values;
+      test_case "adjacent_values_exn raises on out-of-bounds" `Quick test_adjacent_values_exn;
+    ];
+    "Memoization", [
+      test_case "memoise caches function results" `Quick test_memoise;
+    ];
+  ]

@@ -249,45 +249,42 @@ let test_xterm256_nearest_grayscale () =
 (* ===== Test Suite ===== *)
 
 let () =
-  let (testsuite, exit) = Junit_alcotest.run_and_report "Terminal" [
-      "Basic - String conversion", [
-        test_case "valid color names" `Quick test_basic_of_string_valid;
-        test_case "case-insensitive lookup" `Quick test_basic_of_string_case_insensitive;
-        test_case "invalid color names" `Quick test_basic_of_string_invalid;
-      ];
-      "Basic - Code mapping", [
-        test_case "to_code for all colors" `Quick test_basic_to_code;
-      ];
-      "Basic - Color conversion", [
-        test_case "to_color returns correct RGB" `Quick test_basic_to_color;
-      ];
-      "Basic - Color list", [
-        test_case "color_list has 16 valid colors" `Quick test_basic_color_list;
-      ];
-      "Basic - Nearest color", [
-        test_case "exact match returns same" `Quick test_basic_nearest_exact;
-        test_case "approximate match finds closest" `Quick test_basic_nearest_approximate;
-      ];
-      "Xterm256 - String conversion", [
-        test_case "valid color names" `Quick test_xterm256_of_string_valid;
-        test_case "case-insensitive lookup" `Quick test_xterm256_of_string_case_insensitive;
-        test_case "invalid color names" `Quick test_xterm256_of_string_invalid;
-      ];
-      "Xterm256 - Code mapping", [
-        test_case "to_code for sample colors" `Quick test_xterm256_to_code;
-      ];
-      "Xterm256 - Color conversion", [
-        test_case "to_color returns correct RGB" `Quick test_xterm256_to_color;
-      ];
-      "Xterm256 - Color list", [
-        test_case "color_list has 256 valid colors" `Quick test_xterm256_color_list;
-      ];
-      "Xterm256 - Nearest color", [
-        test_case "exact match returns same" `Quick test_xterm256_nearest_exact;
-        test_case "approximate match finds closest" `Quick test_xterm256_nearest_approximate;
-        test_case "grayscale mapping" `Quick test_xterm256_nearest_grayscale;
-      ];
-    ] in
-  let report = Junit.make [testsuite;] in
-  Junit.to_file report "junit-terminal.xml";
-  exit ()
+  Test_runner.run "Terminal" ~junit_filename:"junit-terminal.xml" [
+    "Basic - String conversion", [
+      test_case "valid color names" `Quick test_basic_of_string_valid;
+      test_case "case-insensitive lookup" `Quick test_basic_of_string_case_insensitive;
+      test_case "invalid color names" `Quick test_basic_of_string_invalid;
+    ];
+    "Basic - Code mapping", [
+      test_case "to_code for all colors" `Quick test_basic_to_code;
+    ];
+    "Basic - Color conversion", [
+      test_case "to_color returns correct RGB" `Quick test_basic_to_color;
+    ];
+    "Basic - Color list", [
+      test_case "color_list has 16 valid colors" `Quick test_basic_color_list;
+    ];
+    "Basic - Nearest color", [
+      test_case "exact match returns same" `Quick test_basic_nearest_exact;
+      test_case "approximate match finds closest" `Quick test_basic_nearest_approximate;
+    ];
+    "Xterm256 - String conversion", [
+      test_case "valid color names" `Quick test_xterm256_of_string_valid;
+      test_case "case-insensitive lookup" `Quick test_xterm256_of_string_case_insensitive;
+      test_case "invalid color names" `Quick test_xterm256_of_string_invalid;
+    ];
+    "Xterm256 - Code mapping", [
+      test_case "to_code for sample colors" `Quick test_xterm256_to_code;
+    ];
+    "Xterm256 - Color conversion", [
+      test_case "to_color returns correct RGB" `Quick test_xterm256_to_color;
+    ];
+    "Xterm256 - Color list", [
+      test_case "color_list has 256 valid colors" `Quick test_xterm256_color_list;
+    ];
+    "Xterm256 - Nearest color", [
+      test_case "exact match returns same" `Quick test_xterm256_nearest_exact;
+      test_case "approximate match finds closest" `Quick test_xterm256_nearest_approximate;
+      test_case "grayscale mapping" `Quick test_xterm256_nearest_grayscale;
+    ];
+  ]

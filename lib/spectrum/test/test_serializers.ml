@@ -74,27 +74,24 @@ let test_multiple_tokens () =
     "1;38;2;255;0;0;48;2;0;0;255" (tc tokens)
 
 let () =
-  let (testsuite, exit) = Junit_alcotest.run_and_report "Serializers" [
-      "Capability-based output", [
-        test_case "serializer outputs" `Quick test_capability_based_output;
-      ];
-      "Empty token list", [
-        test_case "all serializers" `Quick test_empty_token_list;
-      ];
-      "Style controls", [
-        test_case "styles across serializers" `Quick test_style_controls;
-      ];
-      "Background colors", [
-        test_case "background RGB" `Quick test_background_rgb;
-      ];
-      "Named colors", [
-        test_case "xterm256 named" `Quick test_named_colors;
-        test_case "basic named" `Quick test_basic_named_colors;
-      ];
-      "Multiple tokens", [
-        test_case "compound token list" `Quick test_multiple_tokens;
-      ];
-    ] in
-  let report = Junit.make [testsuite;] in
-  Junit.to_file report "junit-serializers.xml";
-  exit ()
+  Test_runner.run "Serializers" ~junit_filename:"junit-serializers.xml" [
+    "Capability-based output", [
+      test_case "serializer outputs" `Quick test_capability_based_output;
+    ];
+    "Empty token list", [
+      test_case "all serializers" `Quick test_empty_token_list;
+    ];
+    "Style controls", [
+      test_case "styles across serializers" `Quick test_style_controls;
+    ];
+    "Background colors", [
+      test_case "background RGB" `Quick test_background_rgb;
+    ];
+    "Named colors", [
+      test_case "xterm256 named" `Quick test_named_colors;
+      test_case "basic named" `Quick test_basic_named_colors;
+    ];
+    "Multiple tokens", [
+      test_case "compound token list" `Quick test_multiple_tokens;
+    ];
+  ]

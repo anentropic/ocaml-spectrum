@@ -301,7 +301,4 @@ let () =
       term_program_tests;
       term_tests;
     ] in
-  let (testsuite, exit) = Junit_alcotest.run_and_report "Capabilities" (tests) in
-  let report = Junit.make [testsuite;] in
-  Junit.to_file report "junit-capabilities.xml";
-  exit ()
+  Test_runner.run "Capabilities" ~junit_filename:"junit-capabilities.xml" tests

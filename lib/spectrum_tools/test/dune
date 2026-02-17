@@ -6,17 +6,17 @@
 (test
  (name test_convert)
  (modules test_convert)
- (libraries alcotest junit_alcotest spectrum_tools color))
+ (libraries alcotest junit_alcotest test_runner spectrum_tools color))
 
 (test
  (name test_utils)
  (modules test_utils)
- (libraries alcotest junit_alcotest spectrum_tools color gg))
+ (libraries alcotest junit_alcotest test_runner spectrum_tools color gg))
 
 (test
  (name test_query)
  (modules test_query)
- (libraries alcotest junit_alcotest spectrum_tools))
+ (libraries alcotest junit_alcotest test_runner spectrum_tools))
 
 (test
  (name test_properties)
@@ -24,6 +24,7 @@
  (libraries
   alcotest
   junit_alcotest
+  test_runner
   qcheck-alcotest
   spectrum_tools
   spectrum_palettes
