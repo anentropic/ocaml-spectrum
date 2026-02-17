@@ -65,8 +65,8 @@ High-level delta vs `main`:
 ### 3) Palette model/codegen
 
 - JSON palette sources:
-  - `lib/spectrum/16-colors.json`
-  - `lib/spectrum/256-colors.json`
+  - `lib/spectrum_palettes/16-colors.json`
+  - `lib/spectrum_palettes/256-colors.json`
 - PPX machinery generates `Palette.M` modules from JSON config:
   - `lib/spectrum_palette_ppx/expander.ml`, `loader.ml`, `palette.ml`
 - Palettes consumed via PPX extension points

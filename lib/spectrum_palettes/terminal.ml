@@ -17,7 +17,7 @@ exception InvalidColorName = Spectrum_palette_ppx.Palette.InvalidColorName
     "basic-" to disambiguate from xterm-256 colors of the same name.
 
     See {{:https://en.wikipedia.org/wiki/ANSI_escape_code#3-bit_and_4-bit} ANSI 3-bit and 4-bit colors} *)
-module Basic : Palette.M = [%palette "lib/spectrum/16-colors.json"]
+module Basic : Palette.M = [%palette "lib/spectrum_palettes/16-colors.json"]
 
 (** ANSI-256 extended color palette (codes 0-255).
 
@@ -26,4 +26,4 @@ module Basic : Palette.M = [%palette "lib/spectrum/16-colors.json"]
     with suffixes like -1, -2, -3a, -3b.
 
     See {{:https://www.ditig.com/256-colors-cheat-sheet} 256 colors cheat sheet} *)
-module Xterm256 : Palette.M = [%palette "lib/spectrum/256-colors.json"]
+module Xterm256 : Palette.M = [%palette "lib/spectrum_palettes/256-colors.json"]
