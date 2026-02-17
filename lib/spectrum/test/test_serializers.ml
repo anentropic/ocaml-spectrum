@@ -19,73 +19,73 @@ let is_valid_bg_code c = (c >= 40 && c <= 47) || (c >= 100 && c <= 107)
 let test_capability_based_output () =
   let tokens = [Foreground(RgbColor(Color.Rgb.(v 123 45 67 |> to_gg)))] in
   (* True_color serializer preserves RGB *)
-  Alcotest.(check string) "True_color preserves RGB" "38;2;123;45;67" (tc tokens);
+  check string "True_color preserves RGB" "38;2;123;45;67" (tc tokens);
   (* Xterm256 serializer quantizes RGB to ANSI-256 *)
   let xterm256_output = x256 tokens in
-  Alcotest.(check bool) "Xterm256 uses 38;5 prefix" true
+  check bool "Xterm256 uses 38;5 prefix" true
     (String.starts_with ~prefix:"38;5;" xterm256_output);
   (* Basic serializer quantizes RGB to ANSI-16 *)
   let basic_output = basic tokens in
   let basic_code = int_of_string basic_output in
-  Alcotest.(check bool) "Basic quantizes to valid fg code" true
+  check bool "Basic quantizes to valid fg code" true
     (is_valid_fg_code basic_code)
 
 let test_empty_token_list () =
-  Alcotest.(check string) "True_color empty" "" (tc []);
-  Alcotest.(check string) "Xterm256 empty" "" (x256 []);
-  Alcotest.(check string) "Basic empty" "" (basic [])
+  check string "True_color empty" "" (tc []);
+  check string "Xterm256 empty" "" (x256 []);
+  check string "Basic empty" "" (basic [])
 
 let test_style_controls () =
-  Alcotest.(check string) "Bold" "1" (tc [Control Bold]);
-  Alcotest.(check string) "Dim" "2" (tc [Control Dim]);
-  Alcotest.(check string) "Underline" "4" (tc [Control Underline]);
+  check string "Bold" "1" (tc [Control Bold]);
+  check string "Dim" "2" (tc [Control Dim]);
+  check string "Underline" "4" (tc [Control Underline]);
   (* Styles are identical across serializers *)
-  Alcotest.(check string) "Bold (xterm256)" "1" (x256 [Control Bold]);
-  Alcotest.(check string) "Bold (basic)" "1" (basic [Control Bold])
+  check string "Bold (xterm256)" "1" (x256 [Control Bold]);
+  check string "Bold (basic)" "1" (basic [Control Bold])
 
 let test_foreground_rgb () =
   let tokens = [Foreground(RgbColor(Color.Rgb.(v 100 200 50 |> to_gg)))] in
-  Alcotest.(check string) "True_color fg RGB" "38;2;100;200;50" (tc tokens);
-  Alcotest.(check bool) "Xterm256 fg uses 38;5 prefix" true
+  check string "True_color fg RGB" "38;2;100;200;50" (tc tokens);
+  check bool "Xterm256 fg uses 38;5 prefix" true
     (String.starts_with ~prefix:"38;5;" (x256 tokens));
   let basic_code = int_of_string (basic tokens) in
-  Alcotest.(check bool) "Basic fg uses valid fg code" true (is_valid_fg_code basic_code)
+  check bool "Basic fg uses valid fg code" true (is_valid_fg_code basic_code)
 
 let test_background_rgb () =
   let tokens = [Background(RgbColor(Color.Rgb.(v 100 200 50 |> to_gg)))] in
-  Alcotest.(check string) "True_color bg RGB" "48;2;100;200;50" (tc tokens);
-  Alcotest.(check bool) "Xterm256 bg uses 48;5 prefix" true
+  check string "True_color bg RGB" "48;2;100;200;50" (tc tokens);
+  check bool "Xterm256 bg uses 48;5 prefix" true
     (String.starts_with ~prefix:"48;5;" (x256 tokens));
   let basic_code = int_of_string (basic tokens) in
-  Alcotest.(check bool) "Basic bg uses valid bg code" true (is_valid_bg_code basic_code)
+  check bool "Basic bg uses valid bg code" true (is_valid_bg_code basic_code)
 
 let test_named_256_colors () =
   let red = Xterm256.of_string "red" in
   let fg_tokens = [Foreground(Named256Color red)] in
-  Alcotest.(check string) "True_color fg named256" "38;5;9" (tc fg_tokens);
-  Alcotest.(check string) "Xterm256 fg named256" "38;5;9" (x256 fg_tokens);
+  check string "True_color fg named256" "38;5;9" (tc fg_tokens);
+  check string "Xterm256 fg named256" "38;5;9" (x256 fg_tokens);
   (* Basic serializer quantizes xterm256 names to ANSI-16 codes *)
   let basic_fg_code = int_of_string (basic fg_tokens) in
-  Alcotest.(check bool) "Basic fg named256 valid code" true
+  check bool "Basic fg named256 valid code" true
     (is_valid_fg_code basic_fg_code);
   let bg_tokens = [Background(Named256Color red)] in
-  Alcotest.(check string) "True_color bg named256" "48;5;9" (tc bg_tokens);
-  Alcotest.(check string) "Xterm256 bg named256" "48;5;9" (x256 bg_tokens);
+  check string "True_color bg named256" "48;5;9" (tc bg_tokens);
+  check string "Xterm256 bg named256" "48;5;9" (x256 bg_tokens);
   let basic_bg_code = int_of_string (basic bg_tokens) in
-  Alcotest.(check bool) "Basic bg named256 valid code" true
+  check bool "Basic bg named256 valid code" true
     (is_valid_bg_code basic_bg_code)
 
 let test_basic_named_colors () =
   let basic_red = Basic.of_string "basic-red" in
   let fg_tokens = [Foreground(NamedBasicColor basic_red)] in
   (* NamedBasicColor passes through unchanged in all serializers *)
-  Alcotest.(check string) "True_color fg basic" "31" (tc fg_tokens);
-  Alcotest.(check string) "Xterm256 fg basic" "31" (x256 fg_tokens);
-  Alcotest.(check string) "Basic fg basic" "31" (basic fg_tokens);
+  check string "True_color fg basic" "31" (tc fg_tokens);
+  check string "Xterm256 fg basic" "31" (x256 fg_tokens);
+  check string "Basic fg basic" "31" (basic fg_tokens);
   let bg_tokens = [Background(NamedBasicColor basic_red)] in
-  Alcotest.(check string) "True_color bg basic" "41" (tc bg_tokens);
-  Alcotest.(check string) "Xterm256 bg basic" "41" (x256 bg_tokens);
-  Alcotest.(check string) "Basic bg basic" "41" (basic bg_tokens)
+  check string "True_color bg basic" "41" (tc bg_tokens);
+  check string "Xterm256 bg basic" "41" (x256 bg_tokens);
+  check string "Basic bg basic" "41" (basic bg_tokens)
 
 let test_multiple_tokens () =
   let tokens = [
@@ -93,24 +93,24 @@ let test_multiple_tokens () =
     Foreground(RgbColor(Color.Rgb.(v 255 0 0 |> to_gg)));
     Background(RgbColor(Color.Rgb.(v 0 0 255 |> to_gg)));
   ] in
-  Alcotest.(check string) "True_color compound"
+  check string "True_color compound"
     "1;38;2;255;0;0;48;2;0;0;255" (tc tokens);
   (* Xterm256: structure is "1;38;5;N;48;5;N" *)
   let x256_parts = String.split_on_char ';' (x256 tokens) in
-  Alcotest.(check int) "Xterm256 compound has 7 parts" 7 (List.length x256_parts);
-  Alcotest.(check string) "Xterm256 compound bold" "1" (List.nth x256_parts 0);
-  Alcotest.(check string) "Xterm256 compound fg escape" "38" (List.nth x256_parts 1);
-  Alcotest.(check string) "Xterm256 compound fg mode" "5" (List.nth x256_parts 2);
-  Alcotest.(check string) "Xterm256 compound bg escape" "48" (List.nth x256_parts 4);
-  Alcotest.(check string) "Xterm256 compound bg mode" "5" (List.nth x256_parts 5);
+  check int "Xterm256 compound has 7 parts" 7 (List.length x256_parts);
+  check string "Xterm256 compound bold" "1" (List.nth x256_parts 0);
+  check string "Xterm256 compound fg escape" "38" (List.nth x256_parts 1);
+  check string "Xterm256 compound fg mode" "5" (List.nth x256_parts 2);
+  check string "Xterm256 compound bg escape" "48" (List.nth x256_parts 4);
+  check string "Xterm256 compound bg mode" "5" (List.nth x256_parts 5);
   (* Basic: structure is "1;FG;BG" with valid ANSI-16 codes *)
   let basic_parts = String.split_on_char ';' (basic tokens) in
-  Alcotest.(check int) "Basic compound has 3 parts" 3 (List.length basic_parts);
-  Alcotest.(check string) "Basic compound bold" "1" (List.nth basic_parts 0);
+  check int "Basic compound has 3 parts" 3 (List.length basic_parts);
+  check string "Basic compound bold" "1" (List.nth basic_parts 0);
   let basic_fg = int_of_string (List.nth basic_parts 1) in
-  Alcotest.(check bool) "Basic compound fg valid" true (is_valid_fg_code basic_fg);
+  check bool "Basic compound fg valid" true (is_valid_fg_code basic_fg);
   let basic_bg = int_of_string (List.nth basic_parts 2) in
-  Alcotest.(check bool) "Basic compound bg valid" true (is_valid_bg_code basic_bg)
+  check bool "Basic compound bg valid" true (is_valid_bg_code basic_bg)
 
 let () =
   Test_runner.run "Serializers" ~junit_filename:"junit-serializers.xml" [

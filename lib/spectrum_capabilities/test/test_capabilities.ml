@@ -1,10 +1,11 @@
+open Alcotest
 open Spectrum_capabilities.Capabilities
 
 module NonWindowsOsInfo = (
   val (os_info_provider false (Some "")) : OsInfoProvider
 )
 
-let testable_color_level = Alcotest.testable pp_color_level equal_color_level
+let testable_color_level = testable pp_color_level equal_color_level
 
 let map_of pairs = List.to_seq pairs |> StrMap.of_seq
 
@@ -13,11 +14,10 @@ let check_supported_color_level (module OsInfo : OsInfoProvider) is_tty env_pair
   let module C = Make(Env)(OsInfo) in
   let result = C.supported_color_level is_tty in
   let msg = Printf.sprintf "returns: %s" (show_color_level expected) in
-  Alcotest.(check testable_color_level) msg expected result
+  check testable_color_level msg expected result
 
 
 let basic_force_color_tests =
-  let open Alcotest in
   let base_check = check_supported_color_level (module NonWindowsOsInfo : OsInfoProvider) in
   let check = base_check false in
   [
@@ -34,7 +34,6 @@ let basic_force_color_tests =
   ]
 
 let stream_no_tty_short_circuit_tests =
-  let open Alcotest in
   let base_check = check_supported_color_level (module NonWindowsOsInfo : OsInfoProvider) in
   let check = base_check false in
   [
@@ -54,7 +53,6 @@ let stream_no_tty_short_circuit_tests =
   ]
 
 let dumb_term_tests =
-  let open Alcotest in
   let check = check_supported_color_level (module NonWindowsOsInfo : OsInfoProvider) true in
   [
     Printf.sprintf "Min-level when TERM=dumb", [
@@ -69,7 +67,6 @@ let dumb_term_tests =
   ]
 
 let windows_tests =
-  let open Alcotest in
   let check is_windows os_version =
     check_supported_color_level
       (module
@@ -97,7 +94,6 @@ let windows_tests =
   ]
 
 let ci_tests =
-  let open Alcotest in
   let check = check_supported_color_level (module NonWindowsOsInfo : OsInfoProvider) true in
   let recognised_ci_providers = [
     "TRAVIS";
@@ -140,7 +136,6 @@ let ci_tests =
   ]
 
 let teamcity_tests =
-  let open Alcotest in
   let check = check_supported_color_level (module NonWindowsOsInfo : OsInfoProvider) true in
   [
     Printf.sprintf "Teamcity", [
@@ -167,7 +162,6 @@ let teamcity_tests =
   ]
 
 let terraform_tests =
-  let open Alcotest in
   let check = check_supported_color_level (module NonWindowsOsInfo : OsInfoProvider) true in
   [
     Printf.sprintf "Terraform", [
@@ -188,7 +182,6 @@ let terraform_tests =
   ]
 
 let colorterm_tests =
-  let open Alcotest in
   let check = check_supported_color_level (module NonWindowsOsInfo : OsInfoProvider) true in
   [
     Printf.sprintf "COLORTERM", [
@@ -205,7 +198,6 @@ let colorterm_tests =
   ]
 
 let term_program_tests =
-  let open Alcotest in
   let check = check_supported_color_level (module NonWindowsOsInfo : OsInfoProvider) true in
   [
     Printf.sprintf "TERM_PROGRAM: iTerm (supports 256 or true color)", [
@@ -244,7 +236,6 @@ let term_program_tests =
   ]
 
 let term_tests =
-  let open Alcotest in
   let check = check_supported_color_level (module NonWindowsOsInfo : OsInfoProvider) true in
   let recognised_16_color_terms = [
     "screen";

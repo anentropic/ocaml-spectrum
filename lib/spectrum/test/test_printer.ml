@@ -1,3 +1,5 @@
+open Alcotest
+
 module type Meta = sig
   val prefix : string
   val simple : bool
@@ -26,7 +28,7 @@ module Make (P : Spectrum.Printer) (M : Meta) = struct
         result
     in
     let msg = Printf.sprintf "%s -> %s | %s" raw_fmt (String.escaped expected) (String.escaped result) in
-    Alcotest.(check string) msg expected result
+    check string msg expected result
 
   let test_sprintf1 raw_fmt arg1 expected () =
     let result = if M.simple then
@@ -45,10 +47,9 @@ module Make (P : Spectrum.Printer) (M : Meta) = struct
         result
     in
     let msg = Printf.sprintf "%s -> %s | %s" raw_fmt (String.escaped expected) (String.escaped result) in
-    Alcotest.(check string) msg expected result
+    check string msg expected result
 
   let get_common_tests =
-    let open Alcotest in
     [
       Printf.sprintf "%s: Single style" M.prefix, [
         test_case "Bold" `Quick (test_sprintf "@{<bold>hello@}" "\027[0;1mhello\027[0m");
@@ -101,13 +102,12 @@ module Noexn_format = Make (Tc_noexn) (val meta "Noexn Format" false)
 let test_sprintf_raises fmt exc () =
   let open Spectrum.Exn in
   let msg = Printf.sprintf "%s -> %s" fmt (Printexc.to_string exc) in
-  Alcotest.(check_raises msg exc (fun () ->
+  check_raises msg exc (fun () ->
       let fmt = Scanf.format_from_string fmt (format_of_string "") in
       ignore @@ (Simple.sprintf fmt)
-    ))
+    )
 
 let get_invalid_tag_tests_exn =
-  let open Alcotest in
   let open Spectrum_palette_ppx.Palette in
   [
     "Exn: Invalid tags", [
@@ -124,7 +124,6 @@ let get_invalid_tag_tests_exn =
   ]
 
 let get_invalid_tag_tests_noexn =
-  let open Alcotest in
   let open Noexn_simple in
   [
     "Noexn: Invalid tags", [

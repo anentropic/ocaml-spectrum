@@ -39,10 +39,10 @@ let test_lab3_of_color () =
   let a = Gg.V3.y lab_red in
   let b = Gg.V3.z lab_red in
 
-  Alcotest.(check bool) "L in range [0,100]" true (l >= 0. && l <= 100.);
+  check bool "L in range [0,100]" true (l >= 0. && l <= 100.);
   (* a and b can be outside typical range for extreme colors, so just check they're finite *)
-  Alcotest.(check bool) "a is finite" true (classify_float a <> FP_nan && classify_float a <> FP_infinite);
-  Alcotest.(check bool) "b is finite" true (classify_float b <> FP_nan && classify_float b <> FP_infinite)
+  check bool "a is finite" true (classify_float a <> FP_nan && classify_float a <> FP_infinite);
+  check bool "b is finite" true (classify_float b <> FP_nan && classify_float b <> FP_infinite)
 
 let test_lab3_black_vs_white () =
   (* Black should have L close to 0, white close to 100 *)
@@ -54,8 +54,8 @@ let test_lab3_black_vs_white () =
   let l_black = Gg.V3.x lab_black in
   let l_white = Gg.V3.x lab_white in
 
-  Alcotest.(check bool) "black L is very low" true (l_black < 10.);
-  Alcotest.(check bool) "white L is very high" true (l_white > 90.)
+  check bool "black L is very low" true (l_black < 10.);
+  check bool "white L is very high" true (l_white > 90.)
 
 let test_lab3_gray_neutral () =
   (* Gray should have a and b close to 0 (neutral) *)
@@ -66,8 +66,8 @@ let test_lab3_gray_neutral () =
   let b = Gg.V3.z lab_gray in
 
   (* Neutral gray should have small a, b values *)
-  Alcotest.(check bool) "gray a near 0" true (Float.abs a < 5.);
-  Alcotest.(check bool) "gray b near 0" true (Float.abs b < 5.)
+  check bool "gray a near 0" true (Float.abs a < 5.);
+  check bool "gray b near 0" true (Float.abs b < 5.)
 
 (* ===== Nearest-Color Index Tests ===== *)
 
@@ -78,7 +78,7 @@ let test_nearest_index_of_color_list () =
   (* Verify index works by testing nearest-color lookup *)
   let red = rgb 255 0 0 in
   let nearest = nearest_with_index index red in
-  Alcotest.(check v4_testable) "nearest to red is red" red nearest
+  check v4_testable "nearest to red is red" red nearest
 
 let test_nearest_with_index_exact () =
   (* Exact matches should return same color *)
@@ -86,17 +86,17 @@ let test_nearest_with_index_exact () =
 
   let red = rgb 255 0 0 in
   let nearest_red = nearest_with_index index red in
-  Alcotest.(check v4_testable) "exact red returns red"
+  check v4_testable "exact red returns red"
     red nearest_red;
 
   let green = rgb 0 255 0 in
   let nearest_green = nearest_with_index index green in
-  Alcotest.(check v4_testable) "exact green returns green"
+  check v4_testable "exact green returns green"
     green nearest_green;
 
   let blue = rgb 0 0 255 in
   let nearest_blue = nearest_with_index index blue in
-  Alcotest.(check v4_testable) "exact blue returns blue"
+  check v4_testable "exact blue returns blue"
     blue nearest_blue
 
 let test_nearest_with_index_approximate () =
@@ -106,14 +106,14 @@ let test_nearest_with_index_approximate () =
   let dark_red = rgb 200 50 50 in
   let nearest = nearest_with_index index dark_red in
   let expected_red = rgb 255 0 0 in
-  Alcotest.(check v4_testable) "dark red -> red"
+  check v4_testable "dark red -> red"
     expected_red nearest;
 
   (* Light cyan (closer to white than blue/green) *)
   let light_cyan = rgb 200 255 255 in
   let nearest2 = nearest_with_index index light_cyan in
   let expected_white = rgb 255 255 255 in
-  Alcotest.(check v4_testable) "light cyan -> white"
+  check v4_testable "light cyan -> white"
     expected_white nearest2
 
 let test_nearest_with_index_dark_colors () =
@@ -123,7 +123,7 @@ let test_nearest_with_index_dark_colors () =
   let very_dark = rgb 10 10 10 in
   let nearest = nearest_with_index index very_dark in
   let expected_black = rgb 0 0 0 in
-  Alcotest.(check v4_testable) "very dark -> black"
+  check v4_testable "very dark -> black"
     expected_black nearest
 
 (* ===== nearest_of_list Convenience Wrapper Tests ===== *)
@@ -135,14 +135,14 @@ let test_nearest_of_list () =
   (* Test exact match *)
   let red = rgb 255 0 0 in
   let result = nearest red in
-  Alcotest.(check v4_testable) "nearest_of_list: exact red"
+  check v4_testable "nearest_of_list: exact red"
     red result;
 
   (* Test approximate match *)
   let orange = rgb 255 128 0 in
   let result2 = nearest orange in
   let expected_red = rgb 255 0 0 in
-  Alcotest.(check v4_testable) "nearest_of_list: orange -> red"
+  check v4_testable "nearest_of_list: orange -> red"
     expected_red result2
 
 let test_nearest_of_list_multiple_calls () =
@@ -153,8 +153,8 @@ let test_nearest_of_list_multiple_calls () =
   let red2 = nearest (rgb 255 50 50) in
   let expected_red = rgb 255 0 0 in
 
-  Alcotest.(check v4_testable) "first call works" expected_red red1;
-  Alcotest.(check v4_testable) "second call works" expected_red red2
+  check v4_testable "first call works" expected_red red1;
+  check v4_testable "second call works" expected_red red2
 
 (* ===== Perceptual Distance Tests ===== *)
 
@@ -167,13 +167,13 @@ let test_perceptual_distance_red_variants () =
   let dark_red = rgb 128 0 0 in
   let result = nearest dark_red in
   let expected_red = rgb 255 0 0 in
-  Alcotest.(check v4_testable) "dark red closer to red than green"
+  check v4_testable "dark red closer to red than green"
     expected_red result;
 
   (* Orange should be closer to red than green *)
   let orange = rgb 255 128 0 in
   let result2 = nearest orange in
-  Alcotest.(check v4_testable) "orange closer to red than green"
+  check v4_testable "orange closer to red than green"
     expected_red result2
 
 let test_perceptual_distance_grayscale () =
@@ -185,21 +185,21 @@ let test_perceptual_distance_grayscale () =
   let dark_gray = rgb 50 50 50 in
   let result = nearest dark_gray in
   let expected_black = rgb 0 0 0 in
-  Alcotest.(check v4_testable) "dark gray -> black"
+  check v4_testable "dark gray -> black"
     expected_black result;
 
   (* Mid gray closer to gray *)
   let mid_gray = rgb 120 120 120 in
   let result2 = nearest mid_gray in
   let expected_gray = rgb 128 128 128 in
-  Alcotest.(check v4_testable) "mid gray -> gray"
+  check v4_testable "mid gray -> gray"
     expected_gray result2;
 
   (* Light gray closer to white *)
   let light_gray = rgb 200 200 200 in
   let result3 = nearest light_gray in
   let expected_white = rgb 255 255 255 in
-  Alcotest.(check v4_testable) "light gray -> white"
+  check v4_testable "light gray -> white"
     expected_white result3
 
 let test_perceptual_distance_blue_variants () =
@@ -211,14 +211,14 @@ let test_perceptual_distance_blue_variants () =
   let dark_blue = rgb 0 0 100 in
   let result = nearest dark_blue in
   let expected_navy = rgb 0 0 128 in
-  Alcotest.(check v4_testable) "dark blue -> navy"
+  check v4_testable "dark blue -> navy"
     expected_navy result;
 
   (* Bright blue closer to blue *)
   let bright_blue = rgb 0 0 220 in
   let result2 = nearest bright_blue in
   let expected_blue = rgb 0 0 255 in
-  Alcotest.(check v4_testable) "bright blue -> blue"
+  check v4_testable "bright blue -> blue"
     expected_blue result2
 
 (* ===== Test Suite ===== *)

@@ -23,7 +23,7 @@ let rec permutations_of lst =
 
 let test_tag_to_code tag expected () =
   let msg = Printf.sprintf "%s -> %s" tag (Result.value ~default:"None" expected) in
-  Alcotest.(check (result string error)) msg expected (tag_to_code tag)
+  check (result string error) msg expected (tag_to_code tag)
 
 (* takes a list of lists of (label, tag, expected) triples and generates
    a list of test cases from all permutations of the inner lists *)
