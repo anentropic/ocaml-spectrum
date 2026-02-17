@@ -116,7 +116,7 @@ module Xterm256_Serializer : Serializer = struct
         | Foreground RgbColor c -> "38;5;" ^ string_of_int @@ quantized c
         | Background NamedBasicColor c -> string_of_int @@ Basic.to_code c + 10
         | Background Named256Color c -> "48;5;" ^ string_of_int @@ Xterm256.to_code c
-        | Background RgbColor c -> "48;2;" ^ string_of_int @@ quantized c
+        | Background RgbColor c -> "48;5;" ^ string_of_int @@ quantized c
       ) tokens
     |> String.concat ";"
 end
