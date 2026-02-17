@@ -40,9 +40,8 @@ The main `spectrum` package includes everything you need for terminal color form
 
 - `spectrum` - main runtime and user-facing API
 - `spectrum_capabilities` - standalone terminal color capability detection
-- `spectrum_palette` - palette JSON definitions
-- `spectrum_palette_ppx` - PPX extension for generating palette modules from JSON
-- `spectrum_palettes` - generated palette modules (Basic and Xterm256)
+- `spectrum_palette_ppx` - PPX extension for generating palette modules from the bundled JSON palette definitions
+- `spectrum_palettes` - pre-generated palette modules (e.g. Basic and Xterm256) built from those JSON definitions
 - `spectrum_tools` - color conversion utilities and query functions
 
 All of these are installed automatically as dependencies when you install `spectrum`.
