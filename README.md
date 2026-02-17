@@ -39,6 +39,7 @@ opam install spectrum
 The main `spectrum` package includes everything you need for terminal color formatting. The implementation is split into several internal packages:
 
 - `spectrum` - main runtime and user-facing API
+- `spectrum_capabilities` - standalone terminal color capability detection
 - `spectrum_palette` - palette JSON definitions
 - `spectrum_palette_ppx` - PPX extension for generating palette modules from JSON
 - `spectrum_palettes` - generated palette modules (Basic and Xterm256)
@@ -239,7 +240,7 @@ You can override the detected capability level by setting the `FORCE_COLOR` envi
 
 ## Changelog
 
-#### 0.7.0
+#### 0.8.0
 Major enhancements!
 - **automatic color quantization**: RGB and HSL colors are now automatically downsampled to ANSI-256 or ANSI-16 based on detected terminal capabilities
 - **perceptual color matching**: use LAB color space with octree-based nearest-neighbor search for accurate color quantization
@@ -247,7 +248,15 @@ Major enhancements!
 - **custom palette support**: architecture now supports arbitrary palettes via JSON sources
 - **package split**: `spectrum` (main runtime), `spectrum_palette` (palette definitions), `spectrum_palette_ppx` (palette codegen PPX), `spectrum_tools` (color conversion utilities), and `spectrum_palettes` (generated palette modules)
 - palette JSON definitions live in `lib/spectrum_palette/*.json`, with PPX-generated modules in `lib/spectrum_palettes/terminal.ml`
+- **`Spectrum.Stag` module**: type-safe variant-based API for `Format.stag`, allowing pre-validated tag construction with zero parsing overhead as an alternative to string tags
+- **`spectrum_capabilities` package**: terminal capability detection extracted into a standalone opam package (zero dependency on the rest of Spectrum)
+- **property-based tests**: QCheck2 property tests for parser, lexer, color conversions, capabilities detection, and stag/string-tag equivalence
 - **comprehensive test coverage**: all modules now tested
+- **odoc documentation**: comprehensive API docs with examples
+
+#### 0.7.0
+- minimum OCaml version raised to 4.14
+- replace `pcre` dependency with `re` (pure OCaml)
 
 #### 0.6.0
 - finally understood what the interface should be 😅
@@ -270,13 +279,6 @@ Major enhancements!
 
 #### 0.2.0
 - first viable version
-
-## TODOs
-
-- broaden automated coverage with property-based tests and additional tie/threshold regression cases
-- publish the printer and capabilities-detection as separate opam modules?
-- expose variant types for use with explicit `mark_open_stag` and close calls?
-- ~~consider custom palette support (currently only xterm 256-color palette is supported)~~ ✅ **DONE** - architecture now supports arbitrary palettes via JSON sources
 
 
 [1]: https://www.ditig.com/256-colors-cheat-sheet

@@ -1,4 +1,4 @@
-module Capabilities = Capabilities
+module Capabilities = Spectrum_capabilities.Capabilities
 module Lexer = Lexer
 module Parser = Parser
 
@@ -16,6 +16,59 @@ let stack_to_esc stack =
 
 module type Serializer = sig
   val to_code : Parser.token list -> string
+end
+
+type Format.stag += Spectrum_stag of Parser.token list
+
+module Stag = struct
+  type color =
+    | Named of string
+    | Hex of string
+    | Rgb of int * int * int
+    | Hsl of float * float * float
+
+  type t =
+    | Bold
+    | Dim
+    | Italic
+    | Underline
+    | Blink
+    | RapidBlink
+    | Inverse
+    | Hidden
+    | Strikethru
+    | Fg of color
+    | Bg of color
+
+  let color_def_of_color = function
+    | Named name -> Parser.from_name name
+    | Hex h ->
+      let hex = if String.length h > 0 && h.[0] = '#' then h else "#" ^ h in
+      Parser.from_hex hex
+    | Rgb (r, g, b) ->
+      Parser.from_rgb (string_of_int r) (string_of_int g) (string_of_int b)
+    | Hsl (h, s, l) ->
+      Parser.from_hsl (string_of_float h) (string_of_float s) (string_of_float l)
+
+  let style_of_t = function
+    | Bold -> Parser.Style.Bold
+    | Dim -> Parser.Style.Dim
+    | Italic -> Parser.Style.Italic
+    | Underline -> Parser.Style.Underline
+    | Blink -> Parser.Style.Blink
+    | RapidBlink -> Parser.Style.RapidBlink
+    | Inverse -> Parser.Style.Inverse
+    | Hidden -> Parser.Style.Hidden
+    | Strikethru -> Parser.Style.Strikethru
+    | Fg _ | Bg _ -> assert false
+
+  let token_of_t = function
+    | Fg c -> Parser.Foreground (color_def_of_color c)
+    | Bg c -> Parser.Background (color_def_of_color c)
+    | s -> Parser.Control (style_of_t s)
+
+  let stag specs =
+    Spectrum_stag (List.map token_of_t specs)
 end
 
 (*
@@ -124,6 +177,8 @@ let make_printer raise_errors to_code =
               | Ok c -> Stack.push (to_code c) stack
               | Error e -> conditionally_raise e stack
             end
+          | Spectrum_stag tokens ->
+            Stack.push (to_code tokens) stack
           | _ -> ignore @@ original_stag_functions.mark_open_stag stag
         in
         materialise stack

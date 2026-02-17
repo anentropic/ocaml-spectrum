@@ -19,9 +19,14 @@
  (libraries alcotest junit_alcotest spectrum color))
 
 (test
- (name test_capabilities)
- (modules test_capabilities)
- (libraries alcotest junit_alcotest spectrum color))
+ (name test_stag)
+ (modules test_stag)
+ (libraries alcotest junit_alcotest spectrum spectrum_palette_ppx color))
+
+(test
+ (name test_properties)
+ (modules test_properties)
+ (libraries alcotest junit_alcotest qcheck-alcotest spectrum color))
 
 (test
  (name test_serializers)

@@ -3,7 +3,7 @@
  (public_name spectrum)
  (preprocess
   (pps ppx_deriving.show ppx_deriving.eq))
- (libraries color opam-state re spectrum_palettes spectrum_tools))
+ (libraries color re spectrum_capabilities spectrum_palettes spectrum_tools))
 
 (ocamllex lexer)
 

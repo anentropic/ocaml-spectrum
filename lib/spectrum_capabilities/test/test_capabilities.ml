@@ -1,4 +1,4 @@
-open Spectrum.Capabilities
+open Spectrum_capabilities.Capabilities
 
 module NonWindowsOsInfo = (
   val (os_info_provider false (Some "")) : OsInfoProvider

@@ -17,3 +17,14 @@
  (name test_query)
  (modules test_query)
  (libraries alcotest junit_alcotest spectrum_tools))
+
+(test
+ (name test_properties)
+ (modules test_properties)
+ (libraries
+  alcotest
+  junit_alcotest
+  qcheck-alcotest
+  spectrum_tools
+  spectrum_palettes
+  color))

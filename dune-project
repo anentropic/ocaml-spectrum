@@ -17,14 +17,15 @@
   (ocaml (>= 4.14))
   (color (>= 0.3.0))
   (re (>= 1.11.0))
-  (opam-state (>= 2.5.0))
   (ppx_deriving (>= 5.2))
+  (spectrum_capabilities (= :version))
   (spectrum_palettes (= :version))
   (spectrum_tools (= :version))
 
   ; test deps
   (alcotest (and :with-test (>= 1.4)))
   (junit_alcotest (and :with-test (>= 2.0)))
+  (qcheck-alcotest (and :with-test (>= 0.21)))
 
   ; dev deps
   ; opam install . --deps-only --with-dev-setup
@@ -33,6 +34,24 @@
   (opam-publish :with-dev-setup)
   (ocaml-lsp-server :with-dev-setup)
   (utop :with-dev-setup)
+
+  ; docs deps
+  (odoc :with-doc)
+ ))
+
+(package
+ (name spectrum_capabilities)
+ (synopsis "Terminal color capability detection for Spectrum")
+ (description "Detects terminal color support using environment variables and system information. Supports detection for various terminals, CI systems, and operating systems.")
+ (depends
+  (ocaml (>= 4.14))
+  (re (>= 1.11.0))
+  (opam-state (>= 2.5.0))
+  (ppx_deriving (>= 5.2))
+
+  ; test deps
+  (alcotest (and :with-test (>= 1.4)))
+  (junit_alcotest (and :with-test (>= 2.0)))
 
   ; docs deps
   (odoc :with-doc)
@@ -54,6 +73,7 @@
   ; test deps
   (alcotest (and :with-test (>= 1.4)))
   (junit_alcotest (and :with-test (>= 2.0)))
+  (qcheck-alcotest (and :with-test (>= 0.21)))
 
   ; docs deps
   (odoc :with-doc)

@@ -54,7 +54,7 @@
     - {!Spectrum_palettes} for pre-generated palette modules *)
 
 (** Terminal capability detection for color support. *)
-module Capabilities : module type of Capabilities
+module Capabilities : module type of Spectrum_capabilities.Capabilities
 
 (** Lexer for parsing color/style tags and ANSI escape sequences. *)
 module Lexer : module type of Lexer
@@ -71,6 +71,158 @@ module type Printer = Spectrum_intf.Printer
 
     See {!Serializer} for the full signature. *)
 module type Serializer = Spectrum_intf.Serializer
+
+(** Type-safe semantic tags for programmatic use with
+    {{:https://ocaml.org/api/Format.html}Format}.
+
+    The {!Stag} module provides an alternative to string-based
+    [@{<tag>...@}] syntax, allowing you to construct formatting tags
+    as OCaml values. This gives you compile-time safety, avoids
+    runtime string parsing, and makes it easy to compute styles
+    dynamically.
+
+    {2 Quick Start}
+
+    Use with [Format.pp_open_stag] and [Format.pp_close_stag] on a
+    formatter that has been prepared with {!prepare_ppf}:
+
+    {[
+      let reset = Spectrum.prepare_ppf Format.std_formatter in
+      let open Spectrum.Stag in
+      Format.pp_open_stag Format.std_formatter (stag [Bold; Fg (Named "red")]);
+      Format.pp_print_string Format.std_formatter "hello";
+      Format.pp_close_stag Format.std_formatter ();
+      Format.pp_print_newline Format.std_formatter ();
+      reset ()
+    ]}
+
+    {2 Specifying Colors}
+
+    Colors can be specified in several ways:
+
+    {[
+      (* Named xterm-256 color *)
+      stag [Fg (Named "dark-orange")]
+
+        (* Hex digits (without '#') — 3 or 6 chars *)
+        stag [Fg (Hex "ff5733")]
+        stag [Fg (Hex "F00")]
+
+        (* RGB components, each 0-255 *)
+        stag [Fg (Rgb (255, 87, 51))]
+
+        (* HSL: hue 0-360, saturation 0-100, lightness 0-100 *)
+        stag [Fg (Hsl (14.3, 100., 60.))]
+    ]}
+
+    {2 Compound Tags}
+
+    Combine multiple styles and colors in a single tag:
+
+    {[
+      (* Bold red text on a blue background *)
+      stag [Bold; Fg (Rgb (255, 0, 0)); Bg (Named "blue")]
+
+        (* Dim italic text *)
+        stag [Dim; Italic; Fg (Named "gray")]
+    ]}
+
+    {2 Nested Tags}
+
+    Tags nest naturally — inner tags add to the style stack and
+    closing them restores the previous style:
+
+    {[
+      let ppf = Format.std_formatter in
+      let reset = Spectrum.prepare_ppf ppf in
+      let open Spectrum.Stag in
+      Format.pp_open_stag ppf (stag [Fg (Named "green")]);
+      Format.pp_print_string ppf "green ";
+      Format.pp_open_stag ppf (stag [Bold]);
+      Format.pp_print_string ppf "green+bold ";
+      Format.pp_close_stag ppf ();
+      Format.pp_print_string ppf "green again";
+      Format.pp_close_stag ppf ();
+      Format.pp_print_newline ppf ();
+      reset ()
+    ]}
+
+    {2 Comparison with String Tags}
+
+    Stag variants are especially useful when styles are computed at
+    runtime, e.g. from configuration or user input:
+
+    {[
+      (* With string tags, you'd need to format a string: *)
+      let tag_str = Printf.sprintf "rgb(%d %d %d)" r g b in
+      Format.fprintf ppf "@{<%s>%s@}" tag_str text
+
+        (* With Stag, values are passed directly: *)
+        Format.pp_open_stag ppf (Spectrum.Stag.stag [Fg (Rgb (r, g, b))]);
+      Format.pp_print_string ppf text;
+      Format.pp_close_stag ppf ()
+    ]}
+
+    String-based tags and variant-based stags can be freely mixed on
+    the same formatter — both are handled by {!prepare_ppf}. *)
+module Stag : sig
+  (** Color specification.
+
+      Colors can be given as named xterm-256 palette entries, hex strings,
+      RGB component triples, or HSL triples. *)
+  type color =
+    | Named of string
+    (** A named color from the xterm-256 palette.
+        Examples: ["red"], ["green"], ["dark-orange"], ["light-steel-blue"].
+        Case-insensitive. *)
+    | Hex of string
+    (** Hex color digits {b without} the [#] prefix.
+        Accepts 3-char shorthand or 6-char full form.
+        Examples: ["F00"] (red), ["ff5733"], ["0CF"]. *)
+    | Rgb of int * int * int
+    (** RGB components, each in the range 0-255.
+        Example: [Rgb (255, 87, 51)] for a warm orange. *)
+    | Hsl of float * float * float
+    (** HSL color: hue in degrees (0-360), saturation (0-100),
+        lightness (0-100).
+        Example: [Hsl (14.3, 100., 60.)] for a warm orange. *)
+
+  (** A single style or color directive. *)
+  type t =
+    | Bold          (** Bold / increased intensity *)
+    | Dim           (** Faint / decreased intensity *)
+    | Italic        (** Italic text *)
+    | Underline     (** Underlined text *)
+    | Blink         (** Slow blink *)
+    | RapidBlink    (** Rapid blink *)
+    | Inverse       (** Swap foreground and background *)
+    | Hidden        (** Hidden / conceal *)
+    | Strikethru    (** Struck-through text *)
+    | Fg of color   (** Set foreground color *)
+    | Bg of color   (** Set background color *)
+
+  (** Construct a [Format.stag] from a list of directives.
+
+      The returned stag can be used with [Format.pp_open_stag] on a
+      formatter prepared via {!Spectrum.prepare_ppf}.
+
+      {[
+        let tag = Spectrum.Stag.stag [Bold; Fg (Hex "00FF00")] in
+        Format.pp_open_stag ppf tag;
+        Format.pp_print_string ppf "styled";
+        Format.pp_close_stag ppf ()
+      ]}
+
+      @raise Spectrum_palette_ppx.Palette.InvalidColorName
+        if a {!Named} color is not in the xterm-256 or basic palette
+      @raise Parser.InvalidHexColor
+        if a {!Hex} string cannot be parsed as a hex color
+      @raise Parser.InvalidRgbColor
+        if {!Rgb} values are outside the 0-255 range
+      @raise Parser.InvalidPercentage
+        if {!Hsl} saturation or lightness are outside 0-100 *)
+  val stag : t list -> Format.stag
+end
 
 (** Printer that raises exceptions on invalid color/style tags. *)
 module Exn : Printer

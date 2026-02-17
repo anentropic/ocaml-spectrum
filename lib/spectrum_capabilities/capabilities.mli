@@ -27,7 +27,7 @@ type color_level_info = {
     {[
       (* Check if stdout supports colors *)
       let is_tty = Unix.isatty Unix.stdout in
-      let level = Spectrum.Capabilities.supported_color_level is_tty in
+      let level = Spectrum_capabilities.Capabilities.supported_color_level is_tty in
       match level with
       | True_color -> Printf.printf "24-bit RGB supported\n"
       | Eight_bit -> Printf.printf "256 colors supported\n"
@@ -39,7 +39,7 @@ type color_level_info = {
       (* Check a specific file descriptor *)
       let fd = Unix.openfile "/dev/tty" [Unix.O_RDWR] 0o666 in
       let is_tty = Unix.isatty fd in
-      let level = Spectrum.Capabilities.supported_color_level is_tty in
+      let level = Spectrum_capabilities.Capabilities.supported_color_level is_tty in
       Unix.close fd
     ]}
 
@@ -53,7 +53,7 @@ val supported_color_level : bool -> color_level
     and returns their respective color support levels.
 
     {[
-      let info = Spectrum.Capabilities.supported_color_levels () in
+      let info = Spectrum_capabilities.Capabilities.supported_color_levels () in
       match info.stdout with
       | True_color -> print_endline "24-bit color supported"
       | Eight_bit -> print_endline "256 colors supported"
@@ -101,12 +101,12 @@ module Make : functor (_ : EnvProvider) (_ : OsInfoProvider) -> CapabilitiesProv
 (** Create an environment provider from a string map (for testing).
 
     {[
-      let env_map = Spectrum.Capabilities.StrMap.(
+      let env_map = Spectrum_capabilities.Capabilities.StrMap.(
           empty
           |> add "FORCE_COLOR" "3"
           |> add "TERM" "xterm-256color"
         ) in
-      let module Env = (val Spectrum.Capabilities.env_provider_of_map env_map) in
+      let module Env = (val Spectrum_capabilities.Capabilities.env_provider_of_map env_map) in
       (* Use Env in tests *)
     ]} *)
 val env_provider_of_map : string StrMap.t -> (module EnvProvider)
@@ -114,7 +114,7 @@ val env_provider_of_map : string StrMap.t -> (module EnvProvider)
 (** Create an OS info provider with fixed values (for testing).
 
     {[
-      let module OsInfo = (val Spectrum.Capabilities.os_info_provider false (Some "10.0.19041")) in
+      let module OsInfo = (val Spectrum_capabilities.Capabilities.os_info_provider false (Some "10.0.19041")) in
       (* Use OsInfo in tests *)
     ]} *)
 val os_info_provider : bool -> string option -> (module OsInfoProvider)

@@ -14,12 +14,13 @@ depends: [
   "ocaml" {>= "4.14"}
   "color" {>= "0.3.0"}
   "re" {>= "1.11.0"}
-  "opam-state" {>= "2.5.0"}
   "ppx_deriving" {>= "5.2"}
+  "spectrum_capabilities" {= version}
   "spectrum_palettes" {= version}
   "spectrum_tools" {= version}
   "alcotest" {with-test & >= "1.4"}
   "junit_alcotest" {with-test & >= "2.0"}
+  "qcheck-alcotest" {with-test & >= "0.21"}
   "ocamlformat" {with-dev-setup}
   "ocp-indent" {with-dev-setup}
   "opam-publish" {with-dev-setup}
