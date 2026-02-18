@@ -1,0 +1,100 @@
+{0 Spectrum Capabilities - Terminal Color Detection}
+
+{1 Overview}
+
+Spectrum Capabilities detects the color support level of a terminal by examining environment variables, the [TERM] setting, CI providers, and OS version information. The heuristics are adapted from the JavaScript {{:https://github.com/chalk/supports-color} supports-color} library (used by Chalk).
+
+This library has no dependency on the rest of the Spectrum family and can be used standalone.
+
+{1 Color Levels}
+
+Detection returns one of four levels:
+
+{[
+type color_level =
+  | Unsupported  (* No color support *)
+  | Basic        (* 16 colors: ANSI codes 30-37, 90-97 *)
+  | Eight_bit    (* 256 colors: xterm palette *)
+  | True_color   (* 24-bit RGB *)
+]}
+
+{1 Basic Usage}
+
+The typical entry point queries both stdout and stderr at once:
+
+{[
+let info = Spectrum_capabilities.Capabilities.supported_color_levels () in
+match info.stdout with
+| True_color -> print_endline "24-bit color supported"
+| Eight_bit -> print_endline "256 colors supported"
+| Basic -> print_endline "16 colors supported"
+| Unsupported -> print_endline "No color support"
+]}
+
+For a specific file descriptor, pass the result of [Unix.isatty] directly:
+
+{[
+let level =
+  Spectrum_capabilities.Capabilities.supported_color_level
+    (Unix.isatty Unix.stdout)
+]}
+
+{1 Detection Heuristics}
+
+The detection logic checks the following, in priority order:
+
++ Not a TTY and no [FORCE_COLOR]: returns [Unsupported]
++ [TERM=dumb]: returns [Unsupported] (unless [FORCE_COLOR] sets a floor)
++ Windows: checks OS build number (>= 14931 for [True_color], >= 10586 for [Eight_bit], otherwise [Basic])
++ CI environment: recognizes Travis, CircleCI, AppVeyor, GitLab CI, GitHub Actions, Buildkite, Drone, and Codeship
++ TeamCity: version >= 9.1 returns [Basic]
++ Azure DevOps ([TF_BUILD] + [AGENT_NAME]): returns [Basic]
++ [COLORTERM=truecolor]: returns [True_color]
++ [TERM_PROGRAM]: iTerm.app >= 3.0 returns [True_color], Apple_Terminal returns [Eight_bit]
++ [TERM] suffix [-256color] or [-256]: returns [Eight_bit]
++ [TERM] prefix matching known terminals ([xterm], [screen], [vt100], [rxvt], [ansi], [linux], etc.): returns [Basic]
++ Any [COLORTERM] value: returns [Basic]
++ Fallback: [Unsupported]
+
+{1 Overriding Detection}
+
+The [FORCE_COLOR] environment variable acts as a floor for detection:
+
+{v
+FORCE_COLOR=0       Unsupported
+FORCE_COLOR=1       Basic (16 colors)
+FORCE_COLOR=2       Eight_bit (256 colors)
+FORCE_COLOR=3       True_color (24-bit)
+FORCE_COLOR=true    Basic
+FORCE_COLOR=false   Unsupported
+v}
+
+{1 Custom Providers for Testing}
+
+The {!Spectrum_capabilities.Capabilities.Make} functor accepts custom environment and OS information providers, allowing deterministic testing without real terminal state:
+
+{[
+open Spectrum_capabilities.Capabilities
+
+let env_map = StrMap.(
+    empty
+    |> add "COLORTERM" "truecolor"
+  ) in
+let env = env_provider_of_map env_map in
+let os = os_info_provider false None in
+
+let module Caps = Make((val env))((val os)) in
+let level = Caps.supported_color_level true in
+assert (equal_color_level level True_color)
+]}
+
+{1 API Reference}
+
+{!modules:
+Spectrum_capabilities.Capabilities
+}
+
+{1 See Also}
+
+- {!Spectrum} for the main formatting library that uses these capabilities
+- {{:https://github.com/chalk/supports-color} supports-color} (JavaScript) for the reference implementation

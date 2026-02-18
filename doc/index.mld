@@ -44,7 +44,8 @@ Supported tags:
 
 {1 Libraries}
 
-- {!Spectrum} - Main library with formatting functions and capability detection
+- {!Spectrum} - Main library with formatting functions
+- {!Spectrum_capabilities} - Terminal color capability detection
 - {!Spectrum_tools} - Color conversion utilities and terminal queries
 - {!Spectrum_palettes} - Pre-generated palette modules (Basic, Xterm256)
 - {!Spectrum_palette_ppx} - PPX extension for custom palette generation
