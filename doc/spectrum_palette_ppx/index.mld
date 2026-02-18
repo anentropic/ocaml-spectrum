@@ -173,5 +173,5 @@ Spectrum_palette_ppx.Palette
 
 {1 See Also}
 
-- {!Spectrum_palettes} for pre-generated Basic and Xterm256 palettes
+- {{:../spectrum_palettes/index.html} Spectrum_palettes} for pre-generated Basic and Xterm256 palettes
 - {{:https://www.ditig.com/256-colors-cheat-sheet} Xterm color reference}

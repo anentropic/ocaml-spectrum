@@ -1,0 +1,3 @@
+(documentation
+ (package spectrum_palette_ppx)
+ (mld_files index))

@@ -42,3 +42,7 @@ tag:
 	fi
 	git tag ${VERSION}
 	git push origin ${VERSION}
+
+docs:
+	dune build @doc
+	open _build/default/_doc/_html/index.html

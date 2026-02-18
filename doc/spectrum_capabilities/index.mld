@@ -96,5 +96,5 @@ Spectrum_capabilities.Capabilities
 
 {1 See Also}
 
-- {!Spectrum} for the main formatting library that uses these capabilities
+- {{:../spectrum/index.html} Spectrum} for the main formatting library that uses these capabilities
 - {{:https://github.com/chalk/supports-color} supports-color} (JavaScript) for the reference implementation
