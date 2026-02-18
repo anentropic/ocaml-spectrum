@@ -5,10 +5,10 @@
 Spectrum Palette PPX provides a PPX extension for generating strongly-typed palette modules from JSON color definitions. The [\[%palette\]] extension creates complete OCaml modules with:
 
 - Variant types for each color
-- String-to-color conversion ([of_string])
-- Color-to-code mapping ([to_code])
-- RGB color values ([to_color], [color_list])
-- Efficient nearest-color search ([nearest]) using LAB space octrees
+- String-to-color conversion ({!Spectrum_palette_ppx.Palette.M.of_string})
+- Color-to-code mapping ({!Spectrum_palette_ppx.Palette.M.to_code})
+- RGB color values ({!Spectrum_palette_ppx.Palette.M.to_color}, {!Spectrum_palette_ppx.Palette.M.color_list})
+- Efficient nearest-color search ({!Spectrum_palette_ppx.Palette.M.nearest}) using LAB space octrees
 
 {1 Usage}
 
@@ -120,7 +120,7 @@ Color names in JSON are converted to valid OCaml variant constructors:
 
 {2 Nearest-Color Search}
 
-The [nearest] function uses octree-based spatial indexing in LAB color space:
+The {!Spectrum_palette_ppx.Palette.M.nearest} function uses octree-based spatial indexing in LAB color space:
 
 - {b LAB color space}: Perceptually uniform color space where numerical distance corresponds to perceived color difference
 - {b Octree indexing}: Spatial data structure that partitions 3D LAB space for efficient nearest-neighbor queries
@@ -130,7 +130,7 @@ The index is built once at module initialization and reused for all queries.
 
 {2 Exception Handling}
 
-The [of_string] function raises {!Spectrum_palette_ppx.Palette.InvalidColorName} for unknown color names:
+The {!Spectrum_palette_ppx.Palette.M.of_string} function raises {!Spectrum_palette_ppx.Palette.InvalidColorName} for unknown color names:
 
 {[
 try

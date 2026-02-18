@@ -40,11 +40,11 @@
     - {!Noexn} silently ignores invalid tags (default)
 
     The default top-level interface (just [Spectrum.xyz]) is equivalent
-    to {!Noexn}. Both expose {!Printer}, which includes [prepare_ppf]
+    to {!Noexn}. Both expose {!Printer}, which includes {!prepare_ppf}
     and the {!Printer.Simple} convenience module.
 
     Note: [Format.sprintf] uses its own buffer, so you must use
-    [Spectrum.Simple.sprintf] for styled sprintf, or create your own
+    {!Simple.sprintf} for styled sprintf, or create your own
     buffer with [Format.fprintf].
 
     {2 See Also}

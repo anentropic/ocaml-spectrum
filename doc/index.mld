@@ -31,7 +31,7 @@ For one-off printing, use the Simple interface which handles prepare/reset autom
 Spectrum.Simple.printf "@{<green>%s@}@." "Hello world"
 ]}
 
-Note: [Format.sprintf] uses its own buffer, so you must use [Spectrum.Simple.sprintf] for styled sprintf, or create your own buffer with [Format.fprintf] as described in the {{:https://ocaml.org/api/Format.html#VALsprintf} Format docs}.
+Note: [Format.sprintf] uses its own buffer, so you must use {!Spectrum.Simple.sprintf} for styled sprintf, or create your own buffer with [Format.fprintf] as described in the {{:https://ocaml.org/api/Format.html#VALsprintf} Format docs}.
 
 {1 Tag Syntax}
 
@@ -133,7 +133,7 @@ module Simple : sig
 end
 ]}
 
-The default module (just [Spectrum]) is equivalent to [Spectrum.Noexn].
+The default module (just {!Spectrum}) is equivalent to {!Spectrum.Noexn}.
 
 {1 Terminal Capabilities}
 
