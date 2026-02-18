@@ -279,5 +279,9 @@ Major enhancements!
 #### 0.2.0
 - first viable version
 
+## TODOs
+
+- Implement "256 from 16 palette" as per >https://github.com/jake-stewart/color256/>
+  - ...users typically define custom 16-color palettes (rather than full 256), it's nice if you can then auto expand this to a full 256-color xterm custom palette so that all colours complement each other.
 
 [1]: https://www.ditig.com/256-colors-cheat-sheet
