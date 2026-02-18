@@ -1,3 +1,27 @@
 (documentation
  (package spectrum_palettes)
- (mld_files index))
+ (mld_files index basic_palette xterm256_palette))
+
+(rule
+ (target basic_palette.mld)
+ (deps
+  (:json ../../lib/spectrum_palettes/16-colors.json))
+ (action
+  (with-stdout-to
+   %{target}
+   (run
+    %{exe:../../tools/gen_palette_docs/gen_palette_docs.exe}
+    basic
+    %{json}))))
+
+(rule
+ (target xterm256_palette.mld)
+ (deps
+  (:json ../../lib/spectrum_palettes/256-colors.json))
+ (action
+  (with-stdout-to
+   %{target}
+   (run
+    %{exe:../../tools/gen_palette_docs/gen_palette_docs.exe}
+    xterm256
+    %{json}))))

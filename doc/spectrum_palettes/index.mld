@@ -47,20 +47,9 @@ The nearest-color search uses an octree spatial index in LAB color space for O(l
 
 {2 Basic Palette (ANSI-16)}
 
-The Basic palette contains 16 colors with ANSI codes 30-37 (dark) and 90-97 (bright):
+The Basic palette contains 16 colors with ANSI codes 30-37 (dark) and 90-97 (bright). Color names are prefixed with "basic-" to avoid collisions with the xterm-256 palette.
 
-{v
-Dark colors (codes 30-37):
-  black, maroon, green, olive, navy, purple, teal, silver
-
-Bright colors (codes 90-97):
-  grey, red, lime, yellow, blue, fuchsia, aqua, white
-v}
-
-Color names are prefixed with "basic-" to avoid collisions with the xterm-256 palette:
-- [basic-red], [basic-bright-red]
-- [basic-green], [basic-bright-green]
-- etc.
+Full color reference: {!page-basic_palette}
 
 {2 Xterm256 Palette (ANSI-256)}
 
@@ -74,6 +63,8 @@ Color names follow the xterm convention with hyphenation:
 - Single names: [red], [green], [blue]
 - Compound names: [dark-orange], [light-blue], [medium-purple]
 - Duplicates with suffixes: [spring-green-3a], [spring-green-3b]
+
+Full color reference: {!page-xterm256_palette}
 
 {1 Generated Code}
 
