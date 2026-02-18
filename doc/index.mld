@@ -181,6 +181,7 @@ The quantization uses an octree-based nearest-neighbor search for efficient look
 {1 See Also}
 
 - {{:https://github.com/Chris00/ANSITerminal/} ANSITerminal} - Alternative terminal library with basic colors
+- {{:https://github.com/marc-chevalier/ocolor} OColor} - Format semantic tags with 4/8/24-bit color support
 - {{:https://erratique.ch/software/fmt/doc/Fmt/} Fmt} - Format module combinators
 - {{:https://ocaml.org/api/Format.html} OCaml Format module} - Standard library formatter
 
