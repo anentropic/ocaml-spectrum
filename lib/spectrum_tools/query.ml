@@ -101,6 +101,14 @@ module Xterm = struct
       see: https://stackoverflow.com/q/70962440/202168 *)
   let hex_to_8bit s =
     if String.length s = 0 then invalid_arg "hex_to_8bit: empty string";
+    (* Validate that all characters are valid hex digits *)
+    let is_hex_char c = 
+      (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F')
+    in
+    String.iter (fun c ->
+      if not (is_hex_char c) then
+        invalid_arg (Printf.sprintf "hex_to_8bit: invalid hex character '%c' in string \"%s\"" c s)
+    ) s;
     let scale = (16. ** float_of_int (String.length s)) -. 1. in
     let value = int_of_string @@ Printf.sprintf "0x%s" s in
     float_of_int value /. scale *. 255.

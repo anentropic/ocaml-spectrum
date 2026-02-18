@@ -53,6 +53,21 @@ let test_hex_to_8bit_empty_string () =
     (Invalid_argument "hex_to_8bit: empty string")
     (fun () -> ignore (Xterm.hex_to_8bit ""))
 
+let test_hex_to_8bit_invalid_chars () =
+  (* Invalid hex characters should raise Invalid_argument *)
+  check_raises "invalid char 'g'"
+    (Invalid_argument "hex_to_8bit: invalid hex character 'g' in string \"gg\"")
+    (fun () -> ignore (Xterm.hex_to_8bit "gg"));
+  check_raises "invalid char 'z'"
+    (Invalid_argument "hex_to_8bit: invalid hex character 'z' in string \"xyz\"")
+    (fun () -> ignore (Xterm.hex_to_8bit "xyz"));
+  check_raises "invalid char '!'"
+    (Invalid_argument "hex_to_8bit: invalid hex character '!' in string \"12!@\"")
+    (fun () -> ignore (Xterm.hex_to_8bit "12!@"));
+  check_raises "invalid char ' '"
+    (Invalid_argument "hex_to_8bit: invalid hex character ' ' in string \"FF FF\"")
+    (fun () -> ignore (Xterm.hex_to_8bit "FF FF"))
+
 let test_hex_to_8bit_scaling_consistency () =
   (* Verify that scaling is consistent across widths *)
   (* C, CC, CCC, CCCC should all give approximately the same value *)
@@ -228,6 +243,7 @@ let () =
     ];
     "hex_to_8bit - Edge cases", [
       test_case "empty string raises" `Quick test_hex_to_8bit_empty_string;
+      test_case "invalid hex chars raise" `Quick test_hex_to_8bit_invalid_chars;
     ];
     "hex_to_8bit - Scaling consistency", [
       test_case "same value different widths" `Quick test_hex_to_8bit_scaling_consistency;
