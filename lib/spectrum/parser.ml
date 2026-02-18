@@ -15,6 +15,7 @@ module Style = struct
     | Inverse
     | Hidden
     | Strikethru
+    | Overline
 
   (*
     see: https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_(Select_Graphic_Rendition)_parameters
@@ -30,6 +31,7 @@ module Style = struct
     | "inverse" -> Inverse
     | "hidden" -> Hidden
     | "strikethru" -> Strikethru
+    | "overline" -> Overline
     | name -> raise @@ InvalidStyleName name
 
   let to_code = function
@@ -42,6 +44,7 @@ module Style = struct
     | Inverse -> 7
     | Hidden -> 8
     | Strikethru -> 9
+    | Overline -> 53
 end
 
 type rgba = { r : int; g : int; b : int; a : float }
@@ -142,6 +145,7 @@ type compound_tag = {
   inverse : bool;
   hidden : bool;
   strikethru : bool;
+  overline : bool;
   fg_color : color_def option;
   bg_color : color_def option;
 }
@@ -156,6 +160,7 @@ let compound_of_tokens tokens =
   and inverse = ref false
   and hidden = ref false
   and strikethru = ref false
+  and overline = ref false
   and fg_color = ref None
   and bg_color = ref None
   in
@@ -170,6 +175,7 @@ let compound_of_tokens tokens =
     | Control Inverse -> inverse := true
     | Control Hidden -> hidden := true
     | Control Strikethru -> strikethru := true
+    | Control Overline -> overline := true
     | Foreground c -> fg_color := Some c
     | Background c -> bg_color := Some c
   ) tokens;
@@ -183,6 +189,7 @@ let compound_of_tokens tokens =
     inverse = !inverse;
     hidden = !hidden;
     strikethru = !strikethru;
+    overline = !overline;
     fg_color = !fg_color;
     bg_color = !bg_color;
   }

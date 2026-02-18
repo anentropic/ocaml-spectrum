@@ -16,7 +16,8 @@ let test_style_valid_names () =
   check bool "rapid-blink" true (try ignore (Style.of_string "rapid-blink"); true with _ -> false);
   check bool "inverse" true (try ignore (Style.of_string "inverse"); true with _ -> false);
   check bool "hidden" true (try ignore (Style.of_string "hidden"); true with _ -> false);
-  check bool "strikethru" true (try ignore (Style.of_string "strikethru"); true with _ -> false)
+  check bool "strikethru" true (try ignore (Style.of_string "strikethru"); true with _ -> false);
+  check bool "overline" true (try ignore (Style.of_string "overline"); true with _ -> false)
 
 let test_style_invalid_names () =
   check_raises "unknown style"
@@ -48,7 +49,8 @@ let test_style_to_code () =
   check int "RapidBlink -> 6" 6 (Style.to_code RapidBlink);
   check int "Inverse -> 7" 7 (Style.to_code Inverse);
   check int "Hidden -> 8" 8 (Style.to_code Hidden);
-  check int "Strikethru -> 9" 9 (Style.to_code Strikethru)
+  check int "Strikethru -> 9" 9 (Style.to_code Strikethru);
+  check int "Overline -> 53" 53 (Style.to_code Overline)
 
 (* ===== Color Parsing Tests ===== *)
 
@@ -170,7 +172,8 @@ let test_compound_empty () =
   check bool "all bools false" true
     (not result.bold && not result.dim && not result.italic &&
      not result.underline && not result.blink && not result.rapid_blink &&
-     not result.inverse && not result.hidden && not result.strikethru);
+     not result.inverse && not result.hidden && not result.strikethru &&
+     not result.overline);
   check bool "no fg color" true (result.fg_color = None);
   check bool "no bg color" true (result.bg_color = None)
 

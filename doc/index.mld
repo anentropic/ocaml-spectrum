@@ -83,7 +83,7 @@ Spectrum.Simple.printf "@{<bold>%s@}@." "bold text";
 Spectrum.Simple.printf "@{<italic>%s@}@." "italic text"
 ]}
 
-Available styles: [bold], [dim], [italic], [underline], [blink], [rapid-blink], [inverse], [hidden], [strikethru]
+Available styles: [bold], [dim], [italic], [underline], [blink], [rapid-blink], [inverse], [hidden], [strikethru], [overline]
 
 {2 Foreground and Background}
 

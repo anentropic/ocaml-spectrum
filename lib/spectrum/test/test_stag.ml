@@ -65,6 +65,11 @@ let test_strikethru () =
   let result = sprintf_with_stag (stag [Strikethru]) "hello" in
   check string "strikethru" "\027[0;9mhello\027[0m" result
 
+let test_overline () =
+  let open Spectrum.Stag in
+  let result = sprintf_with_stag (stag [Overline]) "hello" in
+  check string "overline" "\027[0;53mhello\027[0m" result
+
 (* Foreground colors *)
 
 let test_fg_named () =
@@ -189,6 +194,7 @@ let () =
       test_case "Inverse" `Quick test_inverse;
       test_case "Hidden" `Quick test_hidden;
       test_case "Strikethru" `Quick test_strikethru;
+      test_case "Overline" `Quick test_overline;
     ];
     "Foreground colors", [
       test_case "Named: red" `Quick test_fg_named;

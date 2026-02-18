@@ -37,6 +37,7 @@ module Stag = struct
     | Inverse
     | Hidden
     | Strikethru
+    | Overline
     | Fg of color
     | Bg of color
 
@@ -60,6 +61,7 @@ module Stag = struct
     | Inverse -> Parser.Style.Inverse
     | Hidden -> Parser.Style.Hidden
     | Strikethru -> Parser.Style.Strikethru
+    | Overline -> Parser.Style.Overline
     | Fg _ | Bg _ -> assert false
 
   let token_of_t = function

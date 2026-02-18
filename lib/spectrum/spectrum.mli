@@ -28,7 +28,7 @@
     - Hex colors: [@{<#ff5733>text@}], [@{<#f00>text@}]
     - RGB: [@{<rgb(255 87 51)>text@}]
     - HSL: [@{<hsl(60 100 50)>text@}]
-    - Styles: [@{<bold>text@}], [@{<underline>text@}], [@{<italic>text@}]
+    - Styles: [@{<bold>text@}], [@{<underline>text@}], [@{<italic>text@}], [@{<overline>text@}]
     - Qualifiers: [@{<bg:red>text@}], [@{<fg:blue>text@}]
     - Compound: [@{<bold,bg:red,yellow>text@}]
 
@@ -198,6 +198,7 @@ module Stag : sig
     | Inverse       (** Swap foreground and background *)
     | Hidden        (** Hidden / conceal *)
     | Strikethru    (** Struck-through text *)
+    | Overline      (** Overlined text *)
     | Fg of color   (** Set foreground color *)
     | Bg of color   (** Set background color *)
 

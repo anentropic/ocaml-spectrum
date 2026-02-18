@@ -46,6 +46,7 @@ let () =
     "Styles", [
       test_case "Bold" `Quick (test_tag_to_code "bold" (Ok "1"));
       test_case "Rapid blink" `Quick (test_tag_to_code "rapid-blink" (Ok "6"));
+      test_case "Overline" `Quick (test_tag_to_code "overline" (Ok "53"));
     ];
     "Named colors", [
       test_case "Foreground (implicit): red" `Quick (test_tag_to_code "red" (Ok "38;5;9"));
