@@ -31,15 +31,14 @@ All generated HTML lives under `_build/default/_doc/_html/`.
 
 | Generated HTML | Source |
 |---|---|
-| `spectrum/index.html` | [doc/index.mld](../doc/index.mld) — project overview & quick start |
-| `spectrum/spectrum.html` | [doc/spectrum.mld](../doc/spectrum.mld) — detailed usage guide (tag syntax, capabilities, etc.) |
+| `spectrum/index.html` | [doc/index.mld](../doc/index.mld) — overview, usage guide, tag syntax, capabilities |
 | `spectrum/Spectrum/index.html` | [lib/spectrum/spectrum.mli](../lib/spectrum/spectrum.mli) — API reference |
 | `spectrum/Spectrum/Lexer/index.html` | [lib/spectrum/lexer.mll](../lib/spectrum/lexer.mll) → (ocamllex) → `lexer.ml` — exposed through `spectrum.mli` |
 | `spectrum/Spectrum/Parser/index.html` | [lib/spectrum/parser.ml](../lib/spectrum/parser.ml) — exposed through `spectrum.mli` |
 | `spectrum/Spectrum/Capabilities/index.html` | Re-exported from `spectrum_capabilities` via `spectrum.mli` |
 | `spectrum/Spectrum/{Exn,Noexn,Simple,...}/index.html` | Submodules defined in `spectrum.mli` |
 
-Dune config: [doc/dune](../doc/dune) declares `(mld_files index spectrum)` for the `spectrum` package.
+Dune config: [doc/dune](../doc/dune) declares `(mld_files index)` for the `spectrum` package.
 
 ### `spectrum_tools` package
 
