@@ -1,21 +1,8 @@
-module Capabilities = Capabilities
+module Capabilities = Spectrum_capabilities.Capabilities
 module Lexer = Lexer
 module Parser = Parser
 
-module type Printer = sig
-  val prepare_ppf : Format.formatter -> unit -> unit
-
-  module Simple : sig
-    (** equivalent to [Format.printf] *)
-    val printf : ('a, Format.formatter, unit, unit) format4 -> 'a
-
-    (** equivalent to [Format.eprintf] *)
-    val eprintf : ('a, Format.formatter, unit, unit) format4 -> 'a
-
-    (** equivalent to [Format.sprintf] *)
-    val sprintf : ('a, Format.formatter, unit, string) format4 -> 'a
-  end
-end
+module type Printer = Spectrum_intf.Printer
 
 let stack_to_esc stack =
   "\027["
@@ -29,6 +16,61 @@ let stack_to_esc stack =
 
 module type Serializer = sig
   val to_code : Parser.token list -> string
+end
+
+type Format.stag += Spectrum_stag of Parser.token list
+
+module Stag = struct
+  type color =
+    | Named of string
+    | Hex of string
+    | Rgb of int * int * int
+    | Hsl of float * float * float
+
+  type t =
+    | Bold
+    | Dim
+    | Italic
+    | Underline
+    | Blink
+    | RapidBlink
+    | Inverse
+    | Hidden
+    | Strikethru
+    | Overline
+    | Fg of color
+    | Bg of color
+
+  let color_def_of_color = function
+    | Named name -> Parser.from_name name
+    | Hex h ->
+      let hex = if String.length h > 0 && h.[0] = '#' then h else "#" ^ h in
+      Parser.from_hex hex
+    | Rgb (r, g, b) ->
+      Parser.from_rgb (string_of_int r) (string_of_int g) (string_of_int b)
+    | Hsl (h, s, l) ->
+      Parser.from_hsl (string_of_float h) (string_of_float s) (string_of_float l)
+
+  let style_of_t = function
+    | Bold -> Parser.Style.Bold
+    | Dim -> Parser.Style.Dim
+    | Italic -> Parser.Style.Italic
+    | Underline -> Parser.Style.Underline
+    | Blink -> Parser.Style.Blink
+    | RapidBlink -> Parser.Style.RapidBlink
+    | Inverse -> Parser.Style.Inverse
+    | Hidden -> Parser.Style.Hidden
+    | Strikethru -> Parser.Style.Strikethru
+    | Overline -> Parser.Style.Overline
+    | Fg _ | Bg _ -> assert false
+
+  let token_of_t = function
+    | Fg c -> Parser.Foreground (color_def_of_color c)
+    | Bg c -> Parser.Background (color_def_of_color c)
+    | s -> Parser.Control (style_of_t s)
+
+  let stag specs =
+    Spectrum_stag (List.map token_of_t specs)
 end
 
 (*
@@ -76,7 +118,7 @@ module Xterm256_Serializer : Serializer = struct
         | Foreground RgbColor c -> "38;5;" ^ string_of_int @@ quantized c
         | Background NamedBasicColor c -> string_of_int @@ Basic.to_code c + 10
         | Background Named256Color c -> "48;5;" ^ string_of_int @@ Xterm256.to_code c
-        | Background RgbColor c -> "48;2;" ^ string_of_int @@ quantized c
+        | Background RgbColor c -> "48;5;" ^ string_of_int @@ quantized c
       ) tokens
     |> String.concat ";"
 end
@@ -137,6 +179,8 @@ let make_printer raise_errors to_code =
               | Ok c -> Stack.push (to_code c) stack
               | Error e -> conditionally_raise e stack
             end
+          | Spectrum_stag tokens ->
+            Stack.push (to_code tokens) stack
           | _ -> ignore @@ original_stag_functions.mark_open_stag stag
         in
         materialise stack
@@ -188,12 +232,34 @@ let make_printer raise_errors to_code =
   (module M : Printer)
 
 (*
-  TODO:
-  substitute appropriate serializer based on capabilities detection
+  Select the appropriate serializer based on terminal capability detection.
+
+  For Unsupported, we still emit Basic ANSI codes rather than stripping all
+  formatting - this allows colors to work in terminals that support them even
+  if not detected, while degrading gracefully in truly unsupported environments.
+  To fully disable colors, users should avoid calling Spectrum in the first place
+  or check Capabilities.supported_color_levels themselves.
 *)
+let select_serializer () =
+  let open Capabilities in
+  let levels = supported_color_levels () in
+  (* Use stdout capability for selecting serializer *)
+  match levels.stdout with
+  | True_color -> True_color_Serializer.to_code
+  | Eight_bit -> Xterm256_Serializer.to_code
+  | Basic -> Basic_Serializer.to_code
+  | Unsupported -> Basic_Serializer.to_code
 
-module Exn = (val (make_printer true True_color_Serializer.to_code) : Printer)
+module Exn = (val (make_printer true (select_serializer ())) : Printer)
 
-module Noexn = (val (make_printer false True_color_Serializer.to_code) : Printer)
+module Noexn = (val (make_printer false (select_serializer ())) : Printer)
 
 include Noexn
+
+(** Expose serializers and printer constructor for testing purposes under Private module *)
+module Private = struct
+  module True_color_Serializer = True_color_Serializer
+  module Xterm256_Serializer = Xterm256_Serializer
+  module Basic_Serializer = Basic_Serializer
+  let make_printer = make_printer
+end

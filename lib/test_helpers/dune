@@ -1,0 +1,3 @@
+(library
+ (name test_runner)
+ (libraries alcotest junit_alcotest))

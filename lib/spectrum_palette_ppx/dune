@@ -1,0 +1,10 @@
+(library
+ (name spectrum_palette_ppx)
+ (public_name spectrum_palette_ppx)
+ (kind ppx_rewriter)
+ (preprocess
+  (pps ppxlib.metaquot))
+ (libraries color yojson ppxlib re oktree))
+
+(documentation
+ (package spectrum_palette_ppx))

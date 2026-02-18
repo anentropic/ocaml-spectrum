@@ -1,0 +1,177 @@
+{0 Spectrum Palette PPX - Custom Palette Generation}
+
+{1 Overview}
+
+Spectrum Palette PPX provides a PPX extension for generating strongly-typed palette modules from JSON color definitions. The [\[%palette\]] extension creates complete OCaml modules with:
+
+- Variant types for each color
+- String-to-color conversion ({!Spectrum_palette_ppx.Palette.M.of_string})
+- Color-to-code mapping ({!Spectrum_palette_ppx.Palette.M.to_code})
+- RGB color values ({!Spectrum_palette_ppx.Palette.M.to_color}, {!Spectrum_palette_ppx.Palette.M.color_list})
+- Efficient nearest-color search ({!Spectrum_palette_ppx.Palette.M.nearest}) using LAB space octrees
+
+{1 Usage}
+
+{2 Define a Palette JSON File}
+
+Create a JSON file with color definitions. Each color needs a name, ANSI code, and RGB values:
+
+{v
+[
+  {
+    "name": "red",
+    "colorId": 196,
+    "rgb": {"r": 255, "g": 0, "b": 0}
+  },
+  {
+    "name": "green",
+    "colorId": 46,
+    "rgb": {"r": 0, "g": 255, "b": 0}
+  },
+  {
+    "name": "blue",
+    "colorId": 21,
+    "rgb": {"r": 0, "g": 0, "b": 255}
+  }
+]
+v}
+
+The JSON format:
+- [name]: Color name (converted to kebab-case for the variant constructor)
+- [colorId]: ANSI color code (terminal escape sequence value)
+- [rgb]: RGB components with [r], [g], [b] fields (0-255)
+
+{2 Generate a Palette Module}
+
+Use the [\[%palette\]] extension in your OCaml code:
+
+{[
+module MyPalette : Spectrum_palette_ppx.Palette.M = [%palette "colors.json"]
+]}
+
+Or without a signature constraint:
+
+{[
+module MyPalette = [%palette "colors.json"]
+]}
+
+The path is relative to the source file location.
+
+{2 Use the Generated Module}
+
+The generated module provides a complete palette interface:
+
+{[
+(* Convert color name to palette type *)
+let red = MyPalette.of_string "red" in
+
+(* Get ANSI code *)
+let code = MyPalette.to_code red in
+Printf.printf "Red is code %d\n" code;
+
+(* Get RGB color *)
+let color = MyPalette.to_color red in
+
+(* List all colors *)
+let all_colors = MyPalette.color_list in
+Printf.printf "Palette has %d colors\n" (List.length all_colors);
+
+(* Find nearest color to arbitrary RGB *)
+let orange = Gg.Color.v_srgb 0.9 0.4 0.3 in
+let nearest_color = MyPalette.nearest orange
+]}
+
+{1 Generated Module Signature}
+
+The [\[%palette\]] extension generates modules implementing {!Spectrum_palette_ppx.Palette.M}:
+
+{[
+module type M = sig
+  (** Palette color type (variant with one constructor per color) *)
+  type t
+
+  (** Convert a color name string to the palette type.
+      @raise InvalidColorName if the name is not in the palette *)
+  val of_string : string -> t
+
+  (** Get the ANSI color code for a palette color *)
+  val to_code : t -> int
+
+  (** Convert a palette color to its RGB representation *)
+  val to_color : t -> Gg.v4
+
+  (** List of all colors in the palette (in order) *)
+  val color_list : Gg.v4 list
+
+  (** Find the nearest palette color to the given color using
+      perceptual distance (LAB color space) *)
+  val nearest : Gg.v4 -> Gg.v4
+end
+]}
+
+{1 Implementation Details}
+
+{2 Color Name Conversion}
+
+Color names in JSON are converted to valid OCaml variant constructors:
+- Converted to kebab-case: ["SpringGreen"] becomes [spring-green]
+- Spaces become hyphens: ["Dark Orange"] becomes [dark-orange]
+- Numbers preserved: ["Color123"] becomes [color-123]
+
+{2 Nearest-Color Search}
+
+The {!Spectrum_palette_ppx.Palette.M.nearest} function uses octree-based spatial indexing in LAB color space:
+
+- {b LAB color space}: Perceptually uniform color space where numerical distance corresponds to perceived color difference
+- {b Octree indexing}: Spatial data structure that partitions 3D LAB space for efficient nearest-neighbor queries
+- {b Performance}: O(log n) average case for lookup in a palette of n colors
+
+The index is built once at module initialization and reused for all queries.
+
+{2 Exception Handling}
+
+The {!Spectrum_palette_ppx.Palette.M.of_string} function raises {!Spectrum_palette_ppx.Palette.InvalidColorName} for unknown color names:
+
+{[
+try
+  let color = MyPalette.of_string "notacolor" in
+  (* ... *)
+with Spectrum_palette_ppx.Palette.InvalidColorName name ->
+  Printf.printf "Unknown color: %s\n" name
+]}
+
+{1 Examples}
+
+{2 Custom Terminal Theme}
+
+Create a palette matching your terminal theme:
+
+{[
+module MyTheme = [%palette "my_theme.json"]
+
+(* Use in terminal output *)
+let code = MyTheme.of_string "background" |> MyTheme.to_code in
+Printf.printf "\027[48;5;%dm Custom background \027[0m\n" code
+]}
+
+{2 Color Quantization}
+
+Quantize arbitrary colors to a limited palette:
+
+{[
+let quantize_to_palette color =
+  let nearest = MyPalette.nearest color in
+  (* Find which palette entry this is *)
+  List.find (fun c -> Gg.Color.equal c nearest) MyPalette.color_list
+]}
+
+{1 API Reference}
+
+{!modules:
+Spectrum_palette_ppx.Palette
+}
+
+{1 See Also}
+
+- {{:../spectrum_palettes/index.html} Spectrum_palettes} for pre-generated Basic and Xterm256 palettes
+- {{:https://www.ditig.com/256-colors-cheat-sheet} Xterm color reference}

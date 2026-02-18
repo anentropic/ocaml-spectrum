@@ -1,0 +1,101 @@
+{0 Spectrum Tools - Color Conversion and Terminal Utilities}
+
+{1 Overview}
+
+Spectrum Tools provides low-level utilities for color conversion and terminal interaction. These functions are used internally by Spectrum but are exposed for advanced use cases:
+
+- Perceptual color quantization using LAB color space
+- Terminal color querying via xterm control sequences
+- Color space conversion utilities (RGB, HSL, HSVA)
+
+{1 Color Conversion}
+
+The {!Spectrum_tools.Convert} module provides functions to convert RGB colors to ANSI color codes with perceptual accuracy.
+
+{2 Perceptual Color Matching}
+
+The {!Spectrum_tools.Convert.Perceptual} converter uses the CIE LAB color space for quantization. LAB space is perceptually uniform, meaning that the numerical distance between two colors in LAB space corresponds to how different they appear to humans. This provides more accurate color matching than simple RGB Euclidean distance.
+
+{[
+let color = Gg.Color.v_srgb 0.8 0.3 0.2 in
+
+(* Convert to nearest xterm-256 color *)
+let ansi256_code = Spectrum_tools.Convert.Perceptual.rgb_to_ansi256 color in
+
+(* Convert to nearest ANSI-16 basic color *)
+let ansi16_code = Spectrum_tools.Convert.Perceptual.rgb_to_ansi16 color
+]}
+
+The conversion uses octree-based spatial indexing in LAB space for efficient nearest-neighbor search. See {!Spectrum_palette_ppx.Palette} for details on the indexing implementation.
+
+{2 Color Space Utilities}
+
+The {!Spectrum_tools.Convert.Color} module extends the base Color library with additional types and conversions:
+
+{[
+(* Create color from RGB integers (0-255) *)
+let red = Spectrum_tools.Convert.Color.of_rgb 255 0 0 in
+
+(* Convert to RGBA with integer components *)
+let rgba = Spectrum_tools.Convert.Color.to_rgba red in
+Printf.printf "R:%d G:%d B:%d A:%f\n" rgba.r rgba.g rgba.b rgba.a;
+
+(* Create from HSL *)
+let yellow = Spectrum_tools.Convert.Color.of_hsl 60. 100. 50. in
+
+(* Convert to HSVA *)
+let hsva = Spectrum_tools.Convert.Color.to_hsva yellow
+]}
+
+{1 Terminal Querying}
+
+The {!Spectrum_tools.Query} module provides functions to query xterm-compatible terminals for their current foreground and background colors.
+
+{2 Querying Terminal Colors}
+
+{[
+(* Query both foreground and background *)
+let colours = Spectrum_tools.Query.Xterm.get_colours Unix.stdin in
+
+let () =
+  match colours.fg with
+  | Ok fg_color ->
+    let rgba = Spectrum_tools.Convert.Color.to_rgba fg_color in
+    Printf.printf "Foreground: RGB(%d, %d, %d)\n" rgba.r rgba.g rgba.b
+  | Error msg ->
+    Printf.printf "Failed to detect foreground: %s\n" msg
+in
+
+let () =
+  match colours.bg with
+  | Ok bg_color ->
+    let rgba = Spectrum_tools.Convert.Color.to_rgba bg_color in
+    Printf.printf "Background: RGB(%d, %d, %d)\n" rgba.r rgba.g rgba.b
+  | Error msg ->
+    Printf.printf "Failed to detect background: %s\n" msg
+in
+()
+]}
+
+{2 Terminal Control Protocol}
+
+Queries use xterm OSC (Operating System Command) sequences:
+- OSC 10: Query foreground color
+- OSC 11: Query background color
+
+The terminal responds with colors in 48-bit RGB format: [rgb:RRRR/GGGG/BBBB]
+
+Note: The query functions automatically handle terminal raw mode setup and restoration. Only xterm-compatible terminals support these queries.
+
+{1 API Reference}
+
+{!modules:
+Spectrum_tools.Convert
+Spectrum_tools.Query
+}
+
+{1 Implementation Notes}
+
+The perceptual quantization algorithm is based on {{:https://stackoverflow.com/a/1678481/202168} LAB color space nearest-neighbor search}. This approach provides better matches than algorithmic RGB quantization (as used in some JavaScript libraries) because it accounts for human color perception.
+
+The implementation uses the {{:https://github.com/dbuenzli/gg} Gg} library for color space conversions and the {{:https://github.com/anentropic/ocaml-oktree} oktree} package for spatial indexing.

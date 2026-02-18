@@ -52,13 +52,16 @@ let product3 l l' l'' =
 let min3 a b c = min a (min b c)
 let max3 a b c = max a (max b c)
 
-let min_fold l = List.fold_left min (List.hd l) (List.tl l)
-let max_fold l = List.fold_left max (List.hd l) (List.tl l)
+let min_fold = function
+  | [] -> None
+  | hd :: tl -> Some (List.fold_left min hd tl)
+
+let max_fold = function
+  | [] -> None
+  | hd :: tl -> Some (List.fold_left max hd tl)
 
 (*
   Find nearest y, where x=2^y
-  could be used to determine the Int.shift_right from a grey_threshold in
-  the Chalk rgb_to_ansi256 algorithm
 
   the general solution is: y = log x / log 2 (for 2^y)
   let nearest_sqrt x = log (float_of_int x) /. log 2. |> int_of_float
@@ -178,8 +181,6 @@ https://observablehq.com/@tmcw/octree-color-quantization
 NOTE: not a 'real' octree, this is a simplification that only works
 for a 256-colour palette which evenly divides the space
 (commonly used 256 color palettes do not do this so it can give bad results)
-
-TODO: replace with oktree lib
 *)
 let color_index_256 color_v4 level =
   let color = to_rgba color_v4
