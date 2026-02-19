@@ -16,15 +16,14 @@ These modules are generated at compile time from JSON definitions using the [\[%
 Convert color names to palette values and ANSI codes:
 
 {[
-(* Look up a color by name *)
-let red = Spectrum_palettes.Terminal.Xterm256.of_string "red" in
+let red = Spectrum_palettes.Terminal.Xterm256.of_string "red"
+(* val red : Spectrum_palettes.Terminal.Xterm256.t *)
 
-(* Get the ANSI code *)
-let code = Spectrum_palettes.Terminal.Xterm256.to_code red in
-Printf.printf "Red is ANSI code: %d\n" code;
+let code = Spectrum_palettes.Terminal.Xterm256.to_code red
+(* val code : int = 9 *)
 
-(* Get the RGB color value *)
 let color = Spectrum_palettes.Terminal.Xterm256.to_color red
+(* val color : Gg.v4 — RGBA float values (1.0, 0.0, 0.0, 1.0) *)
 ]}
 
 {2 Nearest Color Search}
@@ -32,14 +31,14 @@ let color = Spectrum_palettes.Terminal.Xterm256.to_color red
 Find the closest palette color to an arbitrary RGB value using perceptually accurate LAB color space distance:
 
 {[
-(* Create an arbitrary color *)
-let orange = Gg.Color.v_srgb 0.9 0.4 0.3 in
+let orange = Gg.Color.v_srgb 0.9 0.4 0.3
+(* val orange : Gg.v4 — RGBA (0.9, 0.4, 0.3, 1.0) *)
 
-(* Find nearest xterm-256 color *)
-let nearest = Spectrum_palettes.Terminal.Xterm256.nearest orange in
+let nearest = Spectrum_palettes.Terminal.Xterm256.nearest orange
+(* val nearest : Gg.v4 — nearest xterm-256 color by perceptual distance *)
 
-(* Or find nearest basic 16-color *)
 let nearest_basic = Spectrum_palettes.Terminal.Basic.nearest orange
+(* val nearest_basic : Gg.v4 — nearest ANSI-16 color *)
 ]}
 
 The nearest-color search uses an octree spatial index in LAB color space for O(log n) average-case performance.

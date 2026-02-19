@@ -56,16 +56,20 @@ The path is relative to the source file. At compile time, the PPX reads the JSON
 The generated module can be used directly for color lookups and matching:
 
 {[
-(* Look up a color by name *)
 let primary = Theme.of_string "brand-primary"
+(* val primary : Theme.t *)
 
-(* Get the ANSI code for terminal output *)
 let code = Theme.to_code primary
-let () = Printf.printf "\027[38;5;%dm■\027[0m brand-primary\n" code
+(* val code : int = 33 *)
 
-(* Find the nearest palette color to an arbitrary RGB value *)
-let arbitrary = Gg.Color.v_srgb 0.5 0.3 0.8 in
+let color = Theme.to_color primary
+(* val color : Gg.v4 — RGBA float values (0.0, 0.529, 1.0, 1.0) *)
+
+let arbitrary = Gg.Color.v_srgb 0.5 0.3 0.8
+(* val arbitrary : Gg.v4 *)
+
 let nearest = Theme.nearest arbitrary
+(* val nearest : Gg.v4 — nearest palette color by perceptual distance *)
 ]}
 
 See {{:../spectrum_palette_ppx/index.html} Spectrum Palette PPX} for the full API reference.

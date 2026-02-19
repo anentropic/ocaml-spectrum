@@ -64,23 +64,23 @@ The path is relative to the source file location.
 The generated module provides a complete palette interface:
 
 {[
-(* Convert color name to palette type *)
-let red = MyPalette.of_string "red" in
+let red = MyPalette.of_string "red"
+(* val red : MyPalette.t *)
 
-(* Get ANSI code *)
-let code = MyPalette.to_code red in
-Printf.printf "Red is code %d\n" code;
+let code = MyPalette.to_code red
+(* val code : int = 196 *)
 
-(* Get RGB color *)
-let color = MyPalette.to_color red in
+let color = MyPalette.to_color red
+(* val color : Gg.v4 — RGBA float values (1.0, 0.0, 0.0, 1.0) *)
 
-(* List all colors *)
-let all_colors = MyPalette.color_list in
-Printf.printf "Palette has %d colors\n" (List.length all_colors);
+let all_colors = MyPalette.color_list
+(* val all_colors : Gg.v4 list — one entry per palette color *)
 
-(* Find nearest color to arbitrary RGB *)
-let orange = Gg.Color.v_srgb 0.9 0.4 0.3 in
+let orange = Gg.Color.v_srgb 0.9 0.4 0.3
+(* val orange : Gg.v4 — RGBA (0.9, 0.4, 0.3, 1.0) *)
+
 let nearest_color = MyPalette.nearest orange
+(* val nearest_color : Gg.v4 — nearest palette color by perceptual distance *)
 ]}
 
 {1 Generated Module Signature}

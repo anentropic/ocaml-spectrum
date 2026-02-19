@@ -47,19 +47,7 @@ Euclidean distance in LAB space gives perceptually meaningful results. Two color
 
 The conversion from RGB to LAB involves two steps: RGB to XYZ (a linear transform) then XYZ to LAB (a nonlinear transform with cube roots). Spectrum uses the {{:https://github.com/dbuenzli/gg} Gg} library for these conversions.
 
-{1 Octree Spatial Index: Efficient Lookup}
-
-With 256 palette colors, a linear scan for the nearest LAB color is fast enough. But the architecture supports arbitrary palettes, and the lookup should be efficient regardless of palette size.
-
-Spectrum uses an {{:https://en.wikipedia.org/wiki/Octree} octree} — a tree data structure that recursively subdivides 3D space into eight octants. Each palette color is inserted into the octree based on its LAB coordinates. To find the nearest color:
-
-+ Start at the root and descend to the leaf containing the target point
-+ Check the colors in that leaf
-+ Backtrack to check neighboring octants that might contain closer colors
-
-This gives O(log n) average-case performance. The octree is built once when the palette module initializes and reused for all subsequent queries.
-
-The implementation uses the {{:https://github.com/anentropic/ocaml-oktree} oktree} package for spatial indexing.
+The implementation uses the {{:https://github.com/anentropic/ocaml-oktree} oktree} package for efficient spatial indexing.
 
 {1 The Quantization Pipeline}
 
