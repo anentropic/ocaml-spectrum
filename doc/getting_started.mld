@@ -63,7 +63,7 @@ Build and run again. You should see bold, italic, underlined, and dimmed text. T
 
 {1 Use Hex and RGB Colors}
 
-Named colors are convenient but you're not limited to them. Spectrum supports CSS-style hex codes and RGB values. Edit [bin/main.ml]:
+Beyond named colors, Spectrum accepts CSS-style hex codes, RGB, and HSL values. Edit [bin/main.ml]:
 
 {[
 let () =

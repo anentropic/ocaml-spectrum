@@ -28,7 +28,7 @@ let color = Spectrum_palettes.Terminal.Xterm256.to_color red
 
 {2 Nearest Color Search}
 
-Find the closest palette color to an arbitrary RGB value using perceptually accurate LAB color space distance:
+Find the closest palette color to an arbitrary RGB value:
 
 {[
 let orange = Gg.Color.v_srgb 0.9 0.4 0.3
@@ -68,7 +68,7 @@ Full color reference: {!page-xterm256_palette}
 
 {1 Generated Code}
 
-These modules are generated at compile time from JSON palette definitions in [lib/spectrum_palette]. The PPX extension creates strongly-typed OCaml modules with efficient nearest-color lookup functions.
+These modules are generated at compile time from JSON palette definitions in [lib/spectrum_palette]. The PPX extension generates OCaml modules with nearest-color lookup functions.
 
 Each palette module implements the {!Spectrum_palette_ppx.Palette.M} signature.
 

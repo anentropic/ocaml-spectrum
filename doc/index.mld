@@ -4,7 +4,7 @@
 
 Spectrum provides ANSI color and style formatting integrated with OCaml's Format module using {{:https://ocaml.org/api/Format.html#tags} semantic tags}. It supports named colours from the xterm 256-color palette, CSS-style hex codes, and RGB or HSL values.
 
-Terminal capabilities are detected automatically and colours are quantized to match what the terminal supports, using perceptually accurate LAB color space distance calculations.
+Terminal capabilities are detected automatically and colours are quantized to the nearest match using LAB color space distance.
 
 {v
 opam install spectrum

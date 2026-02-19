@@ -2,15 +2,15 @@
 
 {1 Overview}
 
-Spectrum Palette PPX provides a PPX extension for generating strongly-typed palette modules from JSON color definitions. It is used internally to generate the {{:../spectrum_palettes/index.html} standard palette modules} that Spectrum uses for color quantization. It can also be used to create custom palette modules for non-standard terminal themes, though this is a {{:../spectrum/custom_palettes.html} niche use case}.
+The [\[%palette\]] PPX extension generates typed palette modules from JSON color definitions. Spectrum uses it internally to generate the {{:../spectrum_palettes/index.html} standard palette modules} for color quantization. It can also generate custom palette modules for non-standard terminal themes, though this is a {{:../spectrum/custom_palettes.html} niche use case}.
 
-The [\[%palette\]] extension creates complete OCaml modules with:
+A generated module includes:
 
 - Variant types for each color
 - String-to-color conversion ({!Spectrum_palette_ppx.Palette.M.of_string})
 - Color-to-code mapping ({!Spectrum_palette_ppx.Palette.M.to_code})
 - RGB color values ({!Spectrum_palette_ppx.Palette.M.to_color}, {!Spectrum_palette_ppx.Palette.M.color_list})
-- Efficient nearest-color search ({!Spectrum_palette_ppx.Palette.M.nearest}) using LAB space octrees
+- Nearest-color search ({!Spectrum_palette_ppx.Palette.M.nearest}) via LAB space octree
 
 {1 Usage}
 
@@ -61,7 +61,7 @@ The path is relative to the source file location.
 
 {2 Use the Generated Module}
 
-The generated module provides a complete palette interface:
+The generated module has this interface:
 
 {[
 let red = MyPalette.of_string "red"
@@ -122,13 +122,7 @@ Color names in JSON are converted to valid OCaml variant constructors:
 
 {2 Nearest-Color Search}
 
-The {!Spectrum_palette_ppx.Palette.M.nearest} function uses octree-based spatial indexing in LAB color space:
-
-- {b LAB color space}: Perceptually uniform color space where numerical distance corresponds to perceived color difference
-- {b Octree indexing}: Spatial data structure that partitions 3D LAB space for efficient nearest-neighbor queries
-- {b Performance}: O(log n) average case for lookup in a palette of n colors
-
-The index is built once at module initialization and reused for all queries.
+The {!Spectrum_palette_ppx.Palette.M.nearest} function converts colors to LAB space (where numerical distance matches perceived difference) and uses an octree to find the nearest neighbor in O(log n) average time. The index is built once at module initialization and reused for all queries.
 
 {2 Exception Handling}
 

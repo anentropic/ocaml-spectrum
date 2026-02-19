@@ -1,6 +1,6 @@
 {0 How Color Quantization Works}
 
-When you write [@{<rgb(255 87 51)>text@}], you're specifying an exact 24-bit color. But not every terminal can display it. Some only support 256 colors, others just 16. Spectrum bridges this gap automatically — and the way it does so involves some interesting choices about color science and data structures.
+When you write [@{<rgb(255 87 51)>text@}], you're specifying an exact 24-bit color. But not every terminal can display it. Some only support 256 colors, others just 16. Spectrum maps your color to the closest available match using LAB color space distance.
 
 {1 The Problem: Matching Colors Across Capabilities}
 
@@ -45,9 +45,7 @@ LAB has three components:
 
 Euclidean distance in LAB space gives perceptually meaningful results. Two colors that are 10 units apart in LAB look about the same amount of "different" regardless of where in the color space they sit. This property — perceptual uniformity — is what makes LAB suitable for nearest-color matching.
 
-The conversion from RGB to LAB involves two steps: RGB to XYZ (a linear transform) then XYZ to LAB (a nonlinear transform with cube roots). Spectrum uses the {{:https://github.com/dbuenzli/gg} Gg} library for these conversions.
-
-The implementation uses the {{:https://github.com/anentropic/ocaml-oktree} oktree} package for efficient spatial indexing.
+The conversion from RGB to LAB involves two steps: RGB to XYZ (a linear transform) then XYZ to LAB (a nonlinear transform with cube roots). Spectrum uses the {{:https://github.com/dbuenzli/gg} Gg} library for these conversions and the {{:https://github.com/anentropic/ocaml-oktree} oktree} package for spatial indexing.
 
 {1 The Quantization Pipeline}
 
@@ -73,11 +71,7 @@ Format.printf "@{<green>colored text@}@."
 
 The [@{<tag>...@}] syntax is built into [Format]'s format string parser. When a formatter encounters a tag, it calls user-supplied functions to produce opening and closing escape sequences. This is the mechanism that {!Spectrum.prepare_ppf} configures.
 
-This approach — described in the paper {{:https://hal.archives-ouvertes.fr/hal-01503081/file/format-unraveled.pdf} "Format Unraveled"} by Bonichon & Weis — gives Spectrum several properties:
-
-- {b Type safety}: format strings are statically checked by the OCaml compiler
-- {b Composability}: tags nest naturally and work with all of [Format]'s box and break features
-- {b Interoperability}: any code that uses [Format.printf] can add Spectrum colors without changing its printing logic
+This approach is described in the paper {{:https://hal.archives-ouvertes.fr/hal-01503081/file/format-unraveled.pdf} "Format Unraveled"} by Bonichon & Weis. Format strings are statically checked by the compiler, tags nest and work with [Format]'s box and break features, and any code using [Format.printf] can add Spectrum colors without changing its printing logic.
 
 The trade-off is that string tags must be parsed at runtime. For applications where this matters, Spectrum also provides the {!Spectrum.Stag} module, which uses [Format.stag] (the variant-based tag API) to bypass string parsing entirely.
 
