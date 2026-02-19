@@ -2,11 +2,12 @@
 
 {1 Overview}
 
-Spectrum Palettes provides pre-generated palette modules for standard terminal colors:
-- {!Spectrum_palettes.Terminal.Basic} - ANSI-16 basic color palette
-- {!Spectrum_palettes.Terminal.Xterm256} - ANSI-256 extended color palette
+When Spectrum quantizes a 24-bit color to fit a terminal's capabilities, it needs to know what RGB value each ANSI color code actually displays. There is no way to introspect this from the terminal — Spectrum can detect how many colors are supported, but not what those colors look like. These palette modules define the assumed mapping: the standard xterm color definitions that the vast majority of terminals use by default.
 
-These modules are generated from JSON definitions using the [\[%palette\]] PPX extension. See {!Spectrum_palette_ppx} for details on custom palette generation.
+- {!Spectrum_palettes.Terminal.Basic} — ANSI-16 basic color palette (codes 30-37, 90-97)
+- {!Spectrum_palettes.Terminal.Xterm256} — ANSI-256 extended color palette (codes 0-255)
+
+These modules are generated at compile time from JSON definitions using the [\[%palette\]] PPX extension. The same PPX can be used to {{:../spectrum/custom_palettes.html} create custom palette modules} for non-standard terminal themes, though this is rarely needed.
 
 {1 Using Palettes}
 
@@ -77,3 +78,9 @@ Each palette module implements the {!Spectrum_palette_ppx.Palette.M} signature.
 {!modules:
 Spectrum_palettes.Terminal
 }
+
+{1 See Also}
+
+- {{:../spectrum/custom_palettes.html} How to Create a Custom Palette} — Guide to defining and using your own palette
+- {{:../spectrum/color_quantization.html} How Color Quantization Works} — How nearest-color matching works
+- {{:../spectrum_palette_ppx/index.html} Spectrum Palette PPX} — The PPX extension that generates palette modules

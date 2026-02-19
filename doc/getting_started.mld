@@ -1,0 +1,142 @@
+{0 Getting Started with Spectrum}
+
+This tutorial walks you through adding colored terminal output to an OCaml program using Spectrum. By the end, you'll have a program that prints styled, colored text to the terminal.
+
+{b Prerequisites:} OCaml 4.14+ and opam installed.
+
+{1 Install Spectrum}
+
+Install the library from opam:
+
+{v
+opam install spectrum
+v}
+
+{1 Set Up a Project}
+
+Create a new directory with a minimal dune-project and source file:
+
+{v
+mkdir hello-spectrum && cd hello-spectrum
+v}
+
+Create a [dune-project] file:
+
+{v
+(lang dune 3.9)
+v}
+
+Create a [bin] directory with a [dune] file:
+
+{v
+(executable
+ (name main)
+ (libraries spectrum))
+v}
+
+Create [bin/main.ml] with the following code:
+
+{[
+let () =
+  Spectrum.Simple.printf "@{<green>Hello, Spectrum!@}@."
+]}
+
+Build and run:
+
+{v
+dune exec bin/main.exe
+v}
+
+You should see "Hello, Spectrum!" printed in green text. The [@{<green>...@}] syntax is a Format {{:https://ocaml.org/api/Format.html#tags} semantic tag} — Spectrum uses it to inject ANSI color codes.
+
+{1 Add Text Styles}
+
+Spectrum supports ANSI text styles as well as colors. Edit [bin/main.ml]:
+
+{[
+let () =
+  Spectrum.Simple.printf "@{<bold>Bold@} and @{<italic>italic@} text@.";
+  Spectrum.Simple.printf "@{<underline>Underlined@} and @{<dim>dimmed@} text@."
+]}
+
+Build and run again. You should see bold, italic, underlined, and dimmed text. The full list of styles: [bold], [dim], [italic], [underline], [blink], [rapid-blink], [inverse], [hidden], [strikethru], [overline].
+
+{1 Use Hex and RGB Colors}
+
+Named colors are convenient but you're not limited to them. Spectrum supports CSS-style hex codes and RGB values. Edit [bin/main.ml]:
+
+{[
+let () =
+  Spectrum.Simple.printf "@{<#ff5733>Hex color@}@.";
+  Spectrum.Simple.printf "@{<#f00>Short hex (red)@}@.";
+  Spectrum.Simple.printf "@{<rgb(100 149 237)>Cornflower blue@}@.";
+  Spectrum.Simple.printf "@{<hsl(280 70 50)>Purple via HSL@}@."
+]}
+
+Build and run. Each line should appear in a different color. On terminals with limited color support, Spectrum automatically quantizes these to the nearest available color (see {!page-color_quantization}).
+
+{1 Nest and Combine Tags}
+
+Tags can be nested — inner tags add to the style stack and closing restores the previous style:
+
+{[
+let () =
+  Spectrum.Simple.printf
+    "@{<green>Green text @{<bold>bold green@} back to green@}@."
+]}
+
+You can also combine multiple styles in a single tag using commas:
+
+{[
+let () =
+  Spectrum.Simple.printf
+    "@{<bold,bg:red,yellow>Warning banner@}@."
+]}
+
+This sets bold text, a red background, and yellow foreground — all in one tag. Any color can be prefixed with [bg:] for background or [fg:] for explicit foreground.
+
+{1 Use the Formatter API}
+
+{!Spectrum.Simple.printf} is convenient for one-off printing. For repeated printing, it's more efficient to prepare a formatter once with {!Spectrum.prepare_ppf}:
+
+{[
+let () =
+  let reset = Spectrum.prepare_ppf Format.std_formatter in
+  Format.printf "@{<green>Line 1@}@.";
+  Format.printf "@{<blue>Line 2@}@.";
+  Format.printf "@{<red>Line 3@}@.";
+  reset ()
+]}
+
+The [reset] function restores the formatter to its original state. Use this pattern in applications where you print many colored lines.
+
+{1 Handle Invalid Tags}
+
+By default, Spectrum silently ignores invalid tags. If you prefer to catch mistakes, use the {!Spectrum.Exn} module:
+
+{[
+let () =
+  let reset = Spectrum.Exn.prepare_ppf Format.std_formatter in
+  (try
+     Format.printf "@{<notacolor>This will raise@}@."
+   with Spectrum_palette_ppx.Palette.InvalidColorName name ->
+     Format.printf "Unknown color: %s@." name);
+  reset ()
+]}
+
+{1 What You've Learned}
+
+You can now:
+
+- Print colored text with named colors, hex codes, RGB, and HSL values
+- Apply text styles like bold, italic, and underline
+- Nest and combine multiple styles in a single tag
+- Set foreground and background colors
+- Use both the Simple API and the formatter API
+
+{1 Next Steps}
+
+- {!page-custom_palettes} — Create and use a custom color palette
+- {!page-color_quantization} — Understand how Spectrum matches colors to terminal capabilities
+- {!Spectrum} — Full API reference
+- {!Spectrum.Stag} — Type-safe variant-based tags for programmatic use

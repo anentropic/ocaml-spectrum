@@ -99,3 +99,8 @@ Spectrum_tools.Query
 The perceptual quantization algorithm is based on {{:https://stackoverflow.com/a/1678481/202168} LAB color space nearest-neighbor search}. This approach provides better matches than algorithmic RGB quantization (as used in some JavaScript libraries) because it accounts for human color perception.
 
 The implementation uses the {{:https://github.com/dbuenzli/gg} Gg} library for color space conversions and the {{:https://github.com/anentropic/ocaml-oktree} oktree} package for spatial indexing.
+
+{1 See Also}
+
+- {{:../spectrum/index.html} Spectrum} — Main formatting library
+- {{:../spectrum/color_quantization.html} How Color Quantization Works} — Explanation of LAB color space, octree indexing, and the quantization pipeline

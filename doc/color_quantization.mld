@@ -1,0 +1,135 @@
+{0 How Color Quantization Works}
+
+When you write [@{<rgb(255 87 51)>text@}], you're specifying an exact 24-bit color. But not every terminal can display it. Some only support 256 colors, others just 16. Spectrum bridges this gap automatically — and the way it does so involves some interesting choices about color science and data structures.
+
+{1 The Problem: Matching Colors Across Capabilities}
+
+Terminals report one of four color support levels:
+
+- {b True_color} — 24-bit RGB (16.7 million colors). Your color is used exactly.
+- {b Eight_bit} — xterm 256-color palette. Your color must be mapped to one of 256 entries.
+- {b Basic} — ANSI 16 colors. Your color must be mapped to one of 16 entries.
+- {b Unsupported} — Same quantization as Basic.
+
+For True_color terminals, there's nothing to do. For everything else, we need to answer: {e which palette color looks most similar to the one the user specified?}
+
+{1 The Role of Palettes}
+
+To find the nearest color, Spectrum needs to know what RGB value each ANSI color code actually displays on the user's terminal. But there is no way to introspect this — a terminal reports {e how many} colors it supports, not {e what} those colors look like. ANSI code 196 is "red" by convention, but a user with a custom terminal theme might have remapped it to pink, or solarized dark, or anything else.
+
+Spectrum handles this by assuming the standard xterm color definitions, which the vast majority of terminals use. The {!Spectrum_palettes.Terminal.Xterm256} and {!Spectrum_palettes.Terminal.Basic} modules define these mappings: 256 and 16 colors respectively, each with a name, ANSI code, and RGB value. When Spectrum needs to quantize a 24-bit color, it searches these palette modules for the perceptually nearest match.
+
+For the rare case where an app author knows their end users have non-standard terminal palettes, Spectrum supports {{:custom_palettes.html} creating custom palette modules} from JSON definitions. But most users will never need this — modern terminals typically support 24-bit color (no quantization needed), and those that don't almost always use the standard xterm mappings.
+
+{1 Why Not Just Use RGB Distance?}
+
+The naive approach is to treat colors as 3D points in RGB space and find the nearest palette entry using Euclidean distance:
+
+{v
+distance = sqrt((r1-r2)² + (g1-g2)² + (b1-b2)²)
+v}
+
+This is fast and simple, but it doesn't match human perception. Our eyes are more sensitive to some color differences than others — we notice small changes in green more than in blue, and we're particularly sensitive to differences in lightness.
+
+For example, the RGB distance between a dark navy and a dark maroon might be similar to the distance between two shades of green, but perceptually the greens look much more alike than the navy and maroon.
+
+{1 LAB Color Space: Perceptual Uniformity}
+
+Spectrum uses the {{:https://en.wikipedia.org/wiki/CIELAB_color_space} CIE LAB color space} for quantization. LAB was designed so that the numerical distance between two colors corresponds to how different they {e appear} to a human observer.
+
+LAB has three components:
+
+- {b L} (Lightness): 0 (black) to 100 (white)
+- {b a}: green (negative) to red (positive)
+- {b b}: blue (negative) to yellow (positive)
+
+Euclidean distance in LAB space gives perceptually meaningful results. Two colors that are 10 units apart in LAB look about the same amount of "different" regardless of where in the color space they sit. This property — perceptual uniformity — is what makes LAB suitable for nearest-color matching.
+
+The conversion from RGB to LAB involves two steps: RGB to XYZ (a linear transform) then XYZ to LAB (a nonlinear transform with cube roots). Spectrum uses the {{:https://github.com/dbuenzli/gg} Gg} library for these conversions.
+
+{1 Octree Spatial Index: Efficient Lookup}
+
+With 256 palette colors, a linear scan for the nearest LAB color is fast enough. But the architecture supports arbitrary palettes, and the lookup should be efficient regardless of palette size.
+
+Spectrum uses an {{:https://en.wikipedia.org/wiki/Octree} octree} — a tree data structure that recursively subdivides 3D space into eight octants. Each palette color is inserted into the octree based on its LAB coordinates. To find the nearest color:
+
++ Start at the root and descend to the leaf containing the target point
++ Check the colors in that leaf
++ Backtrack to check neighboring octants that might contain closer colors
+
+This gives O(log n) average-case performance. The octree is built once when the palette module initializes and reused for all subsequent queries.
+
+The implementation uses the {{:https://github.com/anentropic/ocaml-oktree} oktree} package for spatial indexing.
+
+{1 The Quantization Pipeline}
+
+When Spectrum processes a color tag, the pipeline looks like this:
+
++ {b Parse} the tag string into a color representation (named color, hex, RGB, or HSL)
++ {b Detect} the terminal's capability level via environment variables and heuristics (see {!Spectrum_capabilities.Capabilities})
++ {b Convert} all color formats to an internal RGB representation ([Gg.v4])
++ {b Quantize} based on capability level:
+  - True_color: emit 24-bit ANSI escape ([38;2;R;G;B])
+  - Eight_bit: find nearest xterm-256 color via LAB octree, emit 256-color escape ([38;5;CODE])
+  - Basic: find nearest ANSI-16 color via LAB octree, emit basic escape ([30-37] or [90-97])
+
+Named colors from the xterm palette skip the quantization step — they already have known ANSI codes. Quantization only applies to hex, RGB, and HSL colors that need to be mapped to a smaller palette.
+
+{1 Why Format Semantic Tags?}
+
+OCaml's [Format] module has a feature called {{:https://ocaml.org/api/Format.html#tags} semantic tags} that lets you attach metadata to regions of formatted text. Spectrum uses this to implement color markup:
+
+{[
+Format.printf "@{<green>colored text@}@."
+]}
+
+The [@{<tag>...@}] syntax is built into [Format]'s format string parser. When a formatter encounters a tag, it calls user-supplied functions to produce opening and closing escape sequences. This is the mechanism that {!Spectrum.prepare_ppf} configures.
+
+This approach — described in the paper {{:https://hal.archives-ouvertes.fr/hal-01503081/file/format-unraveled.pdf} "Format Unraveled"} by Bonichon & Weis — gives Spectrum several properties:
+
+- {b Type safety}: format strings are statically checked by the OCaml compiler
+- {b Composability}: tags nest naturally and work with all of [Format]'s box and break features
+- {b Interoperability}: any code that uses [Format.printf] can add Spectrum colors without changing its printing logic
+
+The trade-off is that string tags must be parsed at runtime. For applications where this matters, Spectrum also provides the {!Spectrum.Stag} module, which uses [Format.stag] (the variant-based tag API) to bypass string parsing entirely.
+
+{1 String Tags vs Stag: When to Use Which}
+
+Spectrum offers two ways to specify styles:
+
+{b String tags} ([@{<green,bold>text@}]) are the primary interface. They're concise, readable inline, and work naturally in format strings. The downside: tag strings are parsed at runtime, and invalid tags are only caught at runtime.
+
+{b Variant-based stags} ({!Spectrum.Stag}) construct tags as OCaml values:
+
+{[
+let tag = Spectrum.Stag.stag [Bold; Fg (Named "green")] in
+Format.pp_open_stag ppf tag
+]}
+
+Stags are useful when:
+
+- Styles are computed dynamically from configuration or user input
+- You want compile-time safety for the tag structure
+- You need to avoid string parsing overhead in a hot loop
+
+Both mechanisms work on the same prepared formatter and can be mixed freely.
+
+{1 Package Architecture}
+
+Spectrum is split into five packages to keep dependencies minimal and allow standalone use of individual components:
+
+- {b spectrum} — The main library. Depends on all other packages. This is what users install.
+- {b spectrum_capabilities} — Terminal capability detection. Zero dependency on the rest of Spectrum. Useful if you only need to check terminal support.
+- {b spectrum_palette_ppx} — PPX extension that generates palette modules from JSON. Depends on ppxlib, yojson, and oktree.
+- {b spectrum_palettes} — Pre-generated Basic (16-color) and Xterm256 (256-color) palette modules. Built from JSON sources using the PPX.
+- {b spectrum_tools} — Color conversion utilities (RGB, HSL, LAB) and terminal query functions.
+
+This split means that, for example, a library that only needs to detect terminal capabilities can depend on [spectrum_capabilities] alone without pulling in the full color infrastructure.
+
+{1 Further Reading}
+
+- {!page-getting_started} — Tutorial: your first colored terminal output
+- {!page-custom_palettes} — How to create and use a custom color palette
+- {{:https://en.wikipedia.org/wiki/CIELAB_color_space} CIE LAB color space} — Wikipedia article on LAB
+- {{:https://hal.archives-ouvertes.fr/hal-01503081/file/format-unraveled.pdf} Format Unraveled} — The paper that inspired Spectrum's design
+- {{:https://www.ditig.com/256-colors-cheat-sheet} Xterm 256-color reference}

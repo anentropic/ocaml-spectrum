@@ -2,7 +2,9 @@
 
 {1 Overview}
 
-Spectrum Palette PPX provides a PPX extension for generating strongly-typed palette modules from JSON color definitions. The [\[%palette\]] extension creates complete OCaml modules with:
+Spectrum Palette PPX provides a PPX extension for generating strongly-typed palette modules from JSON color definitions. It is used internally to generate the {{:../spectrum_palettes/index.html} standard palette modules} that Spectrum uses for color quantization. It can also be used to create custom palette modules for non-standard terminal themes, though this is a {{:../spectrum/custom_palettes.html} niche use case}.
+
+The [\[%palette\]] extension creates complete OCaml modules with:
 
 - Variant types for each color
 - String-to-color conversion ({!Spectrum_palette_ppx.Palette.M.of_string})
@@ -144,7 +146,7 @@ with Spectrum_palette_ppx.Palette.InvalidColorName name ->
 
 {2 Custom Terminal Theme}
 
-Create a palette matching your terminal theme:
+If you know your users' terminals use non-standard color mappings, create a palette that matches:
 
 {[
 module MyTheme = [%palette "my_theme.json"]
@@ -173,5 +175,7 @@ Spectrum_palette_ppx.Palette
 
 {1 See Also}
 
-- {{:../spectrum_palettes/index.html} Spectrum_palettes} for pre-generated Basic and Xterm256 palettes
+- {{:../spectrum/custom_palettes.html} How to Create a Custom Palette} — Step-by-step guide including dune setup and Spectrum integration
+- {{:../spectrum_palettes/index.html} Spectrum Palettes} — Pre-generated Basic and Xterm256 palettes
+- {{:../spectrum/color_quantization.html} How Color Quantization Works} — How LAB-based nearest-color matching works
 - {{:https://www.ditig.com/256-colors-cheat-sheet} Xterm color reference}

@@ -96,5 +96,7 @@ Spectrum_capabilities.Capabilities
 
 {1 See Also}
 
-- {{:../spectrum/index.html} Spectrum} for the main formatting library that uses these capabilities
-- {{:https://github.com/chalk/supports-color} supports-color} (JavaScript) for the reference implementation
+- {{:../spectrum/index.html} Spectrum} — Main formatting library that uses these capabilities
+- {{:../spectrum/getting_started.html} Getting Started} — Tutorial for using Spectrum with terminal colors
+- {{:../spectrum/color_quantization.html} How Color Quantization Works} — How detected capabilities affect color output
+- {{:https://github.com/chalk/supports-color} supports-color} (JavaScript) — Reference implementation for the detection heuristics

@@ -31,14 +31,19 @@ All generated HTML lives under `_build/default/_doc/_html/`.
 
 | Generated HTML | Source |
 |---|---|
-| `spectrum/index.html` | [doc/index.mld](../doc/index.mld) — overview, usage guide, tag syntax, capabilities |
-| `spectrum/Spectrum/index.html` | [lib/spectrum/spectrum.mli](../lib/spectrum/spectrum.mli) — API reference |
+| `spectrum/index.html` | [doc/index.mld](../doc/index.mld) — landing page with overview, tag syntax reference, and links to other doc types |
+| `spectrum/getting_started.html` | [doc/getting_started.mld](../doc/getting_started.mld) — **Tutorial**: step-by-step first colored output |
+| `spectrum/color_quantization.html` | [doc/color_quantization.mld](../doc/color_quantization.mld) — **Explanation**: LAB color space, octree indexing, design decisions |
+| `spectrum/custom_palettes.html` | [doc/custom_palettes.mld](../doc/custom_palettes.mld) — **How-to**: create and use a custom color palette |
+| `spectrum/Spectrum/index.html` | [lib/spectrum/spectrum.mli](../lib/spectrum/spectrum.mli) — **API Reference** |
 | `spectrum/Spectrum/Lexer/index.html` | [lib/spectrum/lexer.mll](../lib/spectrum/lexer.mll) → (ocamllex) → `lexer.ml` — exposed through `spectrum.mli` |
 | `spectrum/Spectrum/Parser/index.html` | [lib/spectrum/parser.ml](../lib/spectrum/parser.ml) — exposed through `spectrum.mli` |
 | `spectrum/Spectrum/Capabilities/index.html` | Re-exported from `spectrum_capabilities` via `spectrum.mli` |
 | `spectrum/Spectrum/{Exn,Noexn,Simple,...}/index.html` | Submodules defined in `spectrum.mli` |
 
-Dune config: [doc/dune](../doc/dune) declares `(mld_files index)` for the `spectrum` package.
+Dune config: [doc/dune](../doc/dune) declares `(mld_files index getting_started color_quantization custom_palettes)` for the `spectrum` package.
+
+The documentation follows the [Diataxis](https://diataxis.fr/) framework, with the `spectrum` package providing all four documentation types: tutorial (`getting_started`), how-to guide (`custom_palettes`), explanation (`color_quantization`), and reference (`.mli` API docs). Secondary packages provide reference documentation only, with cross-links back to the main `spectrum` docs.
 
 ### `spectrum_tools` package
 
