@@ -1,0 +1,147 @@
+{0 How to Create a Custom Color Palette}
+
+Spectrum ships with built-in palette modules for the standard xterm {{:../spectrum_palettes/basic_palette.html} 16-color} and {{:../spectrum_palettes/xterm256_palette.html} 256-color} mappings. When quantizing a 24-bit color for a terminal with limited color support, Spectrum searches these palettes for the perceptually nearest match. This covers the vast majority of use cases.
+
+A custom palette is only useful when you know your end users' terminals map ANSI color codes to {e non-standard} RGB values — for example, if you're building a tool for a specific terminal emulator with a known custom theme. Since there is no way to introspect a terminal's actual color mappings (see {!page-color_quantization}), an app author who knows their users have non-standard palettes can provide a custom mapping so that quantization produces accurate results.
+
+This is a niche scenario. Most modern terminals support 24-bit color (no quantization needed), and those that don't almost always use the standard xterm defaults. If you're unsure whether you need a custom palette, you almost certainly don't.
+
+{b Prerequisites:} Working knowledge of Spectrum's tag syntax and dune build system.
+
+{1 Define Your Colors in JSON}
+
+Create a JSON file with your palette colors. Each entry needs a name, an ANSI code, and RGB values:
+
+{v
+[
+  {"name": "brand-primary", "colorId": 33,  "rgb": {"r": 0,   "g": 135, "b": 255}},
+  {"name": "brand-accent",  "colorId": 208, "rgb": {"r": 255, "g": 135, "b": 0}},
+  {"name": "success",       "colorId": 40,  "rgb": {"r": 0,   "g": 215, "b": 0}},
+  {"name": "warning",       "colorId": 220, "rgb": {"r": 255, "g": 215, "b": 0}},
+  {"name": "error",         "colorId": 196, "rgb": {"r": 255, "g": 0,   "b": 0}},
+  {"name": "muted",         "colorId": 245, "rgb": {"r": 138, "g": 138, "b": 138}}
+]
+v}
+
+Save this as [my_palette.json] alongside your OCaml source file.
+
+The [colorId] field is the ANSI color code that will be emitted in 256-color mode — pick the xterm code closest to your intended color. The [rgb] values are used for perceptual nearest-color matching and for true-color output. See the {{:https://www.ditig.com/256-colors-cheat-sheet} xterm color reference} for available codes.
+
+{1 Generate the Palette Module}
+
+Add [spectrum_palette_ppx] as a PPX preprocessor in your library or executable's [dune] file:
+
+{v
+(library
+ (name my_app)
+ (libraries spectrum)
+ (preprocess (pps spectrum_palette_ppx)))
+v}
+
+Then use the [\[%palette\]] extension in your OCaml code to generate a module from the JSON:
+
+{[
+module Theme = [%palette "my_palette.json"]
+]}
+
+The path is relative to the source file. At compile time, the PPX reads the JSON and generates a full module implementing {!Spectrum_palette_ppx.Palette.M}, with:
+
+- A variant type with one constructor per color
+- [of_string] / [to_code] / [to_color] for lookups
+- [nearest] for perceptual nearest-color search
+- [color_list] for iterating over all palette colors
+
+{1 Use the Palette for Lookups}
+
+The generated module can be used for color lookups and matching:
+
+{[
+let primary = Theme.of_string "brand-primary"
+(* val primary : Theme.t *)
+
+let code = Theme.to_code primary
+(* val code : int = 33 *)
+
+let color = Theme.to_color primary
+(* val color : Gg.v4 — RGBA float values (0.0, 0.529, 1.0, 1.0) *)
+
+let arbitrary = Gg.Color.v_srgb 0.5 0.3 0.8
+(* val arbitrary : Gg.v4 *)
+
+let nearest = Theme.nearest arbitrary
+(* val nearest : Gg.v4 — nearest palette color by perceptual distance *)
+]}
+
+See {{:../spectrum_palette_ppx/index.html} Spectrum Palette PPX} for the full API reference.
+
+{1 Integrate with Spectrum Formatting}
+
+Custom palette modules are independent of Spectrum's tag-based formatting. To use your palette colors in Spectrum's [@{<tag>...@}] syntax, you have two options:
+
+{2 Option 1: Use Hex or RGB Tags}
+
+Reference your palette colors by their RGB values directly:
+
+{[
+(* Use the RGB values from your palette *)
+Spectrum.Simple.printf "@{<rgb(0 135 255)>brand-primary text@}@.";
+Spectrum.Simple.printf "@{<#ff8700>brand-accent text@}@."
+]}
+
+This is the simplest approach — Spectrum will quantize these colors to match the terminal's capabilities.
+
+{2 Option 2: Use the Stag API}
+
+For programmatic integration, use {!Spectrum.Stag} to construct tags from your palette's color values:
+
+{[
+let print_themed ppf theme_color text =
+  let rgb_color = Theme.to_color (Theme.of_string theme_color) in
+  let rgba = Spectrum_tools.Convert.Color.to_rgba rgb_color in
+  let tag = Spectrum.Stag.stag [Fg (Rgb (rgba.r, rgba.g, rgba.b))] in
+  Format.pp_open_stag ppf tag;
+  Format.pp_print_string ppf text;
+  Format.pp_close_stag ppf ()
+
+let () =
+  let reset = Spectrum.prepare_ppf Format.std_formatter in
+  print_themed Format.std_formatter "brand-primary" "Primary text";
+  Format.pp_print_newline Format.std_formatter ();
+  print_themed Format.std_formatter "error" "Error text";
+  Format.pp_print_newline Format.std_formatter ();
+  reset ()
+]}
+
+{1 JSON Format Reference}
+
+Each entry in the JSON array must have these fields:
+
+- [name] (string) — Color name. Converted to kebab-case for variant constructors.
+- [colorId] (integer) — ANSI color code for 256-color terminal output.
+- [rgb] (object) — RGB components with [r], [g], [b] fields, each 0-255.
+
+Color names follow these normalization rules:
+
+- CamelCase is split: ["SpringGreen"] becomes [spring-green]
+- Spaces become hyphens: ["Dark Orange"] becomes [dark-orange]
+- Trailing numbers are separated: ["Color123"] becomes [color-123]
+
+{1 Troubleshooting}
+
+{b PPX error: file not found}
+
+The JSON path is relative to the source file, not the project root. If your source is at [lib/my_app/theme.ml] and the JSON is at [lib/my_app/my_palette.json], use just ["my_palette.json"].
+
+{b PPX error: invalid JSON}
+
+Ensure every entry has all three fields ([name], [colorId], [rgb]) and that [rgb] has all three components ([r], [g], [b]).
+
+{b Colors look wrong on my terminal}
+
+The [colorId] values are used for 256-color output. If your terminal only supports 16 colors, Spectrum will quantize using the [rgb] values to find the nearest basic color. Check your terminal's capability level with {!Spectrum.Capabilities.supported_color_levels}.
+
+{1 See Also}
+
+- {{:../spectrum_palette_ppx/index.html} Spectrum Palette PPX} — Full API reference for the PPX extension
+- {{:../spectrum_palettes/index.html} Spectrum Palettes} — Pre-generated Basic and Xterm256 palettes
+- {!page-color_quantization} — How color matching and quantization works

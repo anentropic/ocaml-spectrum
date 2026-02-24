@@ -2,7 +2,7 @@
 
 {1 Overview}
 
-Spectrum Tools provides low-level utilities for color conversion and terminal interaction. These functions are used internally by Spectrum but are exposed for advanced use cases:
+Spectrum Tools provides color conversion and terminal interaction utilities. These are used internally by Spectrum but are also available for direct use:
 
 - Perceptual color quantization using LAB color space
 - Terminal color querying via xterm control sequences
@@ -14,7 +14,7 @@ The {!Spectrum_tools.Convert} module provides functions to convert RGB colors to
 
 {2 Perceptual Color Matching}
 
-The {!Spectrum_tools.Convert.Perceptual} converter uses the CIE LAB color space for quantization. LAB space is perceptually uniform, meaning that the numerical distance between two colors in LAB space corresponds to how different they appear to humans. This provides more accurate color matching than simple RGB Euclidean distance.
+The {!Spectrum_tools.Convert.Perceptual} converter uses CIE LAB color space for quantization. See {{:../spectrum/color_quantization.html} How Color Quantization Works} for why LAB gives better results than RGB distance.
 
 {[
 let color = Gg.Color.v_srgb 0.8 0.3 0.2 in
@@ -26,7 +26,7 @@ let ansi256_code = Spectrum_tools.Convert.Perceptual.rgb_to_ansi256 color in
 let ansi16_code = Spectrum_tools.Convert.Perceptual.rgb_to_ansi16 color
 ]}
 
-The conversion uses octree-based spatial indexing in LAB space for efficient nearest-neighbor search. See {!Spectrum_palette_ppx.Palette} for details on the indexing implementation.
+The lookup uses octree-based spatial indexing in LAB space. See {!Spectrum_palette_ppx.Palette} for details on the indexing implementation.
 
 {2 Color Space Utilities}
 
@@ -96,6 +96,9 @@ Spectrum_tools.Query
 
 {1 Implementation Notes}
 
-The perceptual quantization algorithm is based on {{:https://stackoverflow.com/a/1678481/202168} LAB color space nearest-neighbor search}. This approach provides better matches than algorithmic RGB quantization (as used in some JavaScript libraries) because it accounts for human color perception.
+The perceptual quantization algorithm is based on {{:https://stackoverflow.com/a/1678481/202168} LAB color space nearest-neighbor search}. The implementation uses the {{:https://github.com/dbuenzli/gg} Gg} library for color space conversions and the {{:https://github.com/anentropic/ocaml-oktree} oktree} package for spatial indexing.
 
-The implementation uses the {{:https://github.com/dbuenzli/gg} Gg} library for color space conversions and the {{:https://github.com/anentropic/ocaml-oktree} oktree} package for spatial indexing.
+{1 See Also}
+
+- {{:../spectrum/index.html} Spectrum} — Main formatting library
+- {{:../spectrum/color_quantization.html} How Color Quantization Works} — Explanation of LAB color space, octree indexing, and the quantization pipeline
