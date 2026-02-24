@@ -26,7 +26,13 @@ Create a [dune-project] file:
 (lang dune 3.9)
 v}
 
-Create a [bin] directory with a [dune] file:
+Create a [bin] directory and add a [dune] file inside it:
+
+{v
+mkdir bin
+v}
+
+[bin/dune]:
 
 {v
 (executable
