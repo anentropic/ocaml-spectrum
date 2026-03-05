@@ -5,6 +5,7 @@
 
 (test
  (name test_loader)
+ (package spectrum_palette_ppx)
  (modules test_loader)
  (libraries
   alcotest
@@ -16,10 +17,12 @@
 
 (test
  (name test_palette)
+ (package spectrum_palette_ppx)
  (modules test_palette)
  (libraries alcotest junit_alcotest test_runner spectrum_palette_ppx color))
 
 (test
  (name test_utils)
+ (package spectrum_palette_ppx)
  (modules test_utils)
  (libraries alcotest junit_alcotest test_runner spectrum_palette_ppx))

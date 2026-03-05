@@ -90,6 +90,7 @@
   ; test deps
   (alcotest (and :with-test (>= 1.4)))
   (junit_alcotest (and :with-test (>= 2.0)))
+  (color (and :with-test (>= 0.3.0)))
 
   ; docs deps
   (odoc :with-doc)

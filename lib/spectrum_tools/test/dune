@@ -5,21 +5,25 @@
 
 (test
  (name test_convert)
+ (package spectrum_tools)
  (modules test_convert)
  (libraries alcotest junit_alcotest test_runner spectrum_tools color))
 
 (test
  (name test_utils)
+ (package spectrum_tools)
  (modules test_utils)
  (libraries alcotest junit_alcotest test_runner spectrum_tools color gg))
 
 (test
  (name test_query)
+ (package spectrum_tools)
  (modules test_query)
  (libraries alcotest junit_alcotest test_runner spectrum_tools))
 
 (test
  (name test_properties)
+ (package spectrum_tools)
  (modules test_properties)
  (libraries
   alcotest
