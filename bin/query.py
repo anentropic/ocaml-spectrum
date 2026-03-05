@@ -7,7 +7,6 @@ import os
 import re
 import select
 import sys
-import time
 import termios
 import tty
 

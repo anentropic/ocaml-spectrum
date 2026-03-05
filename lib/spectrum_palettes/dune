@@ -1,0 +1,9 @@
+(library
+ (name spectrum_palettes)
+ (public_name spectrum_palettes)
+ (preprocess
+  (pps spectrum_palette_ppx))
+ (libraries spectrum_palette_ppx))
+
+(documentation
+ (package spectrum_palettes))

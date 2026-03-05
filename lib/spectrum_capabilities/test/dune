@@ -1,0 +1,9 @@
+(env
+ (_
+  (env-vars
+   (FORCE_COLOR 3))))
+
+(test
+ (name test_capabilities)
+ (modules test_capabilities)
+ (libraries alcotest junit_alcotest test_runner spectrum_capabilities))

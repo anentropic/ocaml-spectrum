@@ -15,7 +15,7 @@ echo -ne "\033]$1;?\007"
 # WARNING: this will hang if can't read 24 bytes:
 resp=$(dd bs=1 count=24 2>/dev/null)
 resp=$(echo -n "$resp" | od -c -An -j5 -N18)
-echo ${resp//[[:space:]]/}
+echo "${resp//[[:space:]]/}"
 stty "$settings"
 
 # parse echoed output to extract rgb colour

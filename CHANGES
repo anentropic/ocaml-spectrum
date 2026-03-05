@@ -1,3 +1,12 @@
 # Changes
 
-See git Pull Rquests history
+## Unreleased (2026-02-15)
+
+- runtime serializer selection now follows detected terminal capability (`True_color`, `Eight_bit`, `Basic`)
+- test suites under `lib/*/test/` include `lexer`, `printing`, `capabilities`, and `conversion`
+- expanded capability-detection coverage for all recognised CI providers and TERM 16-color recogniser patterns
+- documentation status refreshed to reflect currently green local clean test runs
+
+## Historical
+
+See git Pull Requests history

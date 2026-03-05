@@ -1,0 +1,3 @@
+(documentation
+ (package spectrum)
+ (mld_files index getting_started color_quantization custom_palettes))

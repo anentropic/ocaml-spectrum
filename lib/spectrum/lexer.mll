@@ -13,7 +13,7 @@ let hexcode = ((hex hex hex) | (hex hex hex hex hex hex))
 
 let qualifier = ("fg" | "bg")
 
-let style = ("bold" | "dim" | "italic" | "underline" | "blink" | "rapid-blink" | "inverse" | "hidden" | "strikethru")
+let style = ("bold" | "dim" | "italic" | "underline" | "blink" | "rapid-blink" | "inverse" | "hidden" | "strikethru" | "overline")
 
 let whitespace = [' ' '\t']
 

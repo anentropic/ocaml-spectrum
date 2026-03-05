@@ -1,7 +1,8 @@
-open Spectrum_palette
-
 exception InvalidStyleName of string
 exception InvalidColorName of string
+
+module Basic = Spectrum_palettes.Terminal.Basic
+module Xterm256 = Spectrum_palettes.Terminal.Xterm256
 
 module Style = struct
   type t =
@@ -14,11 +15,13 @@ module Style = struct
     | Inverse
     | Hidden
     | Strikethru
+    | Overline
 
   (*
     see: https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_(Select_Graphic_Rendition)_parameters
   *)
-  let of_string = function
+  let of_string s =
+    match String.lowercase_ascii s with
     | "bold" -> Bold
     | "dim" -> Dim
     | "italic" -> Italic
@@ -28,6 +31,7 @@ module Style = struct
     | "inverse" -> Inverse
     | "hidden" -> Hidden
     | "strikethru" -> Strikethru
+    | "overline" -> Overline
     | name -> raise @@ InvalidStyleName name
 
   let to_code = function
@@ -40,20 +44,8 @@ module Style = struct
     | Inverse -> 7
     | Hidden -> 8
     | Strikethru -> 9
+    | Overline -> 53
 end
-
-(*
-  see: https://en.wikipedia.org/wiki/ANSI_escape_code#3-bit_and_4-bit
-  the non-bright color names have been prefixed with "basic-" to
-  disambiguate from xterm-256 colors of the same name
-*)
-module Basic : Palette.M = [%palette "lib/spectrum_palette/16-colors.json"]
-
-(*
-  see: https://www.ditig.com/256-colors-cheat-sheet
-  duplicate names have been disambiguated via suffix like -1, -2, -3a, -3b
-*)
-module Xterm256 : Palette.M = [%palette "lib/spectrum_palette/256-colors.json"]
 
 type rgba = { r : int; g : int; b : int; a : float }
 
@@ -100,7 +92,7 @@ exception Eof
 *)
 let from_name name =
   try Named256Color (Xterm256.of_string name)
-  with InvalidColorName _ -> NamedBasicColor (Basic.of_string name)
+  with Spectrum_palettes.Terminal.InvalidColorName _ -> NamedBasicColor (Basic.of_string name)
 
 let from_hex hex =
   match Color.of_hexstring hex with
@@ -109,7 +101,7 @@ let from_hex hex =
 
 let parse_int_256 s =
   match int_of_string s with
-  | i when i < 256 -> i
+  | i when i >= 0 && i < 256 -> i
   | _ -> raise @@ InvalidRgbColor s
 
 let from_rgb r g b =
@@ -121,7 +113,7 @@ let from_rgb r g b =
 
 let parse_float_percent s =
   match float_of_string s with
-  | i when i <= 100. -> i
+  | i when i >= 0. && i <= 100. -> i
   | _ -> raise @@ InvalidPercentage s
 
 let from_hsl h s l =
@@ -153,6 +145,7 @@ type compound_tag = {
   inverse : bool;
   hidden : bool;
   strikethru : bool;
+  overline : bool;
   fg_color : color_def option;
   bg_color : color_def option;
 }
@@ -167,6 +160,7 @@ let compound_of_tokens tokens =
   and inverse = ref false
   and hidden = ref false
   and strikethru = ref false
+  and overline = ref false
   and fg_color = ref None
   and bg_color = ref None
   in
@@ -181,6 +175,7 @@ let compound_of_tokens tokens =
     | Control Inverse -> inverse := true
     | Control Hidden -> hidden := true
     | Control Strikethru -> strikethru := true
+    | Control Overline -> overline := true
     | Foreground c -> fg_color := Some c
     | Background c -> bg_color := Some c
   ) tokens;
@@ -194,6 +189,7 @@ let compound_of_tokens tokens =
     inverse = !inverse;
     hidden = !hidden;
     strikethru = !strikethru;
+    overline = !overline;
     fg_color = !fg_color;
     bg_color = !bg_color;
   }
