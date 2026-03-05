@@ -1,10 +1,11 @@
-open Spectrum.Capabilities
+open Alcotest
+open Spectrum_capabilities.Capabilities
 
 module NonWindowsOsInfo = (
   val (os_info_provider false (Some "")) : OsInfoProvider
 )
 
-let testable_color_level = Alcotest.testable pp_color_level equal_color_level
+let testable_color_level = testable pp_color_level equal_color_level
 
 let map_of pairs = List.to_seq pairs |> StrMap.of_seq
 
@@ -13,11 +14,10 @@ let check_supported_color_level (module OsInfo : OsInfoProvider) is_tty env_pair
   let module C = Make(Env)(OsInfo) in
   let result = C.supported_color_level is_tty in
   let msg = Printf.sprintf "returns: %s" (show_color_level expected) in
-  Alcotest.(check testable_color_level) msg expected result
+  check testable_color_level msg expected result
 
 
 let basic_force_color_tests =
-  let open Alcotest in
   let base_check = check_supported_color_level (module NonWindowsOsInfo : OsInfoProvider) in
   let check = base_check false in
   [
@@ -34,7 +34,6 @@ let basic_force_color_tests =
   ]
 
 let stream_no_tty_short_circuit_tests =
-  let open Alcotest in
   let base_check = check_supported_color_level (module NonWindowsOsInfo : OsInfoProvider) in
   let check = base_check false in
   [
@@ -54,7 +53,6 @@ let stream_no_tty_short_circuit_tests =
   ]
 
 let dumb_term_tests =
-  let open Alcotest in
   let check = check_supported_color_level (module NonWindowsOsInfo : OsInfoProvider) true in
   [
     Printf.sprintf "Min-level when TERM=dumb", [
@@ -69,7 +67,6 @@ let dumb_term_tests =
   ]
 
 let windows_tests =
-  let open Alcotest in
   let check is_windows os_version =
     check_supported_color_level
       (module
@@ -97,8 +94,28 @@ let windows_tests =
   ]
 
 let ci_tests =
-  let open Alcotest in
   let check = check_supported_color_level (module NonWindowsOsInfo : OsInfoProvider) true in
+  let recognised_ci_providers = [
+    "TRAVIS";
+    "CIRCLECI";
+    "APPVEYOR";
+    "GITLAB_CI";
+    "GITHUB_ACTIONS";
+    "BUILDKITE";
+    "DRONE";
+  ] in
+  let recognised_provider_tests =
+    List.map (fun provider ->
+        test_case
+          (Printf.sprintf "CI + %s" provider)
+          `Quick
+          (check [
+              ("FORCE_COLOR", "2");
+              ("CI", "");
+              (provider, "");
+            ] Basic)
+      ) recognised_ci_providers
+  in
   [
     Printf.sprintf "Min-level when CI unrecognised", [
       (* FORCE_COLOR sets min-level, COLORTERM is overridden *)
@@ -109,11 +126,9 @@ let ci_tests =
         "Unrecognised CI_NAME"
         `Quick (check [("FORCE_COLOR", "2"); ("COLORTERM", "truecolor"); ("CI", ""); ("CI_NAME", "wtf")] Eight_bit);
     ];
+    Printf.sprintf "Basic when CI recognised providers", recognised_provider_tests;
     (* FORCE_COLOR sets min-level and is overridden *)
-    Printf.sprintf "Basic when CI recognised", [
-      test_case
-        "CI + recognised provider"
-        `Quick (check [("FORCE_COLOR", "2"); ("CI", ""); ("TRAVIS", "")] Basic);
+    Printf.sprintf "Basic when CI recognised by CI_NAME", [
       test_case
         "CI_NAME=codeship"
         `Quick (check [("FORCE_COLOR", "2"); ("CI", ""); ("CI_NAME", "codeship")] Basic);
@@ -121,7 +136,6 @@ let ci_tests =
   ]
 
 let teamcity_tests =
-  let open Alcotest in
   let check = check_supported_color_level (module NonWindowsOsInfo : OsInfoProvider) true in
   [
     Printf.sprintf "Teamcity", [
@@ -148,7 +162,6 @@ let teamcity_tests =
   ]
 
 let terraform_tests =
-  let open Alcotest in
   let check = check_supported_color_level (module NonWindowsOsInfo : OsInfoProvider) true in
   [
     Printf.sprintf "Terraform", [
@@ -169,7 +182,6 @@ let terraform_tests =
   ]
 
 let colorterm_tests =
-  let open Alcotest in
   let check = check_supported_color_level (module NonWindowsOsInfo : OsInfoProvider) true in
   [
     Printf.sprintf "COLORTERM", [
@@ -186,7 +198,6 @@ let colorterm_tests =
   ]
 
 let term_program_tests =
-  let open Alcotest in
   let check = check_supported_color_level (module NonWindowsOsInfo : OsInfoProvider) true in
   [
     Printf.sprintf "TERM_PROGRAM: iTerm (supports 256 or true color)", [
@@ -225,8 +236,26 @@ let term_program_tests =
   ]
 
 let term_tests =
-  let open Alcotest in
   let check = check_supported_color_level (module NonWindowsOsInfo : OsInfoProvider) true in
+  let recognised_16_color_terms = [
+    "screen";
+    "xterm";
+    "vt100";
+    "vt220";
+    "rxvt";
+    "my-color-terminal";
+    "my-ansi-terminal";
+    "cygwin-tty";
+    "linux-console";
+  ] in
+  let recognised_16_color_tests =
+    List.map (fun term ->
+        test_case
+          (Printf.sprintf "TERM=%s" term)
+          `Quick
+          (check [("TERM", term)] Basic)
+      ) recognised_16_color_terms
+  in
   [
     (* anything ending with "-256color" or "-256"
        NOTE: this was the Chalk logic, should it also have the recognised prefix though? *)
@@ -239,14 +268,7 @@ let term_tests =
         `Quick (check [("TERM", "wtf-256")] Eight_bit);
     ];
     (* anything not matched for 256-color and beginning with recognised prefix *)
-    Printf.sprintf "TERM: recognised 16-color patterns", [
-      test_case
-        "xterm"
-        `Quick (check [("TERM", "xterm")] Basic);
-      test_case
-        "xterm-wtf"
-        `Quick (check [("TERM", "xterm-wtf")] Basic);
-    ];
+    Printf.sprintf "TERM: recognised 16-color patterns", recognised_16_color_tests;
     Printf.sprintf "TERM: unrecognised", [
       test_case
         "wtf-xterm"
@@ -270,7 +292,4 @@ let () =
       term_program_tests;
       term_tests;
     ] in
-  let (testsuite, exit) = Junit_alcotest.run_and_report "Capabilities" (tests) in
-  let report = Junit.make [testsuite;] in
-  Junit.to_file report "junit-capabilities.xml";
-  exit ()
+  Test_runner.run "Capabilities" ~junit_filename:"junit-capabilities.xml" tests

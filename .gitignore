@@ -29,3 +29,5 @@ setup.log
 
 # Local OPAM switch
 _opam/
+
+junit-*.xml

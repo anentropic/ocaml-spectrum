@@ -1,0 +1,9 @@
+(library
+ (name spectrum_capabilities)
+ (public_name spectrum_capabilities)
+ (preprocess
+  (pps ppx_deriving.show ppx_deriving.eq))
+ (libraries opam-state re))
+
+(documentation
+ (package spectrum_capabilities))

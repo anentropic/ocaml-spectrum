@@ -1,0 +1,114 @@
+{0 Spectrum - Color and Formatting for Terminal Output}
+
+{1 Overview}
+
+Spectrum provides ANSI color and style formatting integrated with OCaml's Format module using {{:https://ocaml.org/api/Format.html#tags} semantic tags}. It supports named colours from the xterm 256-color palette, CSS-style hex codes, and RGB or HSL values.
+
+Terminal capabilities are detected automatically and colours are quantized to the nearest match using LAB color space distance.
+
+{v
+opam install spectrum
+v}
+
+{[
+Spectrum.Simple.printf "@{<green>Hello@} @{<bold>world@}!@."
+]}
+
+{1 Documentation}
+
+{2 Tutorial}
+
+{!page-getting_started} — Install Spectrum, write your first colored output, learn the tag syntax step by step.
+
+{2 Tag Syntax Reference}
+
+The pattern is [@{<TAG-NAME>CONTENT@}]. Tags are case-insensitive and can be nested arbitrarily.
+
+{3 Colors}
+
+- {b Named}: [@{<green>text@}], [@{<dark-orange>text@}] — all 256 xterm color names
+- {b Hex}: [@{<#f0c090>text@}], [@{<#f00>text@}] — CSS-style 3 or 6 digit hex codes
+- {b RGB}: [@{<rgb(240 192 144)>text@}] — CSS-style with optional commas
+- {b HSL}: [@{<hsl(60 100 50)>text@}] — hue (degrees), saturation, lightness; [%] sign optional
+
+{3 Styles}
+
+[bold], [dim], [italic], [underline], [blink], [rapid-blink], [inverse], [hidden], [strikethru], [overline]
+
+{3 Qualifiers and Compound Tags}
+
+- {b Background}: [@{<bg:#f00>text@}]
+- {b Explicit foreground}: [@{<fg:blue>text@}]
+- {b Compound}: [@{<bold,bg:red,yellow>text@}] — comma-separated list
+
+{2 How-to Guides}
+
+- {!page-custom_palettes} — Define a custom palette for terminals with non-standard color mappings (advanced, rarely needed)
+
+{2 Explanation}
+
+- {!page-color_quantization} — How Spectrum matches colors to terminal capabilities, why LAB color space, the package architecture
+
+{1 API Reference}
+
+Spectrum provides two module variants:
+
+- {!Spectrum.Exn} — raises exceptions on invalid color/style tags
+- {!Spectrum.Noexn} — silently ignores invalid tags (default, also available as just {!Spectrum})
+
+Both expose the same interface:
+
+{[
+val prepare_ppf : Format.formatter -> unit -> unit
+
+module Simple : sig
+  val printf : ('a, Format.formatter, unit, unit) format4 -> 'a
+  val eprintf : ('a, Format.formatter, unit, unit) format4 -> 'a
+  val sprintf : ('a, Format.formatter, unit, string) format4 -> 'a
+end
+]}
+
+{!Spectrum.Simple.printf} handles formatter setup/teardown automatically. For repeated printing, use {!Spectrum.prepare_ppf} with the standard [Format] functions.
+
+For programmatic (non-string) tag construction, see {!Spectrum.Stag}.
+
+Note: [Format.sprintf] uses its own buffer, so you must use {!Spectrum.Simple.sprintf} for styled sprintf, or create your own buffer with [Format.fprintf] as described in the {{:https://ocaml.org/api/Format.html#VALsprintf} Format docs}.
+
+{1 Terminal Capabilities}
+
+Spectrum detects terminal color support and quantizes accordingly:
+
+- {b True_color} — 24-bit RGB, colors used exactly
+- {b Eight_bit} — 256 colors, quantized to xterm palette
+- {b Basic} — 16 colors, quantized to ANSI-16
+- {b Unsupported} — same as Basic
+
+{[
+let info = Spectrum.Capabilities.supported_color_levels () in
+match info.stdout with
+| True_color -> Printf.printf "24-bit color\n"
+| Eight_bit -> Printf.printf "256 colors\n"
+| Basic -> Printf.printf "16 colors\n"
+| Unsupported -> Printf.printf "No color support\n"
+]}
+
+Override with [FORCE_COLOR=0|1|2|3]. See {!Spectrum_capabilities.Capabilities} for details, or {!page-color_quantization} for how quantization works.
+
+{1 Libraries}
+
+- {!Spectrum} — Main library with formatting functions
+- {!Spectrum_capabilities} — Terminal color capability detection (standalone, zero deps on rest of Spectrum)
+- {!Spectrum_tools} — Color conversion utilities and terminal queries
+- {!Spectrum_palettes} — Pre-generated palette modules (Basic, Xterm256)
+- {!Spectrum_palette_ppx} — PPX extension for custom palette generation
+
+{1 See Also}
+
+- {{:https://github.com/Chris00/ANSITerminal/} ANSITerminal} — Alternative terminal library with basic colors
+- {{:https://github.com/marc-chevalier/ocolor} OColor} — Format semantic tags with 4/8/24-bit color support
+- {{:https://erratique.ch/software/fmt/doc/Fmt/} Fmt} — Format module combinators
+- {{:https://ocaml.org/api/Format.html} OCaml Format module} — Standard library formatter
+
+{1 Project}
+
+- {{:https://github.com/anentropic/ocaml-spectrum} GitHub repository}

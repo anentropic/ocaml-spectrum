@@ -36,7 +36,7 @@ module type CapabilitiesProvider = sig
 end
 
 module Make (Env: EnvProvider) (OsInfo: OsInfoProvider) : CapabilitiesProvider = struct
-  (*  *)
+  (* parse env var to determine which color level to force, if any *)
   let env_force_level () =
     match Env.getenv_opt "FORCE_COLOR" with
     | Some "true" -> Some Basic
@@ -73,7 +73,7 @@ module Make (Env: EnvProvider) (OsInfo: OsInfoProvider) : CapabilitiesProvider =
     (* Windows 10 build 10586 is the first Windows release that supports 256 colors.
        Windows 10 build 14931 is the first release that supports 16m/TrueColor.
        Example value of [OpamSysPoll.os_version]: Some “10.0.19041” *)
-    let get_level () =
+    try
       match OsInfo.os_version () with
       | Some s -> begin
           match parse_numeric_version s with
@@ -84,8 +84,6 @@ module Make (Env: EnvProvider) (OsInfo: OsInfoProvider) : CapabilitiesProvider =
           | _ -> Basic
         end
       | None -> Basic (* is Windows, but version not returned *)
-    in
-    try get_level ()
     with Not_found | Failure _ -> Basic (* failed parsing version *)
 
   let teamcity_level () =
@@ -202,6 +200,7 @@ end
 
 module Sys_Capabilities = Make(Sys)(SysOsInfo)
 
+(* default export *)
 include Sys_Capabilities
 
 type color_level_info = {

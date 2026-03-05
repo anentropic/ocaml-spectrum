@@ -1,0 +1,85 @@
+{0 Spectrum Palettes - Terminal Color Definitions}
+
+{1 Overview}
+
+When Spectrum quantizes a 24-bit color to fit a terminal's capabilities, it needs to know what RGB value each ANSI color code actually displays. There is no way to introspect this from the terminal — Spectrum can detect how many colors are supported, but not what those colors look like. These palette modules define the assumed mapping: the standard xterm color definitions that the vast majority of terminals use by default.
+
+- {!Spectrum_palettes.Terminal.Basic} — ANSI-16 basic color palette (codes 30-37, 90-97)
+- {!Spectrum_palettes.Terminal.Xterm256} — ANSI-256 extended color palette (codes 0-255)
+
+These modules are generated at compile time from JSON definitions using the [\[%palette\]] PPX extension. The same PPX can be used to {{:../spectrum/custom_palettes.html} create custom palette modules} for non-standard terminal themes, though this is rarely needed.
+
+{1 Using Palettes}
+
+{2 Color Lookup}
+
+Convert color names to palette values and ANSI codes:
+
+{[
+let red = Spectrum_palettes.Terminal.Xterm256.of_string "red"
+(* val red : Spectrum_palettes.Terminal.Xterm256.t *)
+
+let code = Spectrum_palettes.Terminal.Xterm256.to_code red
+(* val code : int = 9 *)
+
+let color = Spectrum_palettes.Terminal.Xterm256.to_color red
+(* val color : Gg.v4 — RGBA float values (1.0, 0.0, 0.0, 1.0) *)
+]}
+
+{2 Nearest Color Search}
+
+Find the closest palette color to an arbitrary RGB value:
+
+{[
+let orange = Gg.Color.v_srgb 0.9 0.4 0.3
+(* val orange : Gg.v4 — RGBA (0.9, 0.4, 0.3, 1.0) *)
+
+let nearest = Spectrum_palettes.Terminal.Xterm256.nearest orange
+(* val nearest : Gg.v4 — nearest xterm-256 color by perceptual distance *)
+
+let nearest_basic = Spectrum_palettes.Terminal.Basic.nearest orange
+(* val nearest_basic : Gg.v4 — nearest ANSI-16 color *)
+]}
+
+The nearest-color search uses an octree spatial index in LAB color space for O(log n) average-case performance.
+
+{1 Palette Structure}
+
+{2 Basic Palette (ANSI-16)}
+
+The Basic palette contains 16 colors with ANSI codes 30-37 (dark) and 90-97 (bright). Color names are prefixed with "basic-" to avoid collisions with the xterm-256 palette.
+
+Full color reference: {!page-basic_palette}
+
+{2 Xterm256 Palette (ANSI-256)}
+
+The Xterm256 palette contains 256 colors organized as:
+
+- Codes 0-15: Basic system colors (same as ANSI-16 above)
+- Codes 16-231: 6×6×6 RGB color cube with values [0, 95, 135, 175, 215, 255]
+- Codes 232-255: 24 grayscale shades from dark to light
+
+Color names follow the xterm convention with hyphenation:
+- Single names: [red], [green], [blue]
+- Compound names: [dark-orange], [light-blue], [medium-purple]
+- Duplicates with suffixes: [spring-green-3a], [spring-green-3b]
+
+Full color reference: {!page-xterm256_palette}
+
+{1 Generated Code}
+
+These modules are generated at compile time from JSON palette definitions in [lib/spectrum_palette]. The PPX extension generates OCaml modules with nearest-color lookup functions.
+
+Each palette module implements the {!Spectrum_palette_ppx.Palette.M} signature.
+
+{1 API Reference}
+
+{!modules:
+Spectrum_palettes.Terminal
+}
+
+{1 See Also}
+
+- {{:../spectrum/custom_palettes.html} How to Create a Custom Palette} — Guide to defining and using your own palette
+- {{:../spectrum/color_quantization.html} How Color Quantization Works} — How nearest-color matching works
+- {{:../spectrum_palette_ppx/index.html} Spectrum Palette PPX} — The PPX extension that generates palette modules
