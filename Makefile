@@ -3,7 +3,7 @@
 setup:
 	opam install . --deps-only --with-test --with-dev-setup -y
 
-VERSION = $$(opam info -f version --color=never .)
+VERSION = $$(opam info -f version --color=never . | head -1)
 
 version:
 	@echo ${VERSION}

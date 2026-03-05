@@ -4,7 +4,7 @@ This project currently uses a **manual release flow** with `make publish`.
 
 ## Prerequisites
 
-- Work from your project opam switch
+- Work from your project opam switch: `eval "$(opam env)"`
 - Be logged in for `opam-publish` usage (GitHub auth as needed)
 - Ensure your branch is up to date and clean
 
