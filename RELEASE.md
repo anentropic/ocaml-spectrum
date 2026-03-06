@@ -64,6 +64,17 @@ make dry-run-release
 
    Follow the `opam-publish` prompts and monitor CI on the generated opam-repository PR until merged.
 
+7. **If opam-ci fails and you need to update the PR**
+
+   - First delete the current version tag:
+
+     ```sh
+     git tag -d 1.0.0.alpha
+     git push origin :refs/tags/1.0.0.alpha
+     ```
+
+   - Then `make publish` again... it should now push a patch to the existing PR.
+
 ## Notes
 
 - CI in this repo (`.github/workflows/test.yml`) runs tests on pull requests only.
