@@ -188,14 +188,22 @@ module Perceptual : Converter = struct
     in
     if i < 8 then 30 + i else 90 + (i - 8)
 
+  let ansi256_lookup =
+    let table = Hashtbl.create 256 in
+    List.iteri (fun i c -> Hashtbl.add table c (i + 16)) ansi256_target_colors;
+    table
+
   let rgb_to_ansi256 ?grey_threshold:_ color_v4 =
-    let i =
-      ansi256_nearest color_v4
-      |> index_of_color_exn
-        ansi256_target_colors
-        ~msg:"Not in ANSI 256-color target palette"
-    in
-    i + 16
+    let target = ansi256_nearest color_v4 in
+    try Hashtbl.find ansi256_lookup target
+    with Not_found ->
+      let i =
+        index_of_color_exn
+          ansi256_target_colors
+          target
+          ~msg:"Not in ANSI 256-color target palette"
+      in
+      i + 16
 
   let rgb_to_ansi16 color_v4 =
     Ansi16_palette.nearest color_v4

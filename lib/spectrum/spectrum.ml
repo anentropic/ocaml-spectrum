@@ -51,23 +51,19 @@ module Stag = struct
     | Hsl (h, s, l) ->
       Parser.from_hsl (string_of_float h) (string_of_float s) (string_of_float l)
 
-  let style_of_t = function
-    | Bold -> Parser.Style.Bold
-    | Dim -> Parser.Style.Dim
-    | Italic -> Parser.Style.Italic
-    | Underline -> Parser.Style.Underline
-    | Blink -> Parser.Style.Blink
-    | RapidBlink -> Parser.Style.RapidBlink
-    | Inverse -> Parser.Style.Inverse
-    | Hidden -> Parser.Style.Hidden
-    | Strikethru -> Parser.Style.Strikethru
-    | Overline -> Parser.Style.Overline
-    | Fg _ | Bg _ -> assert false
-
   let token_of_t = function
     | Fg c -> Parser.Foreground (color_def_of_color c)
     | Bg c -> Parser.Background (color_def_of_color c)
-    | s -> Parser.Control (style_of_t s)
+    | Bold -> Parser.Control Parser.Style.Bold
+    | Dim -> Parser.Control Parser.Style.Dim
+    | Italic -> Parser.Control Parser.Style.Italic
+    | Underline -> Parser.Control Parser.Style.Underline
+    | Blink -> Parser.Control Parser.Style.Blink
+    | RapidBlink -> Parser.Control Parser.Style.RapidBlink
+    | Inverse -> Parser.Control Parser.Style.Inverse
+    | Hidden -> Parser.Control Parser.Style.Hidden
+    | Strikethru -> Parser.Control Parser.Style.Strikethru
+    | Overline -> Parser.Control Parser.Style.Overline
 
   let stag specs =
     Spectrum_stag (List.map token_of_t specs)
