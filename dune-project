@@ -1,6 +1,6 @@
 (lang dune 3.9)
 (name spectrum)
-(version 1.0.0.alpha)
+(version 1.0.0.alpha2)
 
 (generate_opam_files true)
 
