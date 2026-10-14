@@ -1,0 +1,110 @@
+name: Dependabot auto-merge
+
+# Merges a Dependabot PR once every check on its head commit is green.
+#
+# GitHub's native auto-merge only waits for *required* status checks, and this
+# repo has none, so it would merge immediately. Instead this runs each time one
+# of the PR workflows below finishes, and merges only when every workflow run
+# and check run on the PR's head commit has completed without failing. Until
+# then it exits quietly and the next workflow to finish re-runs it.
+#
+# Keep `workflows:` in sync with every workflow that runs on a PR (pull_request,
+# or push to a non-default branch). A workflow missing from the list is still
+# waited for, but finishing last it would not re-run this, leaving the PR open.
+#
+# To stop a PR merging, mark it draft or push a commit of your own to it: only
+# PRs whose commits are all Dependabot's are merged.
+#
+# Without an AUTOMERGE_TOKEN secret, merges use GITHUB_TOKEN: the merge then
+# does not trigger push workflows on the default branch, and PRs that change
+# files under .github/workflows/ cannot be merged at all. An AUTOMERGE_TOKEN
+# (GitHub App or fine-grained token with contents, pull-requests and workflows
+# write) lifts both limits.
+
+on:
+  workflow_run:
+    workflows:
+      - "PR build and test"
+      - "Claude Review"
+    types: [completed]
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: read
+  checks: read
+
+concurrency:
+  group: dependabot-automerge-${{ github.event.workflow_run.head_sha }}
+  cancel-in-progress: false
+
+jobs:
+  automerge:
+    name: Merge when green
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    if: >-
+      github.event.workflow_run.actor.login == 'dependabot[bot]' &&
+      github.event.workflow_run.head_repository.full_name == github.repository
+    steps:
+      - name: Merge if every check passed
+        env:
+          GH_TOKEN: ${{ secrets.AUTOMERGE_TOKEN || secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.event.workflow_run.head_sha }}
+          RUN_ID: ${{ github.run_id }}
+          MERGE_METHOD: merge
+        run: |
+          set -euo pipefail
+
+          pr=$(gh api "repos/$REPO/commits/$SHA/pulls" \
+            --jq '[.[] | select(.state == "open" and .head.sha == env.SHA and .user.login == "dependabot[bot]" and (.draft | not))][0].number // empty')
+          if [ -z "$pr" ]; then
+            echo "No open, non-draft Dependabot PR has $SHA as its head; nothing to do."
+            exit 0
+          fi
+          echo "PR #$pr"
+
+          others=$(gh api --paginate "repos/$REPO/pulls/$pr/commits" \
+            --jq '.[] | select(.author.login != "dependabot[bot]") | .sha')
+          if [ -n "$others" ]; then
+            echo "PR #$pr has commits not made by Dependabot; leaving it for a person."
+            exit 0
+          fi
+
+          # Every workflow run on the head commit except this workflow's own runs.
+          runs=$(gh api --paginate "repos/$REPO/actions/runs?head_sha=$SHA&per_page=100" \
+            --jq '.workflow_runs[] | select(.path != ".github/workflows/dependabot-automerge.yml" and .id != (env.RUN_ID | tonumber)) | "\(.status) \(.conclusion // "-") \(.name)"')
+          checks=$(gh api --paginate "repos/$REPO/commits/$SHA/check-runs?per_page=100" \
+            --jq '.check_runs[] | select(.name != "Merge when green") | "\(.status) \(.conclusion // "-") \(.name)"')
+          printf 'Workflow runs:\n%s\nCheck runs:\n%s\n' "$runs" "$checks"
+
+          all=$(printf '%s\n%s\n' "$runs" "$checks" | sed '/^$/d')
+          if [ -z "$all" ]; then
+            echo "No checks found on $SHA; not merging."
+            exit 0
+          fi
+          if echo "$all" | grep -qv '^completed '; then
+            echo "Some checks are still running; a later run will merge."
+            exit 0
+          fi
+          if echo "$all" | grep -Eqv '^completed (success|skipped|neutral) '; then
+            echo "::notice::Not merging PR #$pr: a check did not pass."
+            exit 0
+          fi
+          if ! echo "$runs" | grep -q '^completed success '; then
+            echo "::notice::Not merging PR #$pr: no workflow actually ran (all skipped)."
+            exit 0
+          fi
+
+          echo "Every check passed; merging PR #$pr."
+          if ! gh pr merge "$pr" --repo "$REPO" "--$MERGE_METHOD" --match-head-commit "$SHA"; then
+            if [ "$(gh pr view "$pr" --repo "$REPO" --json state --jq .state)" = MERGED ]; then
+              echo "Already merged."
+              exit 0
+            fi
+            # GITHUB_TOKEN cannot merge a PR that changes .github/workflows/;
+            # that needs AUTOMERGE_TOKEN with the workflows permission.
+            echo "::error::Could not merge PR #$pr (see above)."
+            exit 1
+          fi
