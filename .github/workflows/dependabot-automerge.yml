@@ -15,11 +15,11 @@ name: Dependabot auto-merge
 # To stop a PR merging, mark it draft or push a commit of your own to it: only
 # PRs whose commits are all Dependabot's are merged.
 #
-# Without an AUTOMERGE_TOKEN secret, merges use GITHUB_TOKEN: the merge then
-# does not trigger push workflows on the default branch, and PRs that change
-# files under .github/workflows/ cannot be merged at all. An AUTOMERGE_TOKEN
-# (GitHub App or fine-grained token with contents, pull-requests and workflows
-# write) lifts both limits.
+# Merges are made as the GitHub App in the BOT_APP_ID / BOT_APP_PRIVATE_KEY
+# secrets (contents, pull-requests and workflows write), set both as Actions
+# and as Dependabot secrets. Without them it falls back to GITHUB_TOKEN: the
+# merge then does not trigger push workflows on the default branch, and PRs
+# that change files under .github/workflows/ cannot be merged at all.
 
 on:
   workflow_run:
@@ -46,10 +46,20 @@ jobs:
     if: >-
       github.event.workflow_run.actor.login == 'dependabot[bot]' &&
       github.event.workflow_run.head_repository.full_name == github.repository
+    env:
+      HAS_APP: ${{ secrets.BOT_APP_PRIVATE_KEY != '' }}
     steps:
+      - name: Get app token
+        id: app-token
+        if: env.HAS_APP == 'true'
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: ${{ secrets.BOT_APP_ID }}
+          private-key: ${{ secrets.BOT_APP_PRIVATE_KEY }}
+
       - name: Merge if every check passed
         env:
-          GH_TOKEN: ${{ secrets.AUTOMERGE_TOKEN || secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token || secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
           SHA: ${{ github.event.workflow_run.head_sha }}
           RUN_ID: ${{ github.run_id }}
@@ -104,7 +114,7 @@ jobs:
               exit 0
             fi
             # GITHUB_TOKEN cannot merge a PR that changes .github/workflows/;
-            # that needs AUTOMERGE_TOKEN with the workflows permission.
+            # that needs the BOT_APP_* secrets (see the top of this file).
             echo "::error::Could not merge PR #$pr (see above)."
             exit 1
           fi
