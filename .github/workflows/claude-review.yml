@@ -1,0 +1,20 @@
+name: Claude Review
+
+on:
+  pull_request:
+    types: [review_requested, labeled]
+
+jobs:
+  review:
+    if: >-
+      (github.event.action == 'review_requested' && github.event.requested_reviewer.login == 'anentropic-reviewbot') ||
+      (github.event.action == 'labeled' && github.event.label.name == 'claude-review')
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+      id-token: write
+      statuses: write
+    uses: anentropic/github-reviewbot/.github/workflows/review.yml@main
+    secrets:
+      CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
