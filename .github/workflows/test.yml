@@ -21,9 +21,9 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7.0.1
 
-      - uses: ocaml/setup-ocaml@v3
+      - uses: ocaml/setup-ocaml@v3.9.1
         with:
           ocaml-compiler: ${{ matrix.ocaml-compiler }}
           dune-cache: true
@@ -32,7 +32,7 @@ jobs:
       - run: opam exec -- env JUNIT_OUTPUT=. dune test --force
 
       - name: Publish test results
-        uses: EnricoMi/publish-unit-test-result-action@v2
+        uses: EnricoMi/publish-unit-test-result-action@v2.26.0
         if: always()
         with:
           check_name: Dune unit test results for OCaml ${{ matrix.ocaml-compiler }}
@@ -41,9 +41,9 @@ jobs:
   build-docs:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7.0.1
 
-      - uses: ocaml/setup-ocaml@v3
+      - uses: ocaml/setup-ocaml@v3.9.1
         with:
           ocaml-compiler: 5.4
           dune-cache: true
@@ -52,7 +52,7 @@ jobs:
       - run: opam exec -- dune build @doc
 
       - name: Upload docs
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: odoc-html
           path: _build/default/_doc/_html/

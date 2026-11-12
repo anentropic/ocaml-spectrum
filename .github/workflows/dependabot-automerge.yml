@@ -26,6 +26,7 @@ on:
     workflows:
       - "PR build and test"
       - "Claude Review"
+      - "Verify lockfile"
     types: [completed]
 
 permissions:
@@ -52,7 +53,7 @@ jobs:
       - name: Get app token
         id: app-token
         if: env.HAS_APP == 'true'
-        uses: actions/create-github-app-token@v3
+        uses: actions/create-github-app-token@v3.3.0
         with:
           app-id: ${{ secrets.BOT_APP_ID }}
           private-key: ${{ secrets.BOT_APP_PRIVATE_KEY }}
