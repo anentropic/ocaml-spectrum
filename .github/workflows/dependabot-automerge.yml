@@ -26,6 +26,7 @@ on:
     workflows:
       - "PR build and test"
       - "Claude Review"
+      - "Verify lockfile"
     types: [completed]
 
 permissions:
